@@ -56,4 +56,12 @@ public final class Constants {
   // left and right offsets for the poles on the reef
   public static final Distance CENTER_TO_POLE_OFFSET = Centimeters.of(16.5);
   public static final Distance ROBOT_RADIUS_WITH_BUMPERS = Centimeters.of(57);
+
+  /* MECH */
+  public static final int INTAKE_MOTOR_CAN_ID = 1;
+  public static final int FLYWHEEL_MOTOR_CAN_ID = 2;
+  public static final int HOOD_MOTOR_CAN_ID = 2;
+
+  public static final int HOOD_GEAR_RATIO = 4; //TODO: change!!
+
 }
