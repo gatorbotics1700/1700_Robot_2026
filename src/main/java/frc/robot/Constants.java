@@ -60,8 +60,13 @@ public final class Constants {
   /* MECH */
   public static final int INTAKE_MOTOR_CAN_ID = 1;
   public static final int FLYWHEEL_MOTOR_CAN_ID = 2;
-  public static final int HOOD_MOTOR_CAN_ID = 2;
+  public static final int HOOD_MOTOR_CAN_ID = 3;
+  public static final int TRANSITION_MOTOR_CAN_ID = 4;
+  public static final int TURRET_MOTOR_CAN_ID = 5;
+
 
   public static final int HOOD_GEAR_RATIO = 4; //TODO: change!!
+  public static final int TURRET_GEAR_RATIO = 42; // TODO: change!
 
+  public static final double TURRET_DEADBAND = 0.75;
 }
