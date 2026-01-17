@@ -6,17 +6,22 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class TransitionSubsystem extends SubsystemBase {
-    public final TalonFX transitionMotor;
+    public final TalonFX kickerMotor;
+    public final TalonFX hopperMotor;
+
 
     public TransitionSubsystem(){
-        transitionMotor = new TalonFX(Constants.TRANSITION_MOTOR_CAN_ID);
+        kickerMotor = new TalonFX(Constants.KICKER_MOTOR_CAN_ID);
+        hopperMotor = new TalonFX(Constants.HOPPER_MOTOR_CAN_ID);
     }
 
     public void periodic(){
 
     }
 
-    public void setMotorVoltage(double voltage){
-        transitionMotor.setVoltage(voltage);
+    public void setVoltages(double kickerVoltage, double hopperVoltage){
+        kickerMotor.setVoltage(kickerVoltage);
+        hopperMotor.setVoltage(hopperVoltage);
     }
+
 }

@@ -8,22 +8,24 @@ public class TransitionCommand extends Command{
 
     private final TransitionSubsystem transitionSubsystem;
 
-    private final double voltage;
+    private final double kickerVoltage;
+    private final double hopperVoltage;
 
-    public TransitionCommand(TransitionSubsystem transitionSubsystem, double voltage){
+    public TransitionCommand(TransitionSubsystem transitionSubsystem, double kickerVoltage, double hopperVoltage){
         this.transitionSubsystem = transitionSubsystem;
-        this.voltage = voltage;
+        this.kickerVoltage = kickerVoltage;
+        this.hopperVoltage = hopperVoltage;
         addRequirements(transitionSubsystem);
     }
 
     @Override
     public void execute(){
-        transitionSubsystem.setMotorVoltage(voltage);
+        transitionSubsystem.setVoltages(kickerVoltage, hopperVoltage);
     }
 
     @Override
     public boolean isFinished(){
-        if(voltage == 0){
+        if(kickerVoltage == 0){
             return true;
         }
         return false;
