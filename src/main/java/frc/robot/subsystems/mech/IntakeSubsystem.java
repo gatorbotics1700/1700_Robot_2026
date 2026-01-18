@@ -17,7 +17,7 @@ public class IntakeSubsystem extends SubsystemBase{
     private static DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
 
 
-    private final double kP = 0.0;
+    private final double kP = 0.0; //TODO: tune all of these
     private final double kI = 0.0;
     private final double kD = 0.0;
 

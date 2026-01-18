@@ -65,10 +65,22 @@ public final class Constants {
   public static final int KICKER_MOTOR_CAN_ID = 15;
   public static final int HOPPER_MOTOR_CAN_ID = 16;
   public static final int TURRET_MOTOR_CAN_ID = 17;
+  public static final int OUTER_ARM_MOTOR_CAN_ID = 18;
+  public static final int INNER_ARM_MOTOR_CAN_ID = 19;
 
 
   public static final int HOOD_GEAR_RATIO = 4; //TODO: change!!
   public static final int TURRET_GEAR_RATIO = 42; // TODO: change!
+  public static final int KRAKEN_TICKS_REV_PER = 2048; //TODO: double check
+  public static final int CLIMBER_TICKS_PER_INCH = 40; //TODO: change!!
 
   public static final double TURRET_DEADBAND = 0.75;
+
+  public static final int LOW_RUNG_ARM_LENGTH = 27; //these are the heights of the rungs from the floor, the inches we want the arm to extend will likely differ
+  public static final int MID_RUNG_ARM_LENGTH = 18;
+  public static final int HIGH_RUNG_ARM_LENGTH = 18;
+
+  public static final int LOW_RUNG_ARM_RETRACTED = 10; //change these values
+  public static final int MID_RUNG_ARM_RETRACTED = 8;
+  public static final int HIGH_RUNG_ARM_RETRACTED = 8;
 }

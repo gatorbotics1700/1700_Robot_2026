@@ -15,10 +15,15 @@ public class ShooterSubsystem extends SubsystemBase{
     private PIDController pidController;
     private static DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
 
+    private static final double kP = 0.0; //TODO: tune all of these
+    private static final double kI = 0.0;
+    private static final double kD = 0.0;
+
     public ShooterSubsystem(){
         flywheelMotor = new TalonFX(Constants.FLYWHEEL_MOTOR_CAN_ID);
         hoodMotor = new TalonFX(Constants.HOOD_MOTOR_CAN_ID);
         isTargetting = true;
+        pidController = new PIDController(kP, kI, kD);
     }
 
     public void periodic(){
