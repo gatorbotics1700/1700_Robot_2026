@@ -276,6 +276,16 @@ public class RobotContainer {
                 },
                 drive));
 
+    controller_two
+        .x()
+        .onTrue(
+          Commands.runOnce(
+            ()->{
+              vision.takePicture();
+            }
+          )
+        );
+
     controller
         .rightBumper()
         .onTrue(
