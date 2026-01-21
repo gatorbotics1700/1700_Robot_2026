@@ -218,4 +218,10 @@ public class Vision extends SubsystemBase {
             .transformBy(new Transform2d(0, 0, new Rotation2d(Degrees.of(90))));
     return fieldRelativePose;
   }
+
+  public void takePicture(){
+    for(int i=0;i<io.length;i++){
+      io[i].getCamera().takeInputSnapshot();
+    }
+  }
 }
