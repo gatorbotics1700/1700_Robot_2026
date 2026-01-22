@@ -14,7 +14,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants;
 
-public class TurretSubsystem extends SubsystemBase{
+public class TurretSubsystem extends SubsystemBase{ //TODO: clean out turn by a certain angle stuff
     
     public final TalonFX motor;
     private static DutyCycleOut dutyCycleOut = new DutyCycleOut(0);

@@ -9,7 +9,7 @@ import frc.robot.Constants;
 
 
 
-public class ClimberSubsystem extends SubsystemBase {
+public class ClimberSubsystem extends SubsystemBase { //TODO: add many a brake mode for climber
     
     public final TalonFX motor;
 
@@ -19,7 +19,7 @@ public class ClimberSubsystem extends SubsystemBase {
     private static final double kP = 0.0; //TODO: tune all of these
     private static final double kI = 0.0;
     private static final double kD = 0.0;
-    private static final double DEADBAND = 200; //TODO: change
+    private static final double DEADBAND = 500; //TODO: in ticks, edit, get climberDeadband method to use in command
 
     public ClimberSubsystem(){
         motor = new TalonFX(Constants.OUTER_ARM_MOTOR_CAN_ID);
@@ -31,8 +31,7 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void moveArm(double desiredTicks){
-        double currentTicks = getCurrentTicks();
-        double error = desiredTicks - currentTicks;
+        double error = desiredTicks - getCurrentTicks();
         if(Math.abs(error)> DEADBAND) {
             double output = pidController.calculate(error);
             setMotorOutput(output);

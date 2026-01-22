@@ -19,12 +19,13 @@ public class TransitionCommand extends Command{
 
     @Override
     public void execute(){
-        transitionSubsystem.setVoltages(kickerVoltage, hopperVoltage);
+        transitionSubsystem.setKickerVoltage(kickerVoltage);
+        transitionSubsystem.setHopperVoltage(hopperVoltage);
     }
 
     @Override
     public boolean isFinished(){
-        if(kickerVoltage == 0){
+        if(hopperVoltage == 0){
             return true;
         }
         return false;

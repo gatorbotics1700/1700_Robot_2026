@@ -7,6 +7,7 @@ public class ShooterCommand extends Command{
     private ShooterSubsystem shooterSubsystem;
     private double flywheelVoltage;
     private boolean isTargetting;
+    private final double DEADBAND = 2; //in degrees
 
     public ShooterCommand(ShooterSubsystem shooterSubsystem, double flywheelVoltage, boolean isTargetting){
         this.shooterSubsystem = shooterSubsystem;
@@ -17,11 +18,7 @@ public class ShooterCommand extends Command{
 
     @Override
     public void initialize(){
-        if(isTargetting){
-            shooterSubsystem.setIsTargetting(true); //subsystem periodic will take care of moving hood
-        } else{
-            shooterSubsystem.setIsTargetting(false);
-        }
+        shooterSubsystem.setIsTargetting(isTargetting); //subsystem periodic will take care of moving hood
     }
 
     @Override
@@ -35,15 +32,14 @@ public class ShooterCommand extends Command{
         //         shooterSubsystem.setHoodSpeed(0);
         //     }
         // } else{
-        if(isTargetting==false){ //if we aren't targetting then we want to retract the hood
-            if(Math.abs(0 - shooterSubsystem.getPosition()) > 2){
+        if(!isTargetting){ //if we aren't targetting then we want to retract the hood
+            if(Math.abs(0 - shooterSubsystem.getHoodPosition()) > DEADBAND){ //TODO: make into ticks
                 shooterSubsystem.turnToPosition(0);
             } else{
                 shooterSubsystem.setHoodSpeed(0);
             }
         }
         // }
-        
     }
 
     @Override

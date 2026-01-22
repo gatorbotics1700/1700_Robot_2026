@@ -8,13 +8,12 @@ public class ClimberCommand extends Command {
     private final ClimberSubsystem climberSubsystem;
     private boolean extendingL1;
     private double desiredPosition;
-    private static final double DEADBAND = 200; //TODO: change
+    private static final double DEADBAND = 200; //TODO: change, use subsystem getter
 
 
     public ClimberCommand(ClimberSubsystem climberSubsystem, boolean extendingL1){
         this.climberSubsystem = climberSubsystem;
         this.extendingL1 = extendingL1;
-        
         addRequirements(climberSubsystem);
     }
 
@@ -36,8 +35,7 @@ public class ClimberCommand extends Command {
 
     @Override
     public boolean isFinished(){
-        double error = climberSubsystem.getCurrentTicks() - desiredPosition;
-        if(error < DEADBAND){
+        if(Math.abs(desiredPosition-climberSubsystem.getCurrentTicks()) < DEADBAND){ //potentially don't need this check, just use voltage
             climberSubsystem.setMotorOutput(0);
             System.out.println("CLIMBER REACHED DESIRED POSITION");
             return true;

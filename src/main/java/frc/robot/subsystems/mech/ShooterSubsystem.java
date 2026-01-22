@@ -27,7 +27,7 @@ public class ShooterSubsystem extends SubsystemBase{
 
     public void periodic(){
         if(isTargetting==true){
-            turnToPosition(getTargetPosition());
+            turnToPosition(getHoodTargetPosition());
         }
     }
 
@@ -39,16 +39,16 @@ public class ShooterSubsystem extends SubsystemBase{
         hoodMotor.setControl(dutyCycleOut.withOutput(speed));
     }
 
-    public double getPosition(){
+    public double getHoodPosition(){
         return hoodMotor.getPosition().getValueAsDouble() * 360 / Constants.HOOD_GEAR_RATIO; //TODO: check this conversion into degrees
     }
 
-    public double getTargetPosition(){
+    public double getHoodTargetPosition(){
         return 45; // replace with InterpolatingDoubleTreeMap getter?
     }
 
-    public void turnToPosition(double targetPosition){
-        hoodVoltage = pidController.calculate(targetPosition - getPosition());
+    public void turnToPosition(double targetPosition){ //TODO: add deadband, convert into ticks
+        hoodVoltage = pidController.calculate(targetPosition - getHoodPosition());
         setHoodSpeed(hoodVoltage);
     }
 

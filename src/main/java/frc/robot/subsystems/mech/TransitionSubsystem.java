@@ -19,9 +19,12 @@ public class TransitionSubsystem extends SubsystemBase {
 
     }
 
-    public void setVoltages(double kickerVoltage, double hopperVoltage){
+    public void setKickerVoltage(double kickerVoltage){
         kickerMotor.setVoltage(kickerVoltage);
-        hopperMotor.setVoltage(hopperVoltage);
+    }
+
+    public void setHopperVoltage(double hopperVoltage){
+        kickerMotor.setVoltage(hopperVoltage);
     }
 
 }
