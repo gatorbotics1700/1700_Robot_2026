@@ -30,9 +30,11 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.HoodCommand;
 import frc.robot.commands.LineupCommand;
 import frc.robot.commands.LineupCommand.ReefSide;
 import frc.robot.commands.LineupCommand.YOffset;
+import frc.robot.commands.ShooterCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -40,6 +42,8 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.mech.HoodSubsystem;
+import frc.robot.subsystems.mech.ShooterSubsystem;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
@@ -58,10 +62,12 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
+  private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+  private final HoodSubsystem hoodSubsystem = new HoodSubsystem();
 
   // Controllers
   private final CommandXboxController controller = new CommandXboxController(0);
-  private final CommandXboxController controller_two = new CommandXboxController(3);
+  private final XboxController controller_two = new XboxController(3);
 
   private final GenericHID buttonBoard1A = new GenericHID(1);
   private final GenericHID buttonBoard1B = new GenericHID(2);
@@ -70,6 +76,7 @@ public class RobotContainer {
   private final LoggedDashboardChooser<Command> autoChooser;
 
   // Button Bindings
+
   private final Trigger Q1LeftLineup = new Trigger(() -> buttonBoard1A.getRawButtonPressed(1));
   private final Trigger Q1RightLineup = new Trigger(() -> buttonBoard1A.getRawButtonPressed(2));
 
@@ -88,8 +95,19 @@ public class RobotContainer {
   private final Trigger Q6LeftLineup = new Trigger(() -> buttonBoard1A.getRawButtonPressed(3));
   private final Trigger Q6RightLineup = new Trigger(() -> buttonBoard1A.getRawButtonPressed(4));
 
+
+
+
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    // mech
+
+    new Trigger(controller_two::getAButtonPressed).onTrue(new ShooterCommand(shooterSubsystem, Constants.FLYWHEEL_SHOOTING_VOLTAGE));
+    new Trigger(controller_two::getBButtonPressed).onTrue(new ShooterCommand(shooterSubsystem, 0));
+    new Trigger(controller_two::getXButtonPressed).onTrue(new HoodCommand(hoodSubsystem, false, 0, 0.1));
+    new Trigger(controller_two::getYButtonPressed).onTrue(new HoodCommand(hoodSubsystem, false, 0, 0));
+
     // Named Commands
 
     NamedCommands.registerCommand(
@@ -267,24 +285,24 @@ public class RobotContainer {
                   drive.disableTargetPointFacing();
                 }));
 
-    controller_two
-        .back()
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  drive.setPose(new Pose2d(4, 2, new Rotation2d(Math.toRadians(0))));
-                },
-                drive));
+    // controller_two
+    //     .back()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               drive.setPose(new Pose2d(4, 2, new Rotation2d(Math.toRadians(0))));
+    //             },
+    //             drive));
 
-    controller_two
-        .x()
-        .onTrue(
-          Commands.runOnce(
-            ()->{
-              vision.takePicture();
-            }
-          )
-        );
+    // controller_two
+    //     .x()
+    //     .onTrue(
+    //       Commands.runOnce(
+    //         ()->{
+    //           vision.takePicture();
+    //         }
+    //       )
+    //     );
 
     controller
         .rightBumper()
@@ -464,36 +482,36 @@ public class RobotContainer {
                 })
             .withName("Q6RightLineup"));
 
-    controller_two
-        .leftBumper()
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  Logger.recordOutput(
-                      "Robot/TargetPose",
-                      LineupCommand.getLineupTagPose(
-                          DriverStation.getAlliance().orElse(Alliance.Blue),
-                          ReefSide.LeftSubstation));
-                  Logger.recordOutput("Robot/LineupSide", "LeftSubstation");
-                  Logger.recordOutput("Robot/IsLeftSide", false);
-                  CommandScheduler.getInstance()
-                      .schedule(LineupCommand.Lineup(ReefSide.LeftSubstation, YOffset.Center));
-                }));
-    controller_two
-        .rightBumper()
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  Logger.recordOutput(
-                      "Robot/TargetPose",
-                      LineupCommand.getLineupTagPose(
-                          DriverStation.getAlliance().orElse(Alliance.Blue),
-                          ReefSide.RightSubstation));
-                  Logger.recordOutput("Robot/LineupSide", "RightSubstation");
-                  Logger.recordOutput("Robot/IsLeftSide", false);
-                  CommandScheduler.getInstance()
-                      .schedule(LineupCommand.Lineup(ReefSide.RightSubstation, YOffset.Center));
-                }));
+    // controller_two
+    //     .leftBumper()
+    //     .onTrue(
+    //         new InstantCommand(
+    //             () -> {
+    //               Logger.recordOutput(
+    //                   "Robot/TargetPose",
+    //                   LineupCommand.getLineupTagPose(
+    //                       DriverStation.getAlliance().orElse(Alliance.Blue),
+    //                       ReefSide.LeftSubstation));
+    //               Logger.recordOutput("Robot/LineupSide", "LeftSubstation");
+    //               Logger.recordOutput("Robot/IsLeftSide", false);
+    //               CommandScheduler.getInstance()
+    //                   .schedule(LineupCommand.Lineup(ReefSide.LeftSubstation, YOffset.Center));
+    //             }));
+    // controller_two
+    //     .rightBumper()
+    //     .onTrue(
+    //         new InstantCommand(
+    //             () -> {
+    //               Logger.recordOutput(
+    //                   "Robot/TargetPose",
+    //                   LineupCommand.getLineupTagPose(
+    //                       DriverStation.getAlliance().orElse(Alliance.Blue),
+    //                       ReefSide.RightSubstation));
+    //               Logger.recordOutput("Robot/LineupSide", "RightSubstation");
+    //               Logger.recordOutput("Robot/IsLeftSide", false);
+    //               CommandScheduler.getInstance()
+    //                   .schedule(LineupCommand.Lineup(ReefSide.RightSubstation, YOffset.Center));
+    //             }));
   }
 
   /**
@@ -561,10 +579,10 @@ public class RobotContainer {
     Logger.recordOutput("Buttons/Controller1/X", controller.x().getAsBoolean());
     Logger.recordOutput("Buttons/Controller1/Y", controller.y().getAsBoolean());
 
-    Logger.recordOutput("Buttons/Controller2/A", controller_two.a().getAsBoolean());
-    Logger.recordOutput("Buttons/Controller2/B", controller_two.b().getAsBoolean());
-    Logger.recordOutput("Buttons/Controller2/X", controller_two.x().getAsBoolean());
-    Logger.recordOutput("Buttons/Controller2/Y", controller_two.y().getAsBoolean());
+    // Logger.recordOutput("Buttons/Controller2/A", controller_two.a().getAsBoolean());
+    // Logger.recordOutput("Buttons/Controller2/B", controller_two.b().getAsBoolean());
+    // Logger.recordOutput("Buttons/Controller2/X", controller_two.x().getAsBoolean());
+    // Logger.recordOutput("Buttons/Controller2/Y", controller_two.y().getAsBoolean());
 
     // Log button board states
     for (int i = 1; i <= 6; i++) {

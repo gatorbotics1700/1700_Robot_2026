@@ -6,46 +6,41 @@ import frc.robot.subsystems.mech.ShooterSubsystem;
 public class ShooterCommand extends Command{
     private ShooterSubsystem shooterSubsystem;
     private double flywheelVoltage;
-    private boolean isTargetting;
-    private final double DEADBAND = 2; //in degrees
+    private double startTime;
 
-    public ShooterCommand(ShooterSubsystem shooterSubsystem, double flywheelVoltage, boolean isTargetting){
+    public ShooterCommand(ShooterSubsystem shooterSubsystem, double flywheelVoltage){
         this.shooterSubsystem = shooterSubsystem;
         this.flywheelVoltage = flywheelVoltage;
-        this.isTargetting = isTargetting;
         addRequirements(shooterSubsystem);
     }
 
     @Override
     public void initialize(){
-        shooterSubsystem.setIsTargetting(isTargetting); //subsystem periodic will take care of moving hood
+        startTime = System.currentTimeMillis();
     }
 
     @Override
     public void execute(){
         shooterSubsystem.setFlywheelVoltage(flywheelVoltage);
-        // if(isTargetting){
-        //     if(Math.abs(anglePosition - shooterSubsystem.getPosition()) > 2){
-        //         hoodVoltage = pidController.calculate(anglePosition - shooterSubsystem.getPosition());
-        //         shooterSubsystem.setHoodSpeed(hoodVoltage);
-        //     } else{
-        //         shooterSubsystem.setHoodSpeed(0);
-        //     }
-        // } else{
-        if(!isTargetting){ //if we aren't targetting then we want to retract the hood
-            if(Math.abs(0 - shooterSubsystem.getHoodPosition()) > DEADBAND){ //TODO: make into ticks
-                shooterSubsystem.turnToPosition(0);
-            } else{
-                shooterSubsystem.setHoodSpeed(0);
-            }
+        if(Math.abs(flywheelVoltage) > 0) {
+            System.out.println("SHOOTING SHOOTING SHOOTING");
+        } else {
+            System.out.println("STOPPING");
         }
-        // }
     }
 
     @Override
     public boolean isFinished(){
+        double timePassed = System.currentTimeMillis() - startTime;
         if(flywheelVoltage==0){
+            shooterSubsystem.setFlywheelVoltage(0);
             return true;
+        }
+        if(timePassed > 5000) {
+            shooterSubsystem.setFlywheelVoltage(0);
+            System.out.println("TIMING OUT");
+            return true;
+
         }
         return false;
     }

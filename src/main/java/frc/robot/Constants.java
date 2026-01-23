@@ -50,28 +50,26 @@ public final class Constants {
     REPLAY
   }
 
-  public static final int KRAKEN_TICKS_PER_REV = 2048;
-
   public static final Distance CENTER_TO_BUMPER_OFFSET = Centimeters.of(40);
   // left and right offsets for the poles on the reef
   public static final Distance CENTER_TO_POLE_OFFSET = Centimeters.of(16.5);
   public static final Distance ROBOT_RADIUS_WITH_BUMPERS = Centimeters.of(57);
 
   /* MECH */
-  public static final int INTAKE_MOTOR_CAN_ID = 11;
-  public static final int EXTENSION_MOTOR_CAN_ID = 12;
-  public static final int FLYWHEEL_MOTOR_CAN_ID = 13;
-  public static final int HOOD_MOTOR_CAN_ID = 14;
-  public static final int KICKER_MOTOR_CAN_ID = 15;
+  public static final int INTAKE_MOTOR_CAN_ID = 11; //needs changing
+  public static final int EXTENSION_MOTOR_CAN_ID = 12; //needs changing
+  public static final int FLYWHEEL_MOTOR_CAN_ID = 30; 
+  public static final int HOOD_MOTOR_CAN_ID = 17;
+  public static final int KICKER_MOTOR_CAN_ID = 15; //this and all below need changing
   public static final int HOPPER_MOTOR_CAN_ID = 16;
-  public static final int TURRET_MOTOR_CAN_ID = 17;
+  public static final int TURRET_MOTOR_CAN_ID = 14;
   public static final int OUTER_ARM_MOTOR_CAN_ID = 18;
   public static final int INNER_ARM_MOTOR_CAN_ID = 19;
 
 
   public static final int HOOD_GEAR_RATIO = 4; //TODO: change!!
   public static final int TURRET_GEAR_RATIO = 42; // TODO: change!
-  public static final int KRAKEN_TICKS_REV_PER = 2048; //TODO: double check
+  public static final int KRAKEN_TICKS_PER_REV = 2048; //TODO: double check
   public static final int CLIMBER_TICKS_PER_INCH = 40; //TODO: change!!
 
   public static final double TURRET_DEADBAND = 0.75;
@@ -82,4 +80,7 @@ public final class Constants {
 
   public static final double CLIMBER_EXTENDED_POSITION = 10; //change these values
   public static final int CLIMBER_RETRACTED_POSITION = 0;
+
+  public static final double HOOD_SHAFT_REVS_PER_MECH_REV = 155/15; // big gear teeth / little gear teeth
+  public static final double FLYWHEEL_SHOOTING_VOLTAGE = 10;
 }
