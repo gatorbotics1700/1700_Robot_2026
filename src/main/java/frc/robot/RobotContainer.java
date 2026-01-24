@@ -103,7 +103,7 @@ public class RobotContainer {
         .onTrue(new ShooterCommand(shooterSubsystem, Constants.FLYWHEEL_SHOOTING_VOLTAGE));
     new Trigger(controller_two::getBButtonPressed).onTrue(new ShooterCommand(shooterSubsystem, 0));
     new Trigger(controller_two::getXButtonPressed)
-        .onTrue(new HoodCommand(hoodSubsystem, false, 0, 0.1));
+        .onTrue(new HoodCommand(hoodSubsystem, false, 0, -0.1));
     new Trigger(controller_two::getYButtonPressed)
         .onTrue(new HoodCommand(hoodSubsystem, false, 0, 0));
 
@@ -218,7 +218,7 @@ public class RobotContainer {
     if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
       driverControl
           .whileTrue(
-              DriveCommands.joystickDriveWithAutoRotation(
+              DriveCommands.joystickDrive(
                   drive,
                   () -> modifyJoystickAxis(controller.getLeftY()), // Changed to raw values
                   () -> modifyJoystickAxis(controller.getLeftX()), // Changed to raw values
@@ -227,7 +227,7 @@ public class RobotContainer {
     } else if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Blue) {
       driverControl
           .whileTrue(
-              DriveCommands.joystickDriveWithAutoRotation(
+              DriveCommands.joystickDrive(
                   drive,
                   () -> modifyJoystickAxis(-controller.getLeftY()), // Changed to raw values
                   () -> modifyJoystickAxis(-controller.getLeftX()), // Changed to raw values
