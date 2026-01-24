@@ -15,7 +15,6 @@ package frc.robot;
 
 // import frc.robot.commands.AutoDriveCommand;
 // import frc.robot.commands.TeleopDriveCommand;
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -44,9 +43,9 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import frc.robot.util.MultiStepAutoChooser;
 import frc.robot.util.RobotConfigLoader;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -67,7 +66,7 @@ public class RobotContainer {
   private final GenericHID buttonBoard1B = new GenericHID(2);
 
   // Dashboard inputs
-  private final LoggedDashboardChooser<Command> autoChooser;
+  private final MultiStepAutoChooser multiStepAutoChooser;
 
   // Button Bindings
   private final Trigger Q1LeftLineup = new Trigger(() -> buttonBoard1A.getRawButtonPressed(1));
@@ -161,8 +160,8 @@ public class RobotContainer {
         break;
     }
 
-    // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    // Set up auto routines with multi-step chooser
+    multiStepAutoChooser = new MultiStepAutoChooser();
 
     // Set up SysId routines
     // autoChooser.addOption(
@@ -494,7 +493,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     try {
-      return autoChooser.get();
+      return multiStepAutoChooser.getAutonomousCommand();
     } catch (Exception ioe) {
       System.out.println("bad io error");
       return Commands.none();
@@ -546,6 +545,8 @@ public class RobotContainer {
    * Robot.teleopPeriodic() and Robot.autonomousPeriodic().
    */
   public void periodic() {
+    // Update multi-step auto chooser options
+    multiStepAutoChooser.updateChooserOptions();
     // Log button states directly - much simpler!
     Logger.recordOutput("Buttons/Controller1/A", controller.a().getAsBoolean());
     Logger.recordOutput("Buttons/Controller1/B", controller.b().getAsBoolean());
