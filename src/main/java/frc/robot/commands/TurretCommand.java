@@ -12,11 +12,11 @@ public class TurretCommand extends Command {
   private Rotation2d desiredAngle;
   private Translation2d desiredPoint;
 
-//   public TurretCommand(TurretSubsystem turretSubsystem, Rotation2d desiredAngle) {
-//     this.turretSubsystem = turretSubsystem;
-//     this.desiredAngle = desiredAngle;
-//     addRequirements(turretSubsystem);
-//   }
+  //   public TurretCommand(TurretSubsystem turretSubsystem, Rotation2d desiredAngle) {
+  //     this.turretSubsystem = turretSubsystem;
+  //     this.desiredAngle = desiredAngle;
+  //     addRequirements(turretSubsystem);
+  //   }
 
   public TurretCommand(TurretSubsystem turretSubsystem, Translation2d desiredPoint) {
     this.turretSubsystem = turretSubsystem;

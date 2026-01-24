@@ -95,18 +95,17 @@ public class RobotContainer {
   private final Trigger Q6LeftLineup = new Trigger(() -> buttonBoard1A.getRawButtonPressed(3));
   private final Trigger Q6RightLineup = new Trigger(() -> buttonBoard1A.getRawButtonPressed(4));
 
-
-
-
-
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // mech
 
-    new Trigger(controller_two::getAButtonPressed).onTrue(new ShooterCommand(shooterSubsystem, Constants.FLYWHEEL_SHOOTING_VOLTAGE));
+    new Trigger(controller_two::getAButtonPressed)
+        .onTrue(new ShooterCommand(shooterSubsystem, Constants.FLYWHEEL_SHOOTING_VOLTAGE));
     new Trigger(controller_two::getBButtonPressed).onTrue(new ShooterCommand(shooterSubsystem, 0));
-    new Trigger(controller_two::getXButtonPressed).onTrue(new HoodCommand(hoodSubsystem, false, 0, 0.1));
-    new Trigger(controller_two::getYButtonPressed).onTrue(new HoodCommand(hoodSubsystem, false, 0, 0));
+    new Trigger(controller_two::getXButtonPressed)
+        .onTrue(new HoodCommand(hoodSubsystem, false, 0, 0.1));
+    new Trigger(controller_two::getYButtonPressed)
+        .onTrue(new HoodCommand(hoodSubsystem, false, 0, 0));
 
     // Named Commands
 
@@ -141,8 +140,7 @@ public class RobotContainer {
             new Vision(
                 drive,
                 new VisionIOPhotonVision(
-                    VisionConstants.CAMERA_0_NAME,
-                    VisionConstants.ROBOT_TO_CAMERA_0));
+                    VisionConstants.CAMERA_0_NAME, VisionConstants.ROBOT_TO_CAMERA_0));
         break;
 
       case SIM:
