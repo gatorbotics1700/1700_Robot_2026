@@ -14,7 +14,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public ShooterSubsystem() {
     flywheelMotor = new TalonFX(Constants.FLYWHEEL_MOTOR_CAN_ID, TunerConstants.mechCANBus);
-    kickerMotor = new TalonFX(Constants.KICKER_MOTOR_HIGH_CAN_ID, TunerConstants.mechCANBus);
+    kickerMotor = new TalonFX(31, TunerConstants.mechCANBus);
   }
 
   public void periodic() {

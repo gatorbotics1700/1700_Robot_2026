@@ -99,6 +99,10 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    new Trigger(controller_two::getAButtonPressed)
+        .onTrue(new ShooterCommand(shooterSubsystem, Constants.FLYWHEEL_SHOOTING_VOLTAGE));
+    new Trigger(controller_two::getBButtonPressed).onTrue(new ShooterCommand(shooterSubsystem, 0));
+
     // Named Commands
 
     NamedCommands.registerCommand(
@@ -177,12 +181,8 @@ public class RobotContainer {
     hoodSubsystem = new HoodSubsystem(robotPose);
 
     // mech buttons
-
-    new Trigger(controller_two::getAButtonPressed)
-        .onTrue(new ShooterCommand(shooterSubsystem, Constants.FLYWHEEL_SHOOTING_VOLTAGE));
-    new Trigger(controller_two::getBButtonPressed).onTrue(new ShooterCommand(shooterSubsystem, 0));
     new Trigger(controller_two::getXButtonPressed)
-        .onTrue(new HoodCommand(hoodSubsystem, false, 20));
+        .onTrue(new HoodCommand(hoodSubsystem, false, 15));
     new Trigger(controller_two::getYButtonPressed).onTrue(new HoodCommand(hoodSubsystem, false, 0));
 
     // Set up auto routines

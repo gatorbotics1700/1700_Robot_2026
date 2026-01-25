@@ -21,10 +21,11 @@ public class HoodSubsystem extends SubsystemBase {
   private static DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
   private Translation2d shootingToPosition;
 
-  private static final double kP = 0.001; // TODO: tune all of these
+  private static final double kP = 0.00001; // TODO: tune all of these
   private static final double kI = 0.0;
   private static final double kD = 0.0;
   private final double POSITION_DEADBAND_TICKS = degreesToTicks(1.0); // TODO: tune
+  private static double currentPositionTicks;
 
   private Supplier<Pose2d> robotPose;
 
@@ -36,13 +37,16 @@ public class HoodSubsystem extends SubsystemBase {
             new TalonFXConfiguration()
                 .withMotorOutput(
                     new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive)));
+    // hoodMotor.setNeutralMode(NeutralModeValue.Brake);
     pidController = new PIDController(kP, kI, kD);
   }
 
+  @Override
   public void periodic() {
     if (isTargetting) {
       turnToPosition(getHoodTargetPosition(shootingToPosition));
     }
+    currentPositionTicks = getHoodPositionTicks();
   }
 
   public void setShootingToPosition(
@@ -52,7 +56,7 @@ public class HoodSubsystem extends SubsystemBase {
 
   public void setHoodSpeed(double speed) {
     hoodMotor.setControl(dutyCycleOut.withOutput(speed));
-    System.out.println("SETTING HOOD SPEED");
+    System.out.println("SETTING HOOD SPEED: " + speed);
   }
 
   public double getHoodOutput() {
@@ -77,9 +81,14 @@ public class HoodSubsystem extends SubsystemBase {
   }
 
   public void turnToPosition(double targetPositionTicks) {
-    double currentPositionTicks = getHoodPositionTicks();
+    System.out.println("TARGET HOOD POSITION TICKS: " + targetPositionTicks);
+    System.out.println("TARGET HOOD POSITION DEGREES: " + ticksToDegrees(targetPositionTicks));
+    currentPositionTicks = getHoodPositionTicks();
+    System.out.println("CURRENT HOOD POS TICKS: " + currentPositionTicks);
+    System.out.println("CURRENT HOOD POS DEGREES: " + ticksToDegrees(currentPositionTicks));
     double errorTicks = targetPositionTicks - currentPositionTicks;
-    System.out.println("HOOD POSITION ERROR:" + errorTicks);
+    System.out.println("HOOD POSITION ERROR TICKS: " + errorTicks);
+    System.out.println("HOOD POSITION ERROR DEGREES: " + ticksToDegrees(errorTicks));
 
     // Deadband: stop motor when close enough to target
     if (Math.abs(errorTicks) < POSITION_DEADBAND_TICKS) {

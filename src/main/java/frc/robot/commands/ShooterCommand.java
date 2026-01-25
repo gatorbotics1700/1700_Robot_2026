@@ -35,10 +35,12 @@ public class ShooterCommand extends Command {
     double timePassed = System.currentTimeMillis() - startTime;
     if (flywheelVoltage == 0) {
       shooterSubsystem.setFlywheelVoltage(0);
+      shooterSubsystem.setKickerVoltage(0);
       return true;
     }
     if (timePassed > 5000) {
       shooterSubsystem.setFlywheelVoltage(0);
+      shooterSubsystem.setKickerVoltage(0);
       System.out.println("TIMING OUT");
       return true;
     }

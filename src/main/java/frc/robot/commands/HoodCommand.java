@@ -22,6 +22,10 @@ public class HoodCommand extends Command {
     hoodSubsystem.setIsTargetting(isTargetting);
     // hoodSubsystem.setShootingToPosition(shootingToPosition); this is for once we start testing
     // targetting
+    System.out.println("HOOD STARTING POSITION TICKS:" + hoodSubsystem.getHoodPositionTicks());
+    System.out.println(
+        "HOOD STARTING DEGREES:"
+            + hoodSubsystem.ticksToDegrees(hoodSubsystem.getHoodPositionTicks()));
   }
 
   @Override
