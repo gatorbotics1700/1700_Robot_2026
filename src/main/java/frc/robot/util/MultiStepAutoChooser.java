@@ -1,16 +1,8 @@
 package frc.robot.util;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathPlannerPath;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -21,148 +13,225 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class MultiStepAutoChooser {
   private final LoggedDashboardChooser<String> allianceChooser;
   private final LoggedDashboardChooser<String> startPosChooser;
-  private final LoggedDashboardChooser<String> destinationChooser;
-  private final LoggedDashboardChooser<String> nextDestinationChooser;
 
-  private final Set<String> availablePaths = new HashSet<>();
-  private final List<PathSegment> pathSegments = new ArrayList<>();
+  // First destination choosers (location type + side)
+  private final LoggedDashboardChooser<String> firstDestinationTypeChooser;
+  private final LoggedDashboardChooser<String> firstDestinationSideChooser;
 
-  /** Represents a path segment with alliance, start position, and destination. */
-  private static class PathSegment {
-    final String alliance;
-    final String startPos;
-    final String destination;
-    final String pathName;
+  // Second destination choosers (location type + side)
+  private final LoggedDashboardChooser<String> secondDestinationTypeChooser;
+  private final LoggedDashboardChooser<String> secondDestinationSideChooser;
 
-    PathSegment(String alliance, String startPos, String destination, String pathName) {
-      this.alliance = alliance;
-      this.startPos = startPos;
-      this.destination = destination;
-      this.pathName = pathName;
-    }
-  }
+  // Third destination choosers (location type + side)
+  private final LoggedDashboardChooser<String> thirdDestinationTypeChooser;
+  private final LoggedDashboardChooser<String> thirdDestinationSideChooser;
+
+  private final LoggedDashboardChooser<Boolean> shouldClimbChooser;
 
   public MultiStepAutoChooser() {
-    // Load all available paths
-    loadAvailablePaths();
-
     // Initialize choosers
     allianceChooser = new LoggedDashboardChooser<>("Auto/Alliance");
     startPosChooser = new LoggedDashboardChooser<>("Auto/Start Position");
-    destinationChooser = new LoggedDashboardChooser<>("Auto/Destination");
-    nextDestinationChooser = new LoggedDashboardChooser<>("Auto/Next Destination");
 
-    // Populate alliance chooser
-    Set<String> alliances =
-        pathSegments.stream().map(seg -> seg.alliance).collect(Collectors.toSet());
+    firstDestinationTypeChooser =
+        new LoggedDashboardChooser<>("Auto/First Destination/First Destination Type");
+    firstDestinationSideChooser =
+        new LoggedDashboardChooser<>("Auto/First Destination/First Destination Side");
+
+    secondDestinationTypeChooser =
+        new LoggedDashboardChooser<>("Auto/Second Destination/Second Destination Type");
+    secondDestinationSideChooser =
+        new LoggedDashboardChooser<>("Auto/Second Destination/Second Destination Side");
+
+    thirdDestinationTypeChooser =
+        new LoggedDashboardChooser<>("Auto/Third Destination/Third Destination Type");
+    thirdDestinationSideChooser =
+        new LoggedDashboardChooser<>("Auto/Third Destination/Third Destination Side");
+
+    shouldClimbChooser = new LoggedDashboardChooser<>("Auto/Climb?");
+
+    // Populate alliance chooser with hardcoded values
     allianceChooser.addDefaultOption("None", "None");
-    for (String alliance : alliances) {
-      allianceChooser.addOption(alliance.equals("R") ? "Red" : "Blue", alliance);
-    }
+    allianceChooser.addOption("Red", "R");
+    allianceChooser.addOption("Blue", "B");
 
-    // Populate start position chooser with all possible options
-    // (Driver will need to select valid combinations)
-    Set<String> allStartPositions =
-        pathSegments.stream().map(seg -> seg.startPos).collect(Collectors.toSet());
+    // Populate start position chooser with hardcoded values
     startPosChooser.addDefaultOption("None", "None");
-    for (String startPos : allStartPositions) {
-      startPosChooser.addOption(startPos, startPos);
-    }
+    startPosChooser.addOption("Center", "Center");
+    startPosChooser.addOption("Left Far", "LF");
+    startPosChooser.addOption("Left Near", "LN");
+    startPosChooser.addOption("Right Far", "RF");
+    startPosChooser.addOption("Right Near", "RN");
 
-    // Populate destination chooser with all possible options
-    Set<String> allDestinations =
-        pathSegments.stream().map(seg -> seg.destination).collect(Collectors.toSet());
-    destinationChooser.addDefaultOption("None", "None");
-    for (String destination : allDestinations) {
-      destinationChooser.addOption(destination, destination);
-    }
+    // Populate first destination type chooser
+    firstDestinationTypeChooser.addDefaultOption("None", "None");
+    firstDestinationTypeChooser.addOption("Depot", "Depot");
+    firstDestinationTypeChooser.addOption("Outpost", "Outpost");
+    firstDestinationTypeChooser.addOption("Fuel Pile Near", "Fuel Pile Near");
+    firstDestinationTypeChooser.addOption("Fuel Pile Far", "Fuel Pile Far");
+    firstDestinationTypeChooser.addOption("Fuel Pile Middle", "Fuel Pile Middle");
 
-    // Populate next destination chooser (for multi-segment paths)
-    nextDestinationChooser.addDefaultOption("None (End)", "None");
-    for (String destination : allDestinations) {
-      nextDestinationChooser.addOption(destination, destination);
-    }
+    // Populate first destination side chooser
+    firstDestinationSideChooser.addDefaultOption("None", "None");
+    firstDestinationSideChooser.addOption("Left", "Left");
+    firstDestinationSideChooser.addOption("Right", "Right");
+    firstDestinationSideChooser.addOption("Center", "Center");
+
+    // Populate second destination type chooser
+    secondDestinationTypeChooser.addDefaultOption("None (End)", "None");
+    secondDestinationTypeChooser.addOption("Depot", "Depot");
+    secondDestinationTypeChooser.addOption("Outpost", "Outpost");
+    secondDestinationTypeChooser.addOption("Fuel Pile Near", "Fuel Pile Near");
+    secondDestinationTypeChooser.addOption("Fuel Pile Far", "Fuel Pile Far");
+    secondDestinationTypeChooser.addOption("Fuel Pile Middle", "Fuel Pile Middle");
+
+    // Populate second destination side chooser
+    secondDestinationSideChooser.addDefaultOption("None", "None");
+    secondDestinationSideChooser.addOption("Left", "Left");
+    secondDestinationSideChooser.addOption("Right", "Right");
+    secondDestinationSideChooser.addOption("Center", "Center");
+
+    // Populate third destination type chooser
+    thirdDestinationTypeChooser.addDefaultOption("None (End)", "None");
+    thirdDestinationTypeChooser.addOption("Depot", "Depot");
+    thirdDestinationTypeChooser.addOption("Outpost", "Outpost");
+    thirdDestinationTypeChooser.addOption("Fuel Pile Near", "Fuel Pile Near");
+    thirdDestinationTypeChooser.addOption("Fuel Pile Far", "Fuel Pile Far");
+    thirdDestinationTypeChooser.addOption("Fuel Pile Middle", "Fuel Pile Middle");
+
+    // Populate third destination side chooser
+    thirdDestinationSideChooser.addDefaultOption("None", "None");
+    thirdDestinationSideChooser.addOption("Left", "Left");
+    thirdDestinationSideChooser.addOption("Right", "Right");
+    thirdDestinationSideChooser.addOption("Center", "Center");
+
+    // Populate climb chooser
+    shouldClimbChooser.addDefaultOption("No", false);
+    shouldClimbChooser.addOption("Yes", true);
 
     // Force initialization by reading each chooser once
     // This ensures they publish to NetworkTables
     allianceChooser.get();
     startPosChooser.get();
-    destinationChooser.get();
-    nextDestinationChooser.get();
-  }
-
-  /** Loads all available paths from the deploy directory and parses their names. */
-  private void loadAvailablePaths() {
-    File pathsDir = new File(Filesystem.getDeployDirectory(), "pathplanner/paths");
-
-    if (!pathsDir.exists() || !pathsDir.isDirectory()) {
-      System.err.println("MultiStepAutoChooser: Paths directory not found: " + pathsDir.getPath());
-      return;
-    }
-
-    File[] pathFiles = pathsDir.listFiles((dir, name) -> name.endsWith(".path"));
-    if (pathFiles == null) {
-      System.err.println("MultiStepAutoChooser: No path files found");
-      return;
-    }
-
-    for (File pathFile : pathFiles) {
-      String fileName = pathFile.getName();
-      // Remove .path extension
-      String pathName = fileName.substring(0, fileName.length() - 5);
-      availablePaths.add(pathName);
-
-      // Parse path name: Format is "{Alliance} {StartPos} to {Destination}"
-      // Examples: "R Center to DC", "B LF to Fuel Pile CF", "R RF to Outpost"
-      PathSegment segment = parsePathName(pathName);
-      if (segment != null) {
-        pathSegments.add(segment);
-      }
-    }
-
-    System.out.println("MultiStepAutoChooser: Loaded " + pathSegments.size() + " path segments");
+    firstDestinationTypeChooser.get();
+    firstDestinationSideChooser.get();
+    secondDestinationTypeChooser.get();
+    secondDestinationSideChooser.get();
+    thirdDestinationTypeChooser.get();
+    thirdDestinationSideChooser.get();
+    shouldClimbChooser.get();
   }
 
   /**
-   * Parses a path name into its components.
-   *
-   * @param pathName The path name to parse (e.g., "R Center to DC", "B LF to Fuel Pile CF")
-   * @return A PathSegment if parsing succeeds, null otherwise
+   * Combines destination type and side into a full destination name. Examples: - "Depot" + "Center"
+   * = "DC" - "Depot" + "Left" = "DL" - "Fuel Pile Far" + "Center" = "Fuel Pile CF" - "Outpost" +
+   * any = "Outpost" (side doesn't matter, can be empty/N/A)
    */
-  private PathSegment parsePathName(String pathName) {
-    // Handle special case: "Stay" paths (e.g., "B Center Stay")
-    if (pathName.endsWith(" Stay")) {
-      String prefix = pathName.substring(0, pathName.length() - 5).trim();
-      String[] parts = prefix.split(" ", 2);
-      if (parts.length == 2) {
-        return new PathSegment(parts[0], parts[1], "Stay", pathName);
+  private String combineDestination(String type, String side) {
+    if (type == null || type.equals("None")) {
+      return "None";
+    }
+
+    if (type.equals("Outpost")) {
+      // Outpost doesn't need a side, ignore it even if provided
+      return "Outpost";
+    }
+
+    if (type.equals("Depot")) {
+      if (side == null || side.equals("None")) {
+        return "None"; //TODO: do we want to default somewhere else?
       }
-      return null;
+      switch(side){
+        case "Center":
+          return "DC";
+        case "Left":
+          return "DL";
+        case "Right":
+          return "DR";
+      }
     }
 
-    // Standard format: "{Alliance} {StartPos} to {Destination}"
-    if (!pathName.contains(" to ")) {
-      return null;
+    if (type.startsWith("Fuel Pile")) {
+      if (side == null || side.equals("None")) {
+        return "None";
+      }
+      // Extract distance: "Fuel Pile Near" -> "N", "Fuel Pile Far" -> "F", "Fuel Pile Middle" ->
+      // "M"
+      String distance = "";
+      if (type.contains("Near")) {
+        distance = "N";
+      } else if (type.contains("Far")) {
+        distance = "F";
+      } else if (type.contains("Middle")) {
+        distance = "M";
+      }
+
+      // Map side to letter
+      String sideLetter = "";
+      switch (side) {
+        case "Center":
+          sideLetter = "C";
+          break;
+        case "Left":
+          sideLetter = "L";
+          break;
+        case "Right":
+          sideLetter = "R";
+          break;
+      }
+
+      if (!distance.isEmpty() && !sideLetter.isEmpty()) {
+        return "Fuel Pile " + sideLetter + distance;
+      }
     }
 
-    String[] mainParts = pathName.split(" to ", 2);
-    if (mainParts.length != 2) {
-      return null;
+    return "None";
+  }
+
+  /**
+   * Builds the auto filename from the current selections.
+   * Format: {Alliance} {StartPos} {Dest1} {Dest2} {Dest3} {Climb}.auto
+   * Example: R Center DC DL.auto or B LF Fuel Pile CF Outpost Climb.auto
+   */
+  // TODO: make sure this follows the right naming conventions we ultimately decide on
+  private String buildAutoFileName(
+      String alliance, String startPos, String dest1, String dest2, String dest3, boolean climb) {
+    StringBuilder fileName = new StringBuilder();
+
+    // Alliance
+    if (alliance != null && !alliance.equals("None")) {
+      fileName.append(alliance.equals("R") ? "R" : "B");
+    } else {
+      return null; // Need alliance
     }
 
-    String startPart = mainParts[0].trim();
-    String destination = mainParts[1].trim();
-
-    // Parse start part: "{Alliance} {StartPos}"
-    String[] startParts = startPart.split(" ", 2);
-    if (startParts.length != 2) {
-      return null;
+    // Start position
+    if (startPos != null && !startPos.equals("None")) {
+      fileName.append(" ").append(startPos);
+    } else {
+      return null; // Need start position
     }
 
-    String alliance = startParts[0].trim();
-    String startPos = startParts[1].trim();
+    // Destinations (only add if not None)
+    if (dest1 != null && !dest1.equals("None")) {
+      fileName.append(" ").append(dest1);
+    }
 
-    return new PathSegment(alliance, startPos, destination, pathName);
+    if (dest2 != null && !dest2.equals("None")) {
+      fileName.append(" ").append(dest2);
+    }
+
+    if (dest3 != null && !dest3.equals("None")) {
+      fileName.append(" ").append(dest3);
+    }
+
+    // Climb
+    if (climb) {
+      fileName.append(" Climb");
+    }
+
+    fileName.append(".auto");
+    return fileName.toString();
   }
 
   /**
@@ -177,8 +246,44 @@ public class MultiStepAutoChooser {
     // This is necessary for LoggedDashboardChooser to maintain NetworkTables entries
     allianceChooser.get();
     startPosChooser.get();
-    destinationChooser.get();
-    nextDestinationChooser.get();
+    firstDestinationTypeChooser.get();
+    firstDestinationSideChooser.get();
+    secondDestinationTypeChooser.get();
+    secondDestinationSideChooser.get();
+    thirdDestinationTypeChooser.get();
+    thirdDestinationSideChooser.get();
+    shouldClimbChooser.get();
+  }
+
+  /**
+   * Gets the currently selected auto file name for display. Returns the auto filename based on
+   * current selections. This method reads chooser values fresh each time it's called.
+   */
+  public String getSelectedPathName() {
+    String autoFileName = buildAutoFileNameFromChoosers();
+    return autoFileName != null ? autoFileName : "None";
+  }
+
+  /**
+   * Builds the auto filename from the current chooser selections.
+   * This is a helper method to avoid code duplication.
+   */
+  private String buildAutoFileNameFromChoosers() {
+    String alliance = allianceChooser.get();
+    String startPos = startPosChooser.get();
+
+    String firstDestination =
+        combineDestination(firstDestinationTypeChooser.get(), firstDestinationSideChooser.get());
+    String secondDestination =
+        combineDestination(secondDestinationTypeChooser.get(), secondDestinationSideChooser.get());
+    String thirdDestination =
+        combineDestination(thirdDestinationTypeChooser.get(), thirdDestinationSideChooser.get());
+
+    Boolean shouldClimb = shouldClimbChooser.get();
+    boolean climb = shouldClimb != null && shouldClimb;
+
+    return buildAutoFileName(
+        alliance, startPos, firstDestination, secondDestination, thirdDestination, climb);
   }
 
   /**
@@ -191,99 +296,37 @@ public class MultiStepAutoChooser {
       // Update chooser options first
       updateChooserOptions();
 
-      String alliance = allianceChooser.get();
-      String startPos = startPosChooser.get();
-      String destination = destinationChooser.get();
-      String nextDestination = nextDestinationChooser.get();
+      // Build auto filename from selections
+      String autoFileName = buildAutoFileNameFromChoosers();
 
-      // Build command from selections
-      List<Command> pathCommands = new ArrayList<>();
-      List<String> selectedPathNames = new ArrayList<>();
-
-      // First segment: from start position to destination
-      if (alliance != null
-          && !alliance.equals("None")
-          && startPos != null
-          && !startPos.equals("None")
-          && destination != null
-          && !destination.equals("None")) {
-
-        String firstPathName = findPathName(alliance, startPos, destination);
-        if (firstPathName != null) {
-          try {
-            PathPlannerPath firstPath = PathPlannerPath.fromPathFile(firstPathName);
-            if (firstPath != null) {
-              pathCommands.add(AutoBuilder.followPath(firstPath));
-              selectedPathNames.add(firstPathName);
-            } else {
-              System.err.println("MultiStepAutoChooser: Could not load path: " + firstPathName);
-            }
-          } catch (Exception e) {
-            System.err.println(
-                "MultiStepAutoChooser: Error loading path "
-                    + firstPathName
-                    + ": "
-                    + e.getMessage());
-          }
-        } else {
-          System.err.println(
-              "MultiStepAutoChooser: Path not found for: "
-                  + alliance
-                  + " "
-                  + startPos
-                  + " to "
-                  + destination);
-        }
-      }
-
-      // Second segment: from destination to next destination (if selected)
-      if (nextDestination != null
-          && !nextDestination.equals("None")
-          && destination != null
-          && !destination.equals("None")) {
-
-        // Try to find a path from the current destination to the next destination
-        // The destination from the first segment should become the start position for the second
-        // First try exact match: destination as start position
-        String secondPathName = findPathName(alliance, destination, nextDestination);
-        if (secondPathName == null) {
-          // Try to find any path that starts from a position matching the destination
-          // and goes to the next destination
-          secondPathName = findPathNameByDestination(alliance, destination, nextDestination);
-        }
-
-        if (secondPathName != null) {
-          try {
-            PathPlannerPath secondPath = PathPlannerPath.fromPathFile(secondPathName);
-            if (secondPath != null) {
-              pathCommands.add(AutoBuilder.followPath(secondPath));
-              selectedPathNames.add(secondPathName);
-            } else {
-              System.err.println("MultiStepAutoChooser: Could not load path: " + secondPathName);
-            }
-          } catch (Exception e) {
-            System.err.println(
-                "MultiStepAutoChooser: Error loading path "
-                    + secondPathName
-                    + ": "
-                    + e.getMessage());
-          }
-        } else {
-          System.err.println(
-              "MultiStepAutoChooser: Could not find path from "
-                  + destination
-                  + " to "
-                  + nextDestination);
-        }
-      }
-
-
-      if (pathCommands.isEmpty()) {
+      if (autoFileName == null) {
+        System.out.println("Selected Auto: None (missing alliance or start position)");
         return Commands.none();
       }
 
-      // Combine all path commands sequentially
-      return Commands.sequence(pathCommands.toArray(new Command[0]));
+      // Print selected auto file name to console
+      System.out.println("Selected Auto: " + autoFileName);
+      System.out.flush();
+
+      // Load the auto file using AutoBuilder
+      try {
+        Command autoCommand = AutoBuilder.buildAuto(autoFileName);
+        if (autoCommand != null) {
+          return autoCommand;
+        } else {
+          System.err.println(
+              "MultiStepAutoChooser: Auto file not found or could not be loaded: " + autoFileName);
+          return Commands.none();
+        }
+      } catch (Exception e) {
+        System.err.println(
+            "MultiStepAutoChooser: Error loading auto file "
+                + autoFileName
+                + ": "
+                + e.getMessage());
+        e.printStackTrace();
+        return Commands.none();
+      }
     } catch (Exception e) {
       System.err.println("MultiStepAutoChooser: Error building auto command: " + e.getMessage());
       e.printStackTrace();
@@ -291,35 +334,4 @@ public class MultiStepAutoChooser {
     }
   }
 
-  /** Finds a path name matching the given alliance, start position, and destination. */
-  private String findPathName(String alliance, String startPos, String destination) {
-    return pathSegments.stream()
-        .filter(
-            seg ->
-                seg.alliance.equals(alliance)
-                    && seg.startPos.equals(startPos)
-                    && seg.destination.equals(destination))
-        .map(seg -> seg.pathName)
-        .findFirst()
-        .orElse(null);
-  }
-
-  /** Attempts to find a path by matching destination patterns (for multi-segment paths). */
-  private String findPathNameByDestination(
-      String alliance, String fromDestination, String toDestination) {
-    // This is a fallback - tries to find paths where the start position might match
-    // the destination name in some way
-    return pathSegments.stream()
-        .filter(seg -> seg.alliance.equals(alliance))
-        .filter(
-            seg -> {
-              // Try to match start position with the from destination
-              return seg.startPos.contains(fromDestination)
-                  || fromDestination.contains(seg.startPos);
-            })
-        .filter(seg -> seg.destination.equals(toDestination))
-        .map(seg -> seg.pathName)
-        .findFirst()
-        .orElse(null);
-  }
 }

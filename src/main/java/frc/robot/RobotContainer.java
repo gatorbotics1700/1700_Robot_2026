@@ -545,8 +545,15 @@ public class RobotContainer {
    * Robot.teleopPeriodic() and Robot.autonomousPeriodic().
    */
   public void periodic() {
-    // Update multi-step auto chooser options
+    // Update multi-step auto chooser options (reads choosers to keep them active)
     multiStepAutoChooser.updateChooserOptions();
+
+    // Print selected path name to console
+    String selectedPathName = multiStepAutoChooser.getSelectedPathName();
+    System.out.println(
+        "Selected Auto Path: " + (selectedPathName != null ? selectedPathName : "None"));
+    System.out.flush(); // Ensure output appears immediately
+
     // Log button states directly - much simpler!
     Logger.recordOutput("Buttons/Controller1/A", controller.a().getAsBoolean());
     Logger.recordOutput("Buttons/Controller1/B", controller.b().getAsBoolean());
