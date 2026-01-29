@@ -50,7 +50,7 @@ public class DriveThroughTrenchCommand extends Command {
 
   @Override
   public void initialize() {
-    // Capture starting pose and heading
+    // capture starting pose and heading
     startPose = drive.getPose();
     targetHeading = new Rotation2d(0); // drive.getRotation(); do we want to just stay at what it is
     headingController.reset(drive.getRotation().getRadians());
@@ -59,15 +59,15 @@ public class DriveThroughTrenchCommand extends Command {
 
   @Override
   public void execute() {
-    // Calculate distance traveled from start
+    // calc distance traveled from start
     double distanceTraveled =
         drive.getPose().getTranslation().getDistance(startPose.getTranslation());
 
-    // Calculate heading correction to stay straight
+    // calc heading correction to stay straight
     double headingCorrection =
         headingController.calculate(drive.getRotation().getRadians(), targetHeading.getRadians());
 
-    // Determine drive direction based on sign - pos + & neg -
+    // determine drive direction based on sign - pos + & neg - TODO: talk through logic code review
     double direction;
     if (distanceMeters > 0) {
       direction = 1.0;
@@ -77,7 +77,7 @@ public class DriveThroughTrenchCommand extends Command {
       direction = 0.0;
     }
 
-    // Drive robot-relative (straight forward/backward)
+    // drive robot-relative (straight forward/backward)
     ChassisSpeeds speeds = new ChassisSpeeds(direction * speedMetersPerSec, 0.0, headingCorrection);
     drive.runVelocity(speeds);
 
@@ -90,7 +90,7 @@ public class DriveThroughTrenchCommand extends Command {
 
   @Override
   public boolean isFinished() {
-    // End when we've traveled the target distance
+    // stop when traveled the target distance
     double distanceTraveled =
         drive.getPose().getTranslation().getDistance(startPose.getTranslation());
     return distanceTraveled >= Math.abs(distanceMeters);

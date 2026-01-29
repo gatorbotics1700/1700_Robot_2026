@@ -95,7 +95,7 @@ public class DriveOverBumpCommand extends Command {
 
     drive.runVelocity(new ChassisSpeeds(forwardSpeed, 0, headingCorrection));
 
-    // Logging
+    
     double distanceTraveled =
         drive.getPose().getTranslation().getDistance(startPose.getTranslation());
     Logger.recordOutput("DriveOverBump/DoneRotating", doneRotating);
@@ -103,6 +103,10 @@ public class DriveOverBumpCommand extends Command {
     Logger.recordOutput("DriveOverBump/TargetDistance", Math.abs(distanceMeters));
     Logger.recordOutput("DriveOverBump/HeadingErrorDeg", Math.toDegrees(headingError));
     Logger.recordOutput("DriveOverBump/ForwardSpeed", forwardSpeed);
+
+
+        // Logging
+
   }
 
   @Override
