@@ -23,7 +23,7 @@ public class ShooterCommand extends Command {
   @Override
   public void execute() {
     shooterSubsystem.setFlywheelVoltage(flywheelVoltage);
-    if (Math.abs(flywheelVoltage) > 0) {
+    if (flywheelVoltage != 0) {
       System.out.println("SHOOTING SHOOTING SHOOTING");
     } else {
       System.out.println("STOPPING");
@@ -34,6 +34,7 @@ public class ShooterCommand extends Command {
   public boolean isFinished() {
     double timePassed = System.currentTimeMillis() - startTime;
     if (flywheelVoltage == 0) {
+      //TODO: can we delete setting it to 0? redundant
       shooterSubsystem.setFlywheelVoltage(0);
       return true;
     }
@@ -42,6 +43,6 @@ public class ShooterCommand extends Command {
       System.out.println("TIMING OUT");
       return true;
     }
-    return true;
+    return false;
   }
 }

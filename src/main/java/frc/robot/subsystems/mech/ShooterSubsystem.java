@@ -16,16 +16,14 @@ public class ShooterSubsystem extends SubsystemBase {
   public ShooterSubsystem() {
     flywheelMotor = new TalonFX(Constants.FLYWHEEL_MOTOR_CAN_ID, TunerConstants.mechCANBus);
     kickerMotor = new TalonFX(31, TunerConstants.mechCANBus);
+    //TODO ask karys/amelia abt a variable just for printing?
     flywheelVoltagePrint = 0.0;
-  }
-
-  public void periodic() {
-    SmartDashboard.putNumber("Shooter voltage", flywheelVoltagePrint);
   }
 
   public void setFlywheelVoltage(double flywheelVoltage) {
     flywheelVoltagePrint = flywheelVoltage;
     flywheelMotor.setVoltage(flywheelVoltage);
+    SmartDashboard.putNumber("Shooter voltage", flywheelVoltagePrint);
     System.out.println("SETTING FLYWHEEL VOLTAGE :)))");
   }
 }
