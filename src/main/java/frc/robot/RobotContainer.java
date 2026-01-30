@@ -230,7 +230,7 @@ public class RobotContainer {
     new Trigger(controller_two::getXButtonPressed)
         .onTrue(new HoodCommand(hoodSubsystem, false, new Translation2d(10, 0)));
     new Trigger(controller_two::getYButtonPressed)
-        .onTrue(new HoodCommand(hoodSubsystem, false, new Translation2d(20, 0)));
+        .onTrue(new HoodCommand(hoodSubsystem, false, new Translation2d(40, 0)));
 
     // Set up auto routines with multi-step chooser
     multiStepAutoChooser = new MultiStepAutoChooser();

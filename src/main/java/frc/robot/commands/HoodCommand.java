@@ -52,7 +52,7 @@ public class HoodCommand extends Command {
 
   @Override
   public boolean isFinished() {
-    if (hoodSubsystem.getHoodOutput() == 0) {
+    if (hoodSubsystem.getHoodVoltage() == 0) {
       return true;
     }
     return false;

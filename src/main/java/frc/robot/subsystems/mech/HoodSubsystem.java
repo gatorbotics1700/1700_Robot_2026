@@ -2,15 +2,11 @@ package frc.robot.subsystems.mech;
 
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -19,35 +15,36 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
 public class HoodSubsystem extends SubsystemBase {
   public final TalonFX hoodMotor;
   private boolean isTargetting;
-  private double hoodOutput;
+  private double hoodVoltage;
   private double targetPositionRevs;
-  
-  private final TrapezoidProfile.Constraints m_constraints = 
-        new TrapezoidProfile.Constraints(kMaxVelocity, kMaxAcceleration);
-  private ProfiledPIDController pidController =
-    new ProfiledPIDController(kP, kI, kD, m_constraints);
-  private ArmFeedforward feedforward =
-    new ArmFeedforward(kS, kG, kV, kA);
-
-  private static DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
   private Translation2d shootingToPosition;
+  private double pidOutput;
+  private double ffOutput;
 
-  private static final double kDt = 0.02; //time step
+  private final TrapezoidProfile.Constraints m_constraints =
+      new TrapezoidProfile.Constraints(kMaxVelocity, kMaxAcceleration);
+  private ProfiledPIDController pidController =
+      new ProfiledPIDController(kP, kI, kD, m_constraints);
+  private ArmFeedforward feedforward = new ArmFeedforward(kS, kG, kV, kA);
+
+  private static final double kDt = 0.02; // time step
   private static final double kMaxVelocity = 2;
-  private static double kMaxAcceleration = 0.75;
+  private static double kMaxAcceleration = 0.5;
   private static final double kP = 0.05; // TODO: tune all of these
   private static final double kI = 0.0;
   private static final double kD = 0.0;
   private static final double kS = 0;
-  private static final double kG = 0; // this will probably stay 0 bc we don't have to account for gravity with the hood
-  private static final double kV = 0;
-  private static final double kA = 0;
-  private final double POSITION_DEADBAND_TICKS = degreesToMotorRevs(1.0); // TODO: tune
-  private static double currentPositionTicks;
+  private static final double kG =
+      0; // this will probably stay 0 bc we don't have to account for gravity with the hood
+  private static final double kV = 1;
+  private static final double kA = 0.2;
+  private final double POSITION_DEADBAND_REVS = degreesToMotorRevs(1); // TODO: tune
+  private static double currentPositionRevs;
 
   private Supplier<Pose2d> robotPose;
 
@@ -68,10 +65,13 @@ public class HoodSubsystem extends SubsystemBase {
     if (isTargetting) {
       turnToPosition(getHoodTargetPosition(shootingToPosition));
     }
-    currentPositionTicks = getHoodPositionMotorRevs();
-    SmartDashboard.putNumber("Hood current position (revs)", currentPositionTicks);
+    currentPositionRevs = getHoodPositionMotorRevs();
+    SmartDashboard.putNumber("Hood current position (revs)", currentPositionRevs);
     SmartDashboard.putNumber(
-        "Hood current position (degrees)", motorRevsToDegrees(currentPositionTicks));
+        "Hood current position (degrees)", motorRevsToDegrees(currentPositionRevs));
+
+    Logger.recordOutput("Robot/pidOutput", pidOutput);
+    Logger.recordOutput("Robot/feedforwardOutput", ffOutput);
   }
 
   public void setShootingToPosition(
@@ -79,13 +79,13 @@ public class HoodSubsystem extends SubsystemBase {
     this.shootingToPosition = shootingToPosition;
   }
 
-  public void setHoodSpeed(double speed) {
-    hoodMotor.setControl(dutyCycleOut.withOutput(speed));
-    System.out.println("SETTING HOOD SPEED: " + speed);
+  public void setHoodVoltage(double voltage) {
+    hoodMotor.setVoltage(voltage);
+    System.out.println("SETTING HOOD SPEED: " + voltage);
   }
 
-  public double getHoodOutput() {
-    return hoodOutput;
+  public double getHoodVoltage() {
+    return hoodVoltage;
   }
 
   public double getHoodPositionMotorRevs() {
@@ -110,34 +110,34 @@ public class HoodSubsystem extends SubsystemBase {
   }
 
   public void turnToPosition(double targetPositionRevs) {
-    this.targetPositionRevs = targetPositionRevs;
-    // System.out.println("TARGET HOOD POSITION TICKS: " + targetPositionTicks);
     System.out.println("TARGET HOOD POSITION DEGREES: " + motorRevsToDegrees(targetPositionRevs));
     SmartDashboard.putNumber(
         "Hood target position (degrees)",
         motorRevsToDegrees(targetPositionRevs)); // things only show up in elastic when in periodic
-    // System.out.println("CURRENT HOOD POS TICKS: " + currentPositionTicks);
-    System.out.println("CURRENT HOOD POS DEGREES: " + motorRevsToDegrees(currentPositionTicks));
-    double errorTicks = targetPositionRevs - currentPositionTicks;
-    // System.out.println("HOOD POSITION ERROR TICKS: " + errorTicks);
-    System.out.println("HOOD POSITION ERROR DEGREES: " + motorRevsToDegrees(errorTicks));
+    System.out.println("CURRENT HOOD POS DEGREES: " + motorRevsToDegrees(currentPositionRevs));
+    double errorRevs = targetPositionRevs - currentPositionRevs;
+    System.out.println("HOOD POSITION ERROR DEGREES: " + motorRevsToDegrees(errorRevs));
 
     // Deadband: stop motor when close enough to target
-    if (Math.abs(errorTicks) < POSITION_DEADBAND_TICKS) {
-      hoodOutput = 0;
+    if (Math.abs(errorRevs) < POSITION_DEADBAND_REVS) {
+      hoodVoltage = 0;
       System.out.println("HOOD AT POSITION. STOPPING");
     } else {
-      calculateVoltage();
+      hoodVoltage = calculateVoltage(targetPositionRevs);
       System.out.println("MOVING HOOD!!");
     }
-    setHoodSpeed(hoodOutput);
+    setHoodVoltage(hoodVoltage);
   }
 
-  private double calculateVoltage() {
+  private double calculateVoltage(double targetPositionRevs) {
     pidController.setGoal(targetPositionRevs);
-    double pidOutput = pidController.calculate(currentPositionTicks);
-    double ffOutput = feedforward.calculate(targetPositionRevs, kV);
-    return pidOutput + ffOutput;
+    pidOutput = pidController.calculate(currentPositionRevs);
+    System.out.println("CALCULATED PID OUTPUT:" + pidOutput);
+    ffOutput = feedforward.calculate(targetPositionRevs, kV);
+    System.out.println("CALCULATED FEEDFOWARD OUTPUT" + ffOutput);
+    double voltage = pidOutput + ffOutput;
+    System.out.println("TOTAL VOLTAGE" + voltage);
+    return voltage;
   }
 
   public void setIsTargetting(boolean isTargetting) {
