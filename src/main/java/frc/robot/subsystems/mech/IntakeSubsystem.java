@@ -22,8 +22,8 @@ public class IntakeSubsystem extends SubsystemBase {
   private final double kI = 0.0;
   private final double kD = 0.0;
 
-  public final double EXTENDED_POSITION = degreesToRevs(90); // ticks, TODO: change
-  public final double RETRACTED_POSITION = degreesToRevs(0); // ticks, TODO: change
+  public final double EXTENDED_POSITION = degreesToRevs(90); // TODO: change
+  public final double RETRACTED_POSITION = degreesToRevs(0); // TODO: change
   public final double DEADBAND = 2;
 
   public IntakeSubsystem() {

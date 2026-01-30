@@ -18,6 +18,7 @@ package frc.robot;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -227,8 +228,9 @@ public class RobotContainer {
 
     // mech buttons
     new Trigger(controller_two::getXButtonPressed)
-        .onTrue(new HoodCommand(hoodSubsystem, false, 15));
-    new Trigger(controller_two::getYButtonPressed).onTrue(new HoodCommand(hoodSubsystem, false, 0));
+        .onTrue(new HoodCommand(hoodSubsystem, false, new Translation2d(10, 0)));
+    new Trigger(controller_two::getYButtonPressed)
+        .onTrue(new HoodCommand(hoodSubsystem, false, new Translation2d(20, 0)));
 
     // Set up auto routines with multi-step chooser
     multiStepAutoChooser = new MultiStepAutoChooser();

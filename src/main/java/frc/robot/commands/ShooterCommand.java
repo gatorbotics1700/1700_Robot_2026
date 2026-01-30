@@ -43,6 +43,7 @@ public class ShooterCommand extends Command {
       System.out.println("TIMING OUT");
       return true;
     }
-    return false;
+    return true; // this needs to return true in order for the wait command between shooting and
+    // kicker to work
   }
 }

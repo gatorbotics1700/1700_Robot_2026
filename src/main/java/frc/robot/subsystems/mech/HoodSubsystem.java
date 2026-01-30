@@ -6,9 +6,14 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -19,13 +24,28 @@ public class HoodSubsystem extends SubsystemBase {
   public final TalonFX hoodMotor;
   private boolean isTargetting;
   private double hoodOutput;
-  private PIDController pidController;
+  private double targetPositionRevs;
+  
+  private final TrapezoidProfile.Constraints m_constraints = 
+        new TrapezoidProfile.Constraints(kMaxVelocity, kMaxAcceleration);
+  private ProfiledPIDController pidController =
+    new ProfiledPIDController(kP, kI, kD, m_constraints);
+  private ArmFeedforward feedforward =
+    new ArmFeedforward(kS, kG, kV, kA);
+
   private static DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
   private Translation2d shootingToPosition;
 
+  private static final double kDt = 0.02; //time step
+  private static final double kMaxVelocity = 2;
+  private static double kMaxAcceleration = 0.75;
   private static final double kP = 0.05; // TODO: tune all of these
   private static final double kI = 0.0;
   private static final double kD = 0.0;
+  private static final double kS = 0;
+  private static final double kG = 0; // this will probably stay 0 bc we don't have to account for gravity with the hood
+  private static final double kV = 0;
+  private static final double kA = 0;
   private final double POSITION_DEADBAND_TICKS = degreesToMotorRevs(1.0); // TODO: tune
   private static double currentPositionTicks;
 
@@ -40,7 +60,7 @@ public class HoodSubsystem extends SubsystemBase {
                 .withMotorOutput(
                     new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive)));
     hoodMotor.setNeutralMode(NeutralModeValue.Brake);
-    pidController = new PIDController(kP, kI, kD);
+    this.robotPose = robotPose;
   }
 
   @Override
@@ -69,7 +89,7 @@ public class HoodSubsystem extends SubsystemBase {
   }
 
   public double getHoodPositionMotorRevs() {
-    return hoodMotor.getPosition().getValueAsDouble(); // TODO: check this conversion into degrees
+    return hoodMotor.getPosition().getValueAsDouble();
   }
 
   public double getHoodTargetPosition(Translation2d shootingToPosition) {
@@ -77,8 +97,12 @@ public class HoodSubsystem extends SubsystemBase {
     double deltaY = Math.abs(shootingToPosition.getY() - currentRobotPose.getY());
     double deltaX = Math.abs(shootingToPosition.getX() - currentRobotPose.getX());
     double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-    // replace with InterpolatingDoubleTreeMap getter to find degrees using distance
-    return degreesToMotorRevs(45);
+    double degreesPosition =
+        distance
+            / 2; // replace with InterpolatingDoubleTreeMap getter to find degrees using distance
+    System.out.println("Distance from position shooting at:" + distance);
+    System.out.println("Hood desired position degrees:" + degreesPosition);
+    return degreesToMotorRevs(degreesPosition);
   }
 
   public double getDistanceFromFuelTarget() {
@@ -86,12 +110,12 @@ public class HoodSubsystem extends SubsystemBase {
   }
 
   public void turnToPosition(double targetPositionRevs) {
+    this.targetPositionRevs = targetPositionRevs;
     // System.out.println("TARGET HOOD POSITION TICKS: " + targetPositionTicks);
     System.out.println("TARGET HOOD POSITION DEGREES: " + motorRevsToDegrees(targetPositionRevs));
     SmartDashboard.putNumber(
         "Hood target position (degrees)",
         motorRevsToDegrees(targetPositionRevs)); // things only show up in elastic when in periodic
-    // currentPositionTicks = getHoodPositionTicks();
     // System.out.println("CURRENT HOOD POS TICKS: " + currentPositionTicks);
     System.out.println("CURRENT HOOD POS DEGREES: " + motorRevsToDegrees(currentPositionTicks));
     double errorTicks = targetPositionRevs - currentPositionTicks;
@@ -103,10 +127,17 @@ public class HoodSubsystem extends SubsystemBase {
       hoodOutput = 0;
       System.out.println("HOOD AT POSITION. STOPPING");
     } else {
-      hoodOutput = pidController.calculate(currentPositionTicks, targetPositionRevs);
+      calculateVoltage();
       System.out.println("MOVING HOOD!!");
     }
     setHoodSpeed(hoodOutput);
+  }
+
+  private double calculateVoltage() {
+    pidController.setGoal(targetPositionRevs);
+    double pidOutput = pidController.calculate(currentPositionTicks);
+    double ffOutput = feedforward.calculate(targetPositionRevs, kV);
+    return pidOutput + ffOutput;
   }
 
   public void setIsTargetting(boolean isTargetting) {
