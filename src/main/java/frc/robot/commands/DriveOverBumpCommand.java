@@ -5,6 +5,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Drive;
 import java.io.IOException;
 import org.json.simple.parser.ParseException;
@@ -57,6 +58,6 @@ public class DriveOverBumpCommand {
         return AutoBuilder.followPath(PathPlannerPath.fromPathFile("R BR A to N"));
       }
     }
-    return null;
+    return Commands.none();
   }
 }
