@@ -28,8 +28,9 @@ public class HoodSubsystem extends SubsystemBase {
 
   private final TrapezoidProfile.Constraints m_constraints =
       new TrapezoidProfile.Constraints(kMaxVelocity, kMaxAcceleration);
+  private final TrapezoidProfile profile = new TrapezoidProfile(m_constraints);
   private ProfiledPIDController pidController =
-      new ProfiledPIDController(kP, kI, kD, m_constraints);
+      new ProfiledPIDController(kP, kI, kD, m_constraints, kDt);
   private ArmFeedforward feedforward = new ArmFeedforward(kS, kG, kV, kA);
 
   private static final double kDt = 0.02; // time step
@@ -38,11 +39,11 @@ public class HoodSubsystem extends SubsystemBase {
   private static final double kP = 0.05; // TODO: tune all of these
   private static final double kI = 0.0;
   private static final double kD = 0.0;
-  private static final double kS = 0;
+  private static final double kS = 0.5;
   private static final double kG =
-      0; // this will probably stay 0 bc we don't have to account for gravity with the hood
+      0.1; // this will probably stay 0 bc we don't have to account for gravity with the hood
   private static final double kV = 1;
-  private static final double kA = 0.2;
+  private static final double kA = 0;
   private final double POSITION_DEADBAND_REVS = degreesToMotorRevs(1); // TODO: tune
   private static double currentPositionRevs;
 
@@ -131,9 +132,13 @@ public class HoodSubsystem extends SubsystemBase {
 
   private double calculateVoltage(double targetPositionRevs) {
     pidController.setGoal(targetPositionRevs);
-    pidOutput = pidController.calculate(currentPositionRevs);
+    pidOutput = pidController.calculate(currentPositionRevs, targetPositionRevs);
     System.out.println("CALCULATED PID OUTPUT:" + pidOutput);
-    ffOutput = feedforward.calculate(targetPositionRevs, kV);
+    TrapezoidProfile.State targetPositionState = new TrapezoidProfile.State(targetPositionRevs, 0);
+    TrapezoidProfile.State setpoint = profile.calculate(kDt, new TrapezoidProfile.State(currentPositionRevs, hoodVoltage), targetPositionState);
+    ffOutput = feedforward.calculate((Math.PI / 180) * motorRevsToDegrees(targetPositionRevs), setpoint.velocity);
+    System.out.println(
+        "DESIRED POSITION IN RADIANS:" + (Math.PI / 180) * motorRevsToDegrees(targetPositionRevs));
     System.out.println("CALCULATED FEEDFOWARD OUTPUT" + ffOutput);
     double voltage = pidOutput + ffOutput;
     System.out.println("TOTAL VOLTAGE" + voltage);
