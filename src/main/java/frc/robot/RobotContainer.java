@@ -92,6 +92,38 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Named Commands
+    NamedCommands.registerCommand(
+      "Shooter Command",
+      new InstantCommand(
+        () -> {
+            CommandScheduler.getInstance()
+                  .schedule(Commands.none());
+            }));
+    NamedCommands.registerCommand(
+      "Climb Command",
+      new InstantCommand(
+        () -> {
+            CommandScheduler.getInstance()
+                  .schedule(Commands.none());
+            }));
+  
+  
+    NamedCommands.registerCommand(
+      "Intake Command",
+      new InstantCommand(
+        () -> {
+            CommandScheduler.getInstance()
+                  .schedule(Commands.none());
+            }));
+
+    NamedCommands.registerCommand(
+      "Stop Kicker Command",
+      new InstantCommand(
+        () -> {
+            CommandScheduler.getInstance()
+                  .schedule(Commands.none());
+            }));
+
 
     NamedCommands.registerCommand(
         "Q1 Left Lineup",
