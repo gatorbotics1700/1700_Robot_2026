@@ -17,7 +17,8 @@
     "over DA bump"
   ],
   "autoFolders": [
-    "Leave Autos"
+    "Leave Autos",
+    "Over Bump Commands (8)"
   ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,

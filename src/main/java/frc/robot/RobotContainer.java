@@ -203,7 +203,7 @@ public class RobotContainer {
     if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
       driverControl
           .whileTrue(
-              DriveCommands.joystickDriveWithAutoRotation(
+              DriveCommands.joystickDrive(
                   drive,
                   () -> modifyJoystickAxis(controller.getLeftY()), // Changed to raw values
                   () -> modifyJoystickAxis(controller.getLeftX()), // Changed to raw values
@@ -212,7 +212,7 @@ public class RobotContainer {
     } else if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Blue) {
       driverControl
           .whileTrue(
-              DriveCommands.joystickDriveWithAutoRotation(
+              DriveCommands.joystickDrive(
                   drive,
                   () -> modifyJoystickAxis(-controller.getLeftY()), // Changed to raw values
                   () -> modifyJoystickAxis(-controller.getLeftX()), // Changed to raw values
@@ -231,10 +231,11 @@ public class RobotContainer {
                     CommandScheduler.getInstance()
                         .schedule(DriveOverBumpCommand.driveOverBump(drive));
                   } catch (Exception e) {
+                    // System.out.println("CATCHING EXCEPTION DAHHHHHHHHHHHHHHHHHH");
                     e.printStackTrace();
                   }
                 }));
-
+    //
     /*
         controller
             .a()
@@ -267,13 +268,12 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    controller
-        .x()
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  drive.enableTargetPointFacing();
-                }));
+    // controller
+    //     .x()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             AutoBuilder.followPath(PathPlannerPath.fromPathFile("B BR A to N")), drive
+    //         ));
 
     controller
         .y()
