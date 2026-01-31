@@ -1,54 +1,59 @@
 package frc.robot.commands;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
-
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
 import java.io.IOException;
 import org.json.simple.parser.ParseException;
 
 public class DriveOverBumpCommand {
 
-private static final Translation2d CENTER = new Translation2d(8.27094, 4.034663);
-
-public static Command driveOverBumpCommand(Drive drive){
-  
-  
-    return AutoBuilder.followPath(PathPlannerPath.fromPathFile("B BR A to N"))
-
-
-
-  }
-
-  
-
-  }
-
-
-
-  /* 
-  // y value to split top vs bottom half of field
-  private static final double BUMP_Y = 4.034663; // METERSSSSSS
-  // x value to split left vs right half of field
-  private static final double BUMP_X = 8.270494; // meters
-
   public static Command driveOverBump(Drive drive) throws IOException, ParseException {
-    return new ConditionalCommand(
-        // y < BUMP_Y (bottom half) — go to top me thinks
-        new ConditionalCommand(
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("B BR A to N")),
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("B BL A to N")),
-            () -> drive.getPose().getX() < BUMP_X),
-        // Y >= BUMP_Y (top half) — go to bottom me thinks
-        new ConditionalCommand(
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("R BL A to N")),
-            AutoBuilder.followPath(PathPlannerPath.fromPathFile("R BL to A N")),
-            () -> drive.getPose().getX() < BUMP_X),
-        () -> drive.getPose().getY() < BUMP_Y);
+    PathConstraints constraints =
+        new PathConstraints(8, 8, Units.degreesToRadians(700), Units.degreesToRadians(1000));
 
-        */
-  
+    Pose2d pose = drive.getPose();
+    System.out.println("*********************DRIVE OVER BUMP COMMAND*******************");
 
+    if (pose.getX() <= Constants.FIELD_CENTER.getX()) { // BLUE
+      if (pose.getY() < Constants.FIELD_CENTER.getY()
+          && pose.getX() < Constants.BLUE_BUMP_AND_TRENCH_X) {
+        return AutoBuilder.pathfindThenFollowPath(
+            PathPlannerPath.fromPathFile("B BR N to A"), constraints);
+      } else if (pose.getY() > Constants.FIELD_CENTER.getY()
+          && pose.getX() < Constants.BLUE_BUMP_AND_TRENCH_X) {
+        return AutoBuilder.pathfindThenFollowPath(
+            PathPlannerPath.fromPathFile("B BL N to A"), constraints);
+      } else if ((pose.getY() > Constants.FIELD_CENTER.getY())
+          && (pose.getX() > Constants.BLUE_BUMP_AND_TRENCH_X)) {
+        return AutoBuilder.pathfindThenFollowPath(
+            PathPlannerPath.fromPathFile("B BL A to N"), constraints);
+      } else {
+        return AutoBuilder.pathfindThenFollowPath(
+            PathPlannerPath.fromPathFile("B BR A to N"), constraints);
+      }
+    } else { // RED
+      if (pose.getY() < Constants.FIELD_CENTER.getY()
+          && pose.getX() < Constants.RED_BUMP_AND_TRENCH_X) {
+        return AutoBuilder.pathfindThenFollowPath(
+            PathPlannerPath.fromPathFile("R BL A to N"), constraints);
+      } else if (pose.getY() > Constants.FIELD_CENTER.getY()
+          && pose.getX() < Constants.RED_BUMP_AND_TRENCH_X) {
+        return AutoBuilder.pathfindThenFollowPath(
+            PathPlannerPath.fromPathFile("R BR A to N"), constraints);
+      } else if ((pose.getY() > Constants.FIELD_CENTER.getY())
+          && (pose.getX() > Constants.RED_BUMP_AND_TRENCH_X)) {
+        return AutoBuilder.pathfindThenFollowPath(
+            PathPlannerPath.fromPathFile("R BR N to A"), constraints);
+      } else {
+        return AutoBuilder.pathfindThenFollowPath(
+            PathPlannerPath.fromPathFile("R BL N to A"), constraints);
+      }
+    }
+  }
+}
