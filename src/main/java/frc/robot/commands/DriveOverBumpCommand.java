@@ -2,6 +2,8 @@ package frc.robot.commands;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
+
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import frc.robot.subsystems.drive.Drive;
@@ -10,6 +12,24 @@ import org.json.simple.parser.ParseException;
 
 public class DriveOverBumpCommand {
 
+private static final Translation2d CENTER = new Translation2d(8.27094, 4.034663);
+
+public static Command driveOverBumpCommand(Drive drive){
+  
+  
+    return AutoBuilder.followPath(PathPlannerPath.fromPathFile("B BR A to N"))
+
+
+
+  }
+
+  
+
+  }
+
+
+
+  /* 
   // y value to split top vs bottom half of field
   private static final double BUMP_Y = 4.034663; // METERSSSSSS
   // x value to split left vs right half of field
@@ -28,5 +48,7 @@ public class DriveOverBumpCommand {
             AutoBuilder.followPath(PathPlannerPath.fromPathFile("R BL to A N")),
             () -> drive.getPose().getX() < BUMP_X),
         () -> drive.getPose().getY() < BUMP_Y);
-  }
-}
+
+        */
+  
+
