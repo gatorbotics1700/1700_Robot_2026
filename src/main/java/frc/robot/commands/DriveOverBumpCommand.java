@@ -19,108 +19,39 @@ public class DriveOverBumpCommand {
   private static final double RED_BUMP_X = 11.915;
 
   public static Command driveOverBump(Drive drive) throws IOException, ParseException {
-    PathConstraints constraints =
-        new PathConstraints(8, 8, Units.degreesToRadians(700), Units.degreesToRadians(1000));
+    PathConstraints constraints = new PathConstraints(8, 8, Units.degreesToRadians(700), Units.degreesToRadians(1000));
 
     Pose2d pose = drive.getPose();
     System.out.println("*********************DRIVE OVER BUMP COMMAND*******************");
 
     if (pose.getX() <= CENTER.getX()) { // BLUE
-
       if (pose.getY() < CENTER.getY() && pose.getX() < BLUE_BUMP_X) {
         return AutoBuilder.pathfindThenFollowPath(
             PathPlannerPath.fromPathFile("B BR A to N"), constraints);
       } else if (pose.getY() > CENTER.getY() && pose.getX() < BLUE_BUMP_X) {
-          return AutoBuilder.pathfindThenFollowPath(
+        return AutoBuilder.pathfindThenFollowPath(
+            PathPlannerPath.fromPathFile("B BL A to N"), constraints);
+      } else if ((pose.getY() > CENTER.getY()) && (pose.getX() > BLUE_BUMP_X)) {
+        return AutoBuilder.pathfindThenFollowPath(
             PathPlannerPath.fromPathFile("B BL N to A"), constraints);
-      } else if ((pose.getY() > CENTER.getY()) && (pose.getX() < BLUE_BUMP_X)){
-
-      } else{
-         return AutoBuilder.pathfindThenFollowPath(
-           PathPlannerPath.fromPathFile("B BL N to A"), constraints);
+      } else {
+        return AutoBuilder.pathfindThenFollowPath(
+            PathPlannerPath.fromPathFile("B BR N to A"), constraints);
       }
-
-    } else { // red
-      if (pose.getY() <= CENTER.getY()) {
+    } else { // RED
+      if (pose.getY() < CENTER.getY() && pose.getX() < RED_BUMP_X) {
         return AutoBuilder.pathfindThenFollowPath(
             PathPlannerPath.fromPathFile("R BL N to A"), constraints);
-      }
-
-      if (pose.getY() > CENTER.getY()) {
+      } else if (pose.getY() > CENTER.getY() && pose.getX() < RED_BUMP_X) {
         return AutoBuilder.pathfindThenFollowPath(
             PathPlannerPath.fromPathFile("R BR N to A"), constraints);
+      } else if ((pose.getY() > CENTER.getY()) && (pose.getX() > RED_BUMP_X)) {
+        return AutoBuilder.pathfindThenFollowPath(
+            PathPlannerPath.fromPathFile("R BR A to N"), constraints);
+      } else {
+        return AutoBuilder.pathfindThenFollowPath(
+            PathPlannerPath.fromPathFile("R BL A to N"), constraints);
       }
-
-      // return AutoBuilder.pathfindThenFollowPath(
-      //  PathPlannerPath.fromPathFile("R BR N to A"), constraints);
-
     }
-    return Commands.none();
   }
 }
-
-    /*
-      if (pose.getX() < CENTER.getX()) {
-        if (pose.getX() > BLUE_BUMP_X && pose.getY() < CENTER.getY()) {
-          // B BR N to A
-          System.out.println("B BR N to A");
-          return AutoBuilder.pathfindThenFollowPath(
-              PathPlannerPath.fromPathFile("B BR N to A"), constraints);
-
-        } else if (pose.getX() > BLUE_BUMP_X && pose.getY() > CENTER.getY()) {
-          // B BL N to A
-          System.out.println("B BL N to A");
-          return AutoBuilder.pathfindThenFollowPath(
-              PathPlannerPath.fromPathFile("B BL N to A"), constraints);
-
-        } else if (pose.getX() < BLUE_BUMP_X && pose.getY() < CENTER.getY()) {
-          // B BR A to N
-          System.out.println("B BR A to N");
-          return AutoBuilder.pathfindThenFollowPath(
-              PathPlannerPath.fromPathFile("B BR A to N"), constraints);
-
-        } else if (pose.getX() < BLUE_BUMP_X && pose.getY() > CENTER.getY()) {
-
-          // B BL A to N
-          System.out.println("B BL A to N");
-          return AutoBuilder.pathfindThenFollowPath(
-              PathPlannerPath.fromPathFile("B BL A to N"), constraints);
-        }
-
-      } else {
-        if (pose.getX() < RED_BUMP_X && pose.getY() < CENTER.getY()) {
-
-          // R BL N to A
-          System.out.println("R BL N to A");
-          return AutoBuilder.pathfindThenFollowPath(
-              PathPlannerPath.fromPathFile("R BL N to A"), constraints);
-
-        } else if (pose.getX() < RED_BUMP_X && pose.getY() > CENTER.getY()) {
-
-          // R BR N to A
-          System.out.println("R BR N to A");
-          return AutoBuilder.pathfindThenFollowPath(
-              PathPlannerPath.fromPathFile("R BR N to A"), constraints);
-
-        } else if (pose.getX() > RED_BUMP_X && pose.getY() < CENTER.getY()) {
-          // R BL A to N
-          System.out.println("R BL A to N");
-          return AutoBuilder.pathfindThenFollowPath(
-              PathPlannerPath.fromPathFile("R BL A to N"), constraints);
-
-        } else if (pose.getX() > RED_BUMP_X && pose.getY() > CENTER.getY()) {
-
-          // R BR A to N
-          System.out.println("R BR A to N");
-          return AutoBuilder.pathfindThenFollowPath(
-              PathPlannerPath.fromPathFile("R BR A to N"), constraints);
-        }
-      }
-
-      return Commands.none();
-    }
-
-    */
-
-     // return AutoBuilder.pathfindThenFollowPath(
-    //  PathPlannerPath.fromPathFile("B BR N to A"), constraints);
