@@ -84,7 +84,7 @@ public class TunerConstants {
   // All swerve devices must share the same CAN bus
   public static final CANBus driveCANBus =
       new CANBus(
-          RobotConfigLoader.getString("tuner.drive_canbus_name") == "null"
+          RobotConfigLoader.getString("tuner.drive_canbus_name").equals("null")
               ? ""
               : RobotConfigLoader.getString("tuner.drive_canbus_name"),
           "./logs/example.hoot");
