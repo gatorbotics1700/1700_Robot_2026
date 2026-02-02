@@ -55,8 +55,6 @@ public final class Constants {
   public static final double BLUE_BUMP_AND_TRENCH_X = 4.626;
   public static final double RED_BUMP_AND_TRENCH_X = 11.915;
 
-  public static final int KRAKEN_TICKS_PER_REV = 2048;
-
   public static final Distance CENTER_TO_BUMPER_OFFSET = Centimeters.of(40);
   // left and right offsets for the poles on the reef
   public static final Distance CENTER_TO_POLE_OFFSET = Centimeters.of(16.5);

@@ -34,7 +34,7 @@ public class ShooterCommand extends Command {
   public boolean isFinished() {
     double timePassed = System.currentTimeMillis() - startTime;
     if (flywheelVoltage == 0) {
-      //TODO: can we delete setting it to 0? redundant
+      // TODO: can we delete setting it to 0? redundant
       shooterSubsystem.setFlywheelVoltage(0);
       return true;
     }
