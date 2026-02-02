@@ -93,37 +93,31 @@ public class RobotContainer {
   public RobotContainer() {
     // Named Commands
     NamedCommands.registerCommand(
-      "Shooter Command",
-      new InstantCommand(
-        () -> {
-            CommandScheduler.getInstance()
-                  .schedule(Commands.none());
+        "Shooter Command",
+        new InstantCommand(
+            () -> {
+              CommandScheduler.getInstance().schedule(Commands.none());
             }));
     NamedCommands.registerCommand(
-      "Climb Command",
-      new InstantCommand(
-        () -> {
-            CommandScheduler.getInstance()
-                  .schedule(Commands.none());
-            }));
-  
-  
-    NamedCommands.registerCommand(
-      "Intake Command",
-      new InstantCommand(
-        () -> {
-            CommandScheduler.getInstance()
-                  .schedule(Commands.none());
+        "Climb Command",
+        new InstantCommand(
+            () -> {
+              CommandScheduler.getInstance().schedule(Commands.none());
             }));
 
     NamedCommands.registerCommand(
-      "Stop Kicker Command",
-      new InstantCommand(
-        () -> {
-            CommandScheduler.getInstance()
-                  .schedule(Commands.none());
+        "Intake Command",
+        new InstantCommand(
+            () -> {
+              CommandScheduler.getInstance().schedule(Commands.none());
             }));
 
+    NamedCommands.registerCommand(
+        "Stop Kicker Command",
+        new InstantCommand(
+            () -> {
+              CommandScheduler.getInstance().schedule(Commands.none());
+            }));
 
     NamedCommands.registerCommand(
         "Q1 Left Lineup",
