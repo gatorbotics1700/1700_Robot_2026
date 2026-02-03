@@ -20,8 +20,8 @@ public class IntakeCommand extends Command {
 
   @Override
   public void execute() {
-    intakeSubsystem.pivotIntake(wantExtended);
-    intakeSubsystem.setIntakeVoltage(intakeVoltage);
+    // intakeSubsystem.pivotIntake(wantExtended);
+    // intakeSubsystem.setIntakeVoltage(intakeVoltage);
   }
 
   @Override

@@ -1,42 +1,40 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.mech.TransitionSubsystem;
+import frc.robot.subsystems.mech.HopperFloorSubsystem;
 
 public class TransitionCommand extends Command {
 
-  private final TransitionSubsystem transitionSubsystem;
-
-  private final double kickerVoltage;
-  private final double hopperVoltage;
+  private final HopperFloorSubsystem hopperFloorSubsystem;
+  private final double hopperSpeed;
   private double startTime;
 
-  public TransitionCommand(
-      TransitionSubsystem transitionSubsystem, double kickerVoltage, double hopperVoltage) {
-    this.transitionSubsystem = transitionSubsystem;
-    this.kickerVoltage = kickerVoltage;
-    this.hopperVoltage = hopperVoltage;
-    addRequirements(transitionSubsystem);
+  public TransitionCommand(HopperFloorSubsystem hopperFloorSubsystem, double hopperSpeed) {
+    this.hopperFloorSubsystem = hopperFloorSubsystem;
+    this.hopperSpeed = hopperSpeed;
+    addRequirements(hopperFloorSubsystem);
   }
 
   @Override
   public void initialize() {
     startTime = System.currentTimeMillis();
+    hopperFloorSubsystem.setHopperFloorSpeed(hopperSpeed);
   }
 
   @Override
   public void execute() {
-    transitionSubsystem.setHighKickerVoltage(kickerVoltage);
-    // transitionSubsystem.setHopperVoltage(hopperVoltage);
+    // shouldn't need to do anything because once we set speed in the init the subsystem should just
+    // keep running it at that speed!
   }
 
+  // TODO figure out how we want to end this command
   @Override
   public boolean isFinished() {
     // if (hopperVoltage == 0) {
     //   return true;
     // } else
     if (System.currentTimeMillis() - startTime > 10000) {
-      transitionSubsystem.setHighKickerVoltage(0);
+      hopperFloorSubsystem.setHopperFloorSpeed(0);
       System.out.println("TIMING OUT");
       return true;
     }

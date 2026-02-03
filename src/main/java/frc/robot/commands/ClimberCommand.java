@@ -1,7 +1,6 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
 import frc.robot.subsystems.mech.ClimberSubsystem;
 
 public class ClimberCommand extends Command {
@@ -17,25 +16,25 @@ public class ClimberCommand extends Command {
 
   @Override
   public void initialize() {
-    if (extendingL1 == true) {
-      desiredPosition = climberSubsystem.inchesToRevs(Constants.CLIMBER_EXTENDED_POSITION);
-      System.out.println("EXTENDING CLIMBER");
-    } else {
-      desiredPosition = climberSubsystem.inchesToRevs(Constants.CLIMBER_RETRACTED_POSITION);
-      System.out.println("RETRACTING CLIMBER");
-    }
+    // if (extendingL1 == true) {
+    //   desiredPosition = climberSubsystem.inchesToRevs(Constants.CLIMBER_EXTENDED_POSITION);
+    //   System.out.println("EXTENDING CLIMBER");
+    // } else {
+    //   desiredPosition = climberSubsystem.inchesToRevs(Constants.CLIMBER_RETRACTED_POSITION);
+    //   System.out.println("RETRACTING CLIMBER");
+    // }
   }
 
   @Override
   public void execute() {
-    climberSubsystem.moveArm(desiredPosition);
+    // climberSubsystem.moveArm(desiredPosition);
   }
 
   @Override
   public boolean isFinished() {
-    if (climberSubsystem.getMotorOutput() == 0) {
-      return true;
-    }
-    return false;
+    // if (climberSubsystem.getMotorOutput() == 0) {
+    return true;
+    // }
+    // return false;
   }
 }
