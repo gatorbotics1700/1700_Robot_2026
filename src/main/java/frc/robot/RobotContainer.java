@@ -28,12 +28,12 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.DriveCommands;
-import frc.robot.commands.DriveOverBumpCommand;
-import frc.robot.commands.DriveUnderTrenchCommand;
-import frc.robot.commands.LineupCommand;
-import frc.robot.commands.LineupCommand.ReefSide;
-import frc.robot.commands.LineupCommand.YOffset;
+import frc.robot.commands.drive.DriveCommands;
+import frc.robot.commands.drive.DriveOverBumpCommand;
+import frc.robot.commands.drive.DriveUnderTrenchCommand;
+import frc.robot.commands.drive.LineupCommand;
+import frc.robot.commands.drive.LineupCommand.ReefSide;
+import frc.robot.commands.drive.LineupCommand.YOffset;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -328,7 +328,7 @@ public class RobotContainer {
                 () -> {
                   try {
                     CommandScheduler.getInstance()
-                        .schedule(DriveUnderTrenchCommand.driveUnderTrench(drive));
+                        .schedule(DriveUnderTrenchCommand.driveUnderTrench(drive, hoodSubsystem));
                   } catch (Exception e) {
                     e.printStackTrace();
                   }
