@@ -70,7 +70,7 @@ public class RobotContainer {
 
   // Controllers
   private final CommandXboxController controller = new CommandXboxController(0);
-  private final XboxController controller_two = new XboxController(3);
+  private final CommandXboxController controller_two = new CommandXboxController(3);
 
   private final GenericHID buttonBoard1A = new GenericHID(1);
   private final GenericHID buttonBoard1B = new GenericHID(2);
@@ -380,6 +380,14 @@ public class RobotContainer {
                   drive.setSlowDrive();
                 },
                 drive));
+
+    controller_two
+        .a()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(20.0)));
+                }));
 
     Q1LeftLineup.onTrue(
         new InstantCommand(
