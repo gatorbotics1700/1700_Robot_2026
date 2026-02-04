@@ -40,7 +40,6 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.mech.ClimberSubsystem;
-import frc.robot.subsystems.mech.HoodSubsystem;
 import frc.robot.subsystems.mech.HopperFloorSubsystem;
 import frc.robot.subsystems.mech.IntakeSubsystem;
 import frc.robot.subsystems.mech.ShooterSubsystem;
@@ -144,20 +143,17 @@ public class RobotContainer {
         };
     // turretSubsystem = new TurretSubsystem(robotPose);
 
-//     hoodSubsystem = new HoodSubsystem();
+    //     hoodSubsystem = new HoodSubsystem();
 
-   // Named Commands
+    // Named Commands
     NamedCommands.registerCommand(
         "Shooter Command",
         new InstantCommand(
             () -> {
               CommandScheduler.getInstance().schedule(Commands.none());
             }));
-   
-   
-   
-   
-   //intake commands 
+
+    // intake commands
 
     NamedCommands.registerCommand(
         "Intake Command",
@@ -169,21 +165,15 @@ public class RobotContainer {
                           .andThen(IntakeCommands.RunIntake(intakeSubsystem)));
             }));
 
-
-
- 
     NamedCommands.registerCommand(
         "Stop Kicker Command",
         new InstantCommand(
             () -> {
               CommandScheduler.getInstance().schedule(Commands.none());
             }));
-   
-   
-   
-   
-   //CLIMB COMMAND 
-   
+
+    // CLIMB COMMAND
+
     NamedCommands.registerCommand(
         "Climb Command",
         new InstantCommand(

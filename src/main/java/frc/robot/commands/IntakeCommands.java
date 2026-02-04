@@ -6,7 +6,8 @@ import frc.robot.subsystems.mech.IntakeSubsystem;
 
 public class IntakeCommands {
 
-  private static final double INTAKING_SPEED = 9; // TODO get a real number (I just picked my favorite)
+  private static final double INTAKING_SPEED =
+      9; // TODO get a real number (I just picked my favorite)
 
   private IntakeCommands() {}
 
