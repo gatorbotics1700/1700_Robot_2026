@@ -65,7 +65,7 @@ public class DriveUnderTrenchCommand {
                 PathPlannerPath.fromPathFile("R TL N to A"), constraints);
       }
     }
-    return pathToFollow; // TODO: stop shooting, retract hood, and then follow path -- add the
-    // stop shooting part
+    return pathToFollow; // TODO: stop shooting, retract hood, and then follow path -- add the stop
+    // shooting part
   }
 }
