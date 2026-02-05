@@ -41,6 +41,7 @@ public class HoodSubsystem extends SubsystemBase {
     talonFXConfigs.withMotorOutput(
         new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
 
+    // TODO: make tuneable constants
     Slot0Configs slot0Configs = talonFXConfigs.Slot0;
 
     LoggedNetworkNumber tunekG =
@@ -100,15 +101,7 @@ public class HoodSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // I used a fake pid as a placeholeder, but we should turn to position using motion magic
-    // double angleError = getCurrentAngle().getDegrees() - desiredAngle.getDegrees();
-    // if (Math.abs(angleError) > POSITION_DEADBAND_DEGREES) {
-    configMotor();
     hoodMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
-
-    // } else {
-    //   setHoodSpeed(0);
-    // }
 
     Logger.recordOutput("hood desired angle", desiredAngle.getDegrees());
     Logger.recordOutput("hood motor output", hoodMotor.get());
