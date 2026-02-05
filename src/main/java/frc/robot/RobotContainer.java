@@ -18,7 +18,6 @@ package frc.robot;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -478,16 +477,16 @@ public class RobotContainer {
     // Log if commands are running
     Logger.recordOutput("Commands/DriveCommandActive", driveCmd != null);
 
-    controller_two
-        .a()
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  gamePieceSimulation.launchFuelBall(
-                      new Translation3d(0, 0, 0),
-                      10,
-                      new Rotation2d(Math.toRadians(45)),
-                      new Rotation2d(0));
-                }));
+    // controller_two
+    //     .a()
+    //     .onTrue(
+    //         new InstantCommand(
+    //             () -> {
+    //               gamePieceSimulation.launchFuelBall(
+    //                   new Translation3d(0, 0, 0),
+    //                   10,
+    //                   new Rotation2d(Math.toRadians(45)),
+    //                   new Rotation2d(0));
+    //             }));
   }
 }
