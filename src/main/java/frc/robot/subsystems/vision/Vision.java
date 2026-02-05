@@ -91,24 +91,32 @@ public class Vision extends SubsystemBase {
                   target.getPitch(),
                   robotToCamera.getRotation().getY(),
                   robotToCamera.getMeasureZ());
-          // Transform3d cameraToFuel =
-              
-          //             new Transform3d(
-          //                 new Translation3d(),
-          //                 new Rotation3d(0, target.getPitch(), target.getYaw()))
-          //         .transformBy(
-          //             new Transform3d(
-          //                 new Translation3d(
-          //                     cameraToTargetDistance, Centimeters.of(0), Centimeters.of(0)),
-          //                 new Rotation3d()));
-          // System.out.println("****HELLO printing cameratofuel pose" + cameraToFuel);
+          Pose3d cameraToFuel =
+              new Pose3d()
+                  .transformBy(
+                      new Transform3d(
+                          new Translation3d(),
+                          new Rotation3d(0, 0, Math.toRadians(target.getYaw()))))
+                  .transformBy(
+                      new Transform3d(
+                          new Translation3d(
+                              cameraToTargetDistance, Centimeters.of(0), Centimeters.of(0)),
+                          new Rotation3d()));
+          System.out.println(
+              "****HELLO printing cameratofuel pose "
+                  + cameraToTargetDistance
+                  + " "
+                  + cameraToFuel);
           fuelPose =
               robotPose
                   .transformBy(robotToCamera)
                   .transformBy(
                       new Transform3d(
                           new Translation3d(),
-                          new Rotation3d(0, target.getPitch(), target.getYaw())))
+                          new Rotation3d(
+                              0,
+                              Math.toRadians(target.getPitch()),
+                              Math.toRadians(target.getYaw()))))
                   .transformBy(
                       new Transform3d(
                           new Translation3d(
@@ -124,6 +132,7 @@ public class Vision extends SubsystemBase {
   private Distance getCameraToTargetDistance(
       double pitchInDegrees, double cameraAngleInRadians, Distance height) {
     // TODO: this logic assumes that roll of the camera is 0
+    // TODO: photonvision pitch is backwards
     System.out.println(
         "***hi i'm in the method imma print out some information: "
             + pitchInDegrees
