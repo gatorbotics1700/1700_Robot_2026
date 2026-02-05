@@ -88,7 +88,7 @@ public class Vision extends SubsystemBase {
           // in radians
           Distance cameraToTargetDistance =
               getCameraToTargetDistance(
-                  target.getPitch(),
+                  Math.toRadians(-target.getPitch()),
                   robotToCamera.getRotation().getY(),
                   robotToCamera.getMeasureZ());
           Pose3d cameraToFuel =
@@ -115,7 +115,7 @@ public class Vision extends SubsystemBase {
                           new Translation3d(),
                           new Rotation3d(
                               0,
-                              Math.toRadians(target.getPitch()),
+                              Math.toRadians(-target.getPitch()),
                               Math.toRadians(target.getYaw()))))
                   .transformBy(
                       new Transform3d(
@@ -130,18 +130,17 @@ public class Vision extends SubsystemBase {
   }
 
   private Distance getCameraToTargetDistance(
-      double pitchInDegrees, double cameraAngleInRadians, Distance height) {
+      double pitchInRadians, double cameraAngleInRadians, Distance height) {
     // TODO: this logic assumes that roll of the camera is 0
     // TODO: photonvision pitch is backwards
     System.out.println(
         "***hi i'm in the method imma print out some information: "
-            + pitchInDegrees
+            + pitchInRadians
             + " "
             + cameraAngleInRadians
             + " "
             + height.in(Centimeters));
-    return (height.minus(Centimeters.of(7.5)))
-        .div(Math.sin(cameraAngleInRadians + Math.toRadians(pitchInDegrees)));
+    return (height.minus(Centimeters.of(7.5))).div(Math.sin(cameraAngleInRadians + pitchInRadians));
     // return Centimeters.of(22.5);
   }
 

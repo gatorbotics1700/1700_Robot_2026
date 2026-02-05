@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Distance;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
@@ -83,7 +84,7 @@ class VisionMathTest {
   private static final double TEMPLATE_ROBOT_POSE_ROTATION_DEGREES = 0.0;
 
   /** Target pitch from PhotonVision (degrees). Positive = target above camera center. */
-  private static final double TEMPLATE_TARGET_PITCH_DEGREES = 30;
+  private static final double TEMPLATE_TARGET_PITCH_DEGREES = -30;
 
   /** Target yaw from PhotonVision (degrees). Positive = target left of camera center. */
   private static final double TEMPLATE_TARGET_YAW_DEGREES = 0.0;
@@ -96,7 +97,7 @@ class VisionMathTest {
   private static final double TEMPLATE_EXPECTED_DISTANCE_CM = 200;
 
   /** Expected fuel pose (field coordinates) from getFuelPose. Units: meters, degrees. */
-  private static final double TEMPLATE_EXPECTED_FUEL_POSE_X_METERS = 2.0;
+  private static final double TEMPLATE_EXPECTED_FUEL_POSE_X_METERS = 1.73;
 
   private static final double TEMPLATE_EXPECTED_FUEL_POSE_Y_METERS = 0.0;
 
@@ -143,7 +144,9 @@ class VisionMathTest {
 
     Distance result =
         invokeGetCameraToTargetDistance(
-            TEMPLATE_TARGET_PITCH_DEGREES, cameraPitchRad, Centimeters.of(cameraHeightCm));
+            Math.toRadians(-TEMPLATE_TARGET_PITCH_DEGREES),
+            cameraPitchRad,
+            Centimeters.of(cameraHeightCm));
     System.out.println("actual distance from camera to target:" + result.in(Centimeters));
     assertEquals(
         TEMPLATE_EXPECTED_DISTANCE_CM,
@@ -160,33 +163,60 @@ class VisionMathTest {
               + "You need: robot pose, target pitch/yaw from PhotonVision, and expected fuel pose.");
     }
 
-    Pose3d robotPose =
-        new Pose3d(
-            TEMPLATE_ROBOT_POSE_X_METERS,
-            TEMPLATE_ROBOT_POSE_Y_METERS,
-            0,
-            new Rotation3d(0, 0, Math.toRadians(TEMPLATE_ROBOT_POSE_ROTATION_DEGREES)));
+    // Replace config-derived camera transform with hardcoded template values so getFuelPose
+    // uses the same camera height/pitch as testGetCameraToTargetDistance (Vision reads the
+    // array inside getFuelPose, so we must mutate it before calling getFuelPoseFromMockedVision).
+    Transform3d originalCameraTransform = null;
+    if (TEMPLATE_CAMERA_HEIGHT_CM_OVERRIDE >= 0 && TEMPLATE_CAMERA_PITCH_DEG_OVERRIDE > -999) {
+      originalCameraTransform =
+          VisionConstants.ROBOT_TO_CAMERA_TRANSFORMS_ARRAY[TEMPLATE_CAMERA_INDEX];
+      Translation3d originalCameraTranslation = originalCameraTransform.getTranslation();
+      Rotation3d originalCameraRotation = originalCameraTransform.getRotation();
+      VisionConstants.ROBOT_TO_CAMERA_TRANSFORMS_ARRAY[TEMPLATE_CAMERA_INDEX] =
+          new Transform3d(
+              new Translation3d(
+                  originalCameraTranslation.getX(),
+                  originalCameraTranslation.getY(),
+                  TEMPLATE_CAMERA_HEIGHT_CM_OVERRIDE / 100.0),
+              new Rotation3d(
+                  originalCameraRotation.getX(),
+                  Math.toRadians(TEMPLATE_CAMERA_PITCH_DEG_OVERRIDE),
+                  originalCameraRotation.getZ()));
+    }
+    try {
+      Pose3d robotPose =
+          new Pose3d(
+              TEMPLATE_ROBOT_POSE_X_METERS,
+              TEMPLATE_ROBOT_POSE_Y_METERS,
+              0,
+              new Rotation3d(0, 0, Math.toRadians(TEMPLATE_ROBOT_POSE_ROTATION_DEGREES)));
 
-    Pose2d expectedFuelPose =
-        new Pose2d(
-            TEMPLATE_EXPECTED_FUEL_POSE_X_METERS,
-            TEMPLATE_EXPECTED_FUEL_POSE_Y_METERS,
-            Rotation2d.fromDegrees(TEMPLATE_EXPECTED_FUEL_POSE_ROTATION_DEGREES));
+      Pose2d expectedFuelPose =
+          new Pose2d(
+              TEMPLATE_EXPECTED_FUEL_POSE_X_METERS,
+              TEMPLATE_EXPECTED_FUEL_POSE_Y_METERS,
+              Rotation2d.fromDegrees(TEMPLATE_EXPECTED_FUEL_POSE_ROTATION_DEGREES));
 
-    Pose2d actual =
-        getFuelPoseFromMockedVision(
-            robotPose, TEMPLATE_TARGET_PITCH_DEGREES, TEMPLATE_TARGET_YAW_DEGREES);
+      Pose2d actual =
+          getFuelPoseFromMockedVision(
+              robotPose, TEMPLATE_TARGET_PITCH_DEGREES, TEMPLATE_TARGET_YAW_DEGREES);
 
-    System.out.println("actual calculated pose:" + actual);
-    assertEquals(
-        expectedFuelPose.getX(), actual.getX(), TEMPLATE_POSE_TOLERANCE_METERS, "Fuel pose X");
-    assertEquals(
-        expectedFuelPose.getY(), actual.getY(), TEMPLATE_POSE_TOLERANCE_METERS, "Fuel pose Y");
-    assertEquals(
-        expectedFuelPose.getRotation().getRadians(),
-        actual.getRotation().getRadians(),
-        Math.toRadians(TEMPLATE_ANGULAR_TOLERANCE_DEGREES),
-        "Fuel pose rotation");
+      System.out.println("actual calculated pose:" + actual);
+      assertEquals(
+          expectedFuelPose.getX(), actual.getX(), TEMPLATE_POSE_TOLERANCE_METERS, "Fuel pose X");
+      assertEquals(
+          expectedFuelPose.getY(), actual.getY(), TEMPLATE_POSE_TOLERANCE_METERS, "Fuel pose Y");
+      assertEquals(
+          expectedFuelPose.getRotation().getRadians(),
+          actual.getRotation().getRadians(),
+          Math.toRadians(TEMPLATE_ANGULAR_TOLERANCE_DEGREES),
+          "Fuel pose rotation");
+    } finally {
+      if (originalCameraTransform != null) {
+        VisionConstants.ROBOT_TO_CAMERA_TRANSFORMS_ARRAY[TEMPLATE_CAMERA_INDEX] =
+            originalCameraTransform;
+      }
+    }
   }
 
   /** Invokes private getCameraToTargetDistance via reflection. */
