@@ -409,6 +409,7 @@ public class RobotContainer {
    * Robot.teleopPeriodic() and Robot.autonomousPeriodic().
    */
   public void periodic() {
+    // gamePieceSimulation.updateBalls();
     // Update multi-step auto chooser options (reads choosers to keep them active)
     multiStepAutoChooser.updateChooserOptions();
 
