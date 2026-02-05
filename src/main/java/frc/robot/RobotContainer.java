@@ -40,9 +40,13 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.mech.ClimberSubsystem;
+import frc.robot.subsystems.mech.HoodSubsystem;
 import frc.robot.subsystems.mech.HopperFloorSubsystem;
 import frc.robot.subsystems.mech.IntakeSubsystem;
 import frc.robot.subsystems.mech.ShooterSubsystem;
+import frc.robot.subsystems.mech.MechIOs.HoodIO;
+import frc.robot.subsystems.mech.MechIOs.HoodIOSim;
+import frc.robot.subsystems.mech.MechIOs.HoodIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
@@ -65,7 +69,7 @@ public class RobotContainer {
   private final Vision vision;
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
-  // private final HoodSubsystem hoodSubsystem;
+  private final HoodSubsystem hoodSubsystem;
   private final HopperFloorSubsystem transitionSubsystem = new HopperFloorSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   // private final TurretSubsystem turretSubsystem;
@@ -405,7 +409,6 @@ public class RobotContainer {
    * Robot.teleopPeriodic() and Robot.autonomousPeriodic().
    */
   public void periodic() {
-    gamePieceSimulation.updateBalls();
     // Update multi-step auto chooser options (reads choosers to keep them active)
     multiStepAutoChooser.updateChooserOptions();
 
