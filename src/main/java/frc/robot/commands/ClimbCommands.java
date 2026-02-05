@@ -6,6 +6,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.mech.ClimberSubsystem;
@@ -37,21 +38,18 @@ public class ClimbCommands {
       if (pose.getX() <= Constants.BLUE_BUMP_AND_TRENCH_X
           && pose.getY() <= Constants.FIELD_CENTER.getY()) {
         return AutoBuilder.pathfindThenFollowPath(
-            PathPlannerPath.fromPathFile("NAME"), constraints); // TODO: alliance zone bottem
+            PathPlannerPath.fromPathFile("B AR to Tower Right"), constraints); // TODO: alliance zone bottem
       } else if (pose.getX() <= Constants.BLUE_BUMP_AND_TRENCH_X
           && pose.getY() > Constants.FIELD_CENTER.getY()) {
         return AutoBuilder.pathfindThenFollowPath(
-            PathPlannerPath.fromPathFile("B AL to Tower Left"),
-            constraints); // TODO: alliance zone top
+            PathPlannerPath.fromPathFile("B AL to Tower Left"), constraints); // TODO: alliance zone top
       } else if (pose.getX() >= Constants.BLUE_BUMP_AND_TRENCH_X
           && pose.getY() <= Constants.FIELD_CENTER.getY()) {
-        return AutoBuilder.pathfindThenFollowPath(
-            PathPlannerPath.fromPathFile("NAME"), constraints); // TODO: neutral zone bottem
+        return AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("B NR to Tower Right"), constraints); // TODO: neutral zone bottem
 
       } else {
         return AutoBuilder.pathfindThenFollowPath(
-            PathPlannerPath.fromPathFile("B NL to Tower Left"),
-            constraints); // TODO: neutral zone top
+            PathPlannerPath.fromPathFile("B NL to Tower Left"), constraints); // TODO: neutral zone top
       }
 
     } else { // red
@@ -63,7 +61,7 @@ public class ClimbCommands {
       } else if (pose.getX() <= Constants.RED_BUMP_AND_TRENCH_X
           && pose.getY() > Constants.FIELD_CENTER.getY()) {
         return AutoBuilder.pathfindThenFollowPath(
-            PathPlannerPath.fromPathFile("NAME"), constraints); // TODO: neutral zone top
+            PathPlannerPath.fromPathFile("R NR to Tower Right"), constraints); // TODO: neutral zone top
       } else if (pose.getX() >= Constants.RED_BUMP_AND_TRENCH_X
           && pose.getY() <= Constants.FIELD_CENTER.getY()) {
         return AutoBuilder.pathfindThenFollowPath(
@@ -71,8 +69,7 @@ public class ClimbCommands {
             constraints); // TODO: alliance zone bottem
 
       } else {
-        return AutoBuilder.pathfindThenFollowPath(
-            PathPlannerPath.fromPathFile("NAME"), constraints); // TODO: alliance zone top
+        return Commands.none(); 
       }
     }
   }
