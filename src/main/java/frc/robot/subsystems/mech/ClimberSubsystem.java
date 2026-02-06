@@ -24,7 +24,6 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   public void periodic() {
-    motor.setNeutralMode(NeutralModeValue.Brake); // do we really need this here?
     double error = desiredPositionInches - currentPositionInches();
     if (Math.abs(error) > DEADBAND_INCHES) {
       setMotorOutput(0.2 * error);
@@ -34,7 +33,6 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   private void setMotorOutput(double speed) {
-    motor.setNeutralMode(NeutralModeValue.Brake); // do we really need this here?
     motor.setControl(dutyCycleOut.withOutput(speed));
   }
 
