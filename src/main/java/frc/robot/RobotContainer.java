@@ -408,8 +408,8 @@ public class RobotContainer {
 
     // Print  path name to console me thinks
     String selectedPathName = multiStepAutoChooser.getSelectedPathName();
-    System.out.println(
-        "Selected Auto Path: " + (selectedPathName != null ? selectedPathName : "None"));
+    // System.out.println(
+    //     "Selected Auto Path: " + (selectedPathName != null ? selectedPathName : "None"));
 
     Logger.recordOutput("Buttons/Controller1/A", controller.a().getAsBoolean());
     Logger.recordOutput("Buttons/Controller1/B", controller.b().getAsBoolean());

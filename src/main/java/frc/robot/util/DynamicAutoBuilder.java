@@ -85,6 +85,13 @@ public class DynamicAutoBuilder {
   public Command buildAuto(
       String alliance, String startPos, String dest1, String dest2, String dest3, boolean climb) {
 
+    System.out.println("============BUILD AUTO============");
+    System.out.println("Alliance: " + alliance);
+    System.out.println("First Destination: " + dest1);
+    System.out.println("Second Destination: " + dest2);
+    System.out.println("Third Destination: " + dest3);
+    System.out.println("Climb: " + climb);
+
     if (alliance == null || alliance.equals("None")) {
       System.out.println("DynamicAutoBuilder: Missing alliance");
       return Commands.none();
