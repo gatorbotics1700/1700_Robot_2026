@@ -144,6 +144,14 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     autonomousCommand = robotContainer.getAutonomousCommand();
 
+    // Set odometry (and sim pose) to the auto start position from the first path
+    robotContainer
+        .getAutoStartPose()
+        .ifPresent(
+            startPose -> {
+              robotContainer.getDriveSubsystem().setPose(startPose);
+            });
+
     // schedule the autonomous command (example)
     if (autonomousCommand != null) {
       CommandScheduler.getInstance().schedule(autonomousCommand);

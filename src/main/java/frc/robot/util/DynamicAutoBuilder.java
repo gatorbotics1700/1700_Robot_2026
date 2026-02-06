@@ -11,8 +11,15 @@ import frc.robot.subsystems.mech.ClimberSubsystem;
 import frc.robot.subsystems.mech.IntakeSubsystem;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class DynamicAutoBuilder {
+
+  /* TODO: thoughts
+   *    deploy and start intake unless first target is tower
+   *    do we need to retract intake to climb? -- if so, just add to climb command
+   *    how do we test this? -- tried testing in sim and made it so start pose updates properly, paths arent quite running correctly, and idk when mech is trying to run
+   */
 
   private final IntakeSubsystem intakeSubsystem;
   private final Drive drive;
@@ -144,5 +151,21 @@ public class DynamicAutoBuilder {
     }
 
     return Commands.sequence(commandSequence.toArray(new Command[0]));
+  }
+
+  /**
+   * Returns the path name of the first path in the auto, if any. Used for start-pose lookup (e.g.
+   * getAutoStartPose). Empty when there is no first path (climb-only or invalid).
+   */
+  public Optional<String> getFirstPathName(
+      String alliance, String startPos, String dest1, String dest2, String dest3, boolean climb) {
+    if (isInvalid(alliance) || isInvalid(startPos)) {
+      return Optional.empty();
+    }
+    if (dest1 == null || dest1.equals("None")) {
+      return Optional.empty();
+    }
+    String name = buildPathName(alliance, startPos, dest1);
+    return name != null ? Optional.of(name) : Optional.empty();
   }
 }

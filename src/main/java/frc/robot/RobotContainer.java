@@ -49,6 +49,7 @@ import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.util.MultiStepAutoChooser;
 import frc.robot.util.RobotConfigLoader;
+import java.util.Optional;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -355,6 +356,11 @@ public class RobotContainer {
       System.out.println("bad io error");
       return Commands.none();
     }
+  }
+
+  /** Start pose of the currently selected auto (from first path). Empty if no paths. */
+  public Optional<Pose2d> getAutoStartPose() {
+    return multiStepAutoChooser.getAutoStartPose();
   }
 
   public Drive getDriveSubsystem() {

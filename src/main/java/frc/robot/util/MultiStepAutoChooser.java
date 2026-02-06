@@ -1,9 +1,12 @@
 package frc.robot.util;
 
+import com.pathplanner.lib.path.PathPlannerPath;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.mech.ClimberSubsystem;
 import frc.robot.subsystems.mech.IntakeSubsystem;
+import java.util.Optional;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class MultiStepAutoChooser {
@@ -297,5 +300,37 @@ public class MultiStepAutoChooser {
     // Use DynamicAutoBuilder to chain paths together
     return dynamicAutoBuilder.buildAuto(
         alliance, startPos, firstDestination, secondDestination, thirdDestination, climb);
+  }
+
+  /**
+   * Returns the starting pose for the currently selected auto by loading the first path and reading
+   * its start pose. Use this to set odometry at auto start (e.g. in sim). Empty if no paths or path
+   * file missing.
+   */
+  public Optional<Pose2d> getAutoStartPose() {
+    updateChooserOptions();
+    String alliance = allianceChooser.get();
+    String startPos = startPosChooser.get();
+    String firstDestination =
+        combineDestination(firstDestinationTypeChooser.get(), firstDestinationSideChooser.get());
+    String secondDestination =
+        combineDestination(secondDestinationTypeChooser.get(), secondDestinationSideChooser.get());
+    String thirdDestination =
+        combineDestination(thirdDestinationTypeChooser.get(), thirdDestinationSideChooser.get());
+    Boolean shouldClimb = shouldClimbChooser.get();
+    boolean climb = shouldClimb != null && shouldClimb;
+
+    Optional<String> firstPathName =
+        dynamicAutoBuilder.getFirstPathName(
+            alliance, startPos, firstDestination, secondDestination, thirdDestination, climb);
+    if (firstPathName.isEmpty()) {
+      return Optional.empty();
+    }
+    try {
+      PathPlannerPath path = PathPlannerPath.fromPathFile(firstPathName.get());
+      return path.getStartingHolonomicPose();
+    } catch (Exception e) {
+      return Optional.empty();
+    }
   }
 }
