@@ -309,6 +309,18 @@ public class RobotContainer {
                 },
                 drive));
 
+    controller
+        .leftBumper()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  try {
+                    CommandScheduler.getInstance().schedule(ClimbCommands.DriveToTower(drive));
+                  } catch (Exception e) {
+                    e.printStackTrace();
+                  }
+                }));
+
     // controller_two
     //     .a()
     //     .onTrue(
