@@ -32,7 +32,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.ClimbCommands;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.drive.DriveCommands;
-import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -77,6 +76,7 @@ public class RobotContainer {
   private final HopperFloorSubsystem transitionSubsystem = new HopperFloorSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final GamePieceSimulation gamePieceSimulation = new GamePieceSimulation();
+  private ShotParameters shotParameters = null;
   // private final TurretSubsystem turretSubsystem;
 
   // Controllers
@@ -271,18 +271,30 @@ public class RobotContainer {
             .onFalse(DriveCommands.stopDriveCommand(drive));
       }
 
-      // drive over bump
+      // // drive over bump
+      // controller
+      //     .a()
+      //     .onTrue(
+      //         Commands.runOnce(
+      //             () -> {
+      //               try {
+      //                 CommandScheduler.getInstance()
+      //                     .schedule(DriveOverBumpCommand.driveOverBump(drive));
+      //               } catch (Exception e) {
+      //                 e.printStackTrace();
+      //               }
+      //             }));
+      // gamepiece sim
       controller
           .a()
           .onTrue(
-              Commands.runOnce(
+              new InstantCommand(
                   () -> {
-                    try {
-                      CommandScheduler.getInstance()
-                          .schedule(DriveOverBumpCommand.driveOverBump(drive));
-                    } catch (Exception e) {
-                      e.printStackTrace();
-                    }
+                    gamePieceSimulation.launchFuelBall(
+                        new Translation3d(0, 0, 0),
+                        10,
+                        shotParameters.hoodAngle,
+                        shotParameters.turretAngle);
                   }));
 
       // Reset gyro to 0° when B button is pressed
@@ -439,7 +451,7 @@ public class RobotContainer {
    * Robot.teleopPeriodic() and Robot.autonomousPeriodic().
    */
   public void periodic() {
-    gamePieceSimulation.updateBalls();
+    // gamePieceSimulation.updateBalls();
     // Update multi-step auto chooser options (reads choosers to keep them active)
     multiStepAutoChooser.updateChooserOptions();
 
@@ -464,20 +476,8 @@ public class RobotContainer {
     // Log if commands are running
     Logger.recordOutput("Commands/DriveCommandActive", driveCmd != null);
 
-    ShotParameters shotParameters =
+    shotParameters =
         ShotCalculator.calculateShot(
             drive.getPose(), new ChassisSpeeds(0, 0, 0), Constants.BLUE_HUB, 10);
-
-    controller_two
-        .a()
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  gamePieceSimulation.launchFuelBall(
-                      new Translation3d(0, 0, 0),
-                      10,
-                      shotParameters.hoodAngle,
-                      shotParameters.turretAngle);
-                }));
   }
 }
