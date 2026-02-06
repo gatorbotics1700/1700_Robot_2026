@@ -65,8 +65,8 @@ public class RobotContainer {
   // private final TurretSubsystem turretSubsystem;
 
   // Controllers
-  private final CommandXboxController controller = new CommandXboxController(0);
-  private final CommandXboxController controller_two = new CommandXboxController(3);
+  private CommandXboxController controller = null; // port 0
+  private CommandXboxController controller_two = null; // port 3
 
   // Dashboard inputs
   private final MultiStepAutoChooser multiStepAutoChooser;
@@ -207,16 +207,12 @@ public class RobotContainer {
     //     "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
-    configureButtonBindings();
+    // configureButtonBindings();
   }
 
-  /**
-   * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
-  public void configureButtonBindings() {
+  public void configureDriverButtonBindings() {
+    if (DriverStation.isJoystickConnected(0)) {
+      controller = new CommandXboxController(0);
     // Default command, normal field-relative drive
     Trigger driverControl =
         new Trigger(
@@ -315,7 +311,12 @@ public class RobotContainer {
                     e.printStackTrace();
                   }
                 }));
+              }
+  }
 
+  public void configureCodriverButtonBindings() {
+    if (DriverStation.isJoystickConnected(3)) {
+      controller_two = new CommandXboxController(3);
     // controller_two
     //     .a()
     //     .onTrue(
@@ -346,7 +347,7 @@ public class RobotContainer {
     //                   vision.takePicture();
     //                 })
     //             .ignoringDisable(true));
-
+    }
   }
 
   public Command getAutonomousCommand() {
@@ -400,7 +401,10 @@ public class RobotContainer {
   }
 
   public void teleopInit() {
-    drive.enableTargetPointFacing();
+    configureDriverButtonBindings();
+    configureCodriverButtonBindings();
+
+    // drive.enableTargetPointFacing();
   }
 
   public void periodic() {
@@ -411,10 +415,10 @@ public class RobotContainer {
     // System.out.println(
     //     "Selected Auto Path: " + (selectedPathName != null ? selectedPathName : "None"));
 
-    Logger.recordOutput("Buttons/Controller1/A", controller.a().getAsBoolean());
-    Logger.recordOutput("Buttons/Controller1/B", controller.b().getAsBoolean());
-    Logger.recordOutput("Buttons/Controller1/X", controller.x().getAsBoolean());
-    Logger.recordOutput("Buttons/Controller1/Y", controller.y().getAsBoolean());
+    // Logger.recordOutput("Buttons/Controller1/A", controller.a().getAsBoolean());
+    // Logger.recordOutput("Buttons/Controller1/B", controller.b().getAsBoolean());
+    // Logger.recordOutput("Buttons/Controller1/X", controller.x().getAsBoolean());
+    // Logger.recordOutput("Buttons/Controller1/Y", controller.y().getAsBoolean());
 
     // Logger.recordOutput("Buttons/Controller2/A", controller_two.a().getAsBoolean());
     // Logger.recordOutput("Buttons/Controller2/B", controller_two.b().getAsBoolean());
