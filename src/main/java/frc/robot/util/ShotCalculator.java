@@ -71,7 +71,18 @@ public class ShotCalculator {
     // shooterToHubHeight!
 
     Rotation2d hoodAngle =
-        new Rotation2d(0); // @amelia please change this to use the ballistics stuff :)
+        new Rotation2d(
+            Math.atan(
+                (-2 * Math.pow(shotSpeed, 2) * compRange
+                        - Math.sqrt(
+                            4 * Math.pow(shotSpeed, 4) * Math.pow(compRange, 2)
+                                - 4 * Math.pow(9.8, 2) * Math.pow(compRange, 4)
+                                - 8
+                                    * 9.8
+                                    * Math.pow(compRange, 2)
+                                    * Math.pow(shotSpeed, 2)
+                                    * shooterToHubHeight))
+                    / (-2 * 9.8 * Math.pow(compRange, 2))));
     return new ShotParameters(turretAngle, hoodAngle);
   }
 }

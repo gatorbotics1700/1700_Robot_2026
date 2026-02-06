@@ -19,6 +19,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -55,6 +56,8 @@ import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.util.CommandSimMacXboxController;
 import frc.robot.util.MultiStepAutoChooser;
 import frc.robot.util.RobotConfigLoader;
+import frc.robot.util.ShotCalculator;
+import frc.robot.util.ShotParameters;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -461,6 +464,10 @@ public class RobotContainer {
     // Log if commands are running
     Logger.recordOutput("Commands/DriveCommandActive", driveCmd != null);
 
+    ShotParameters shotParameters =
+        ShotCalculator.calculateShot(
+            drive.getPose(), new ChassisSpeeds(0, 0, 0), new Translation3d(3, 2, 0.5), 10);
+
     controller_two
         .a()
         .onTrue(
@@ -469,8 +476,8 @@ public class RobotContainer {
                   gamePieceSimulation.launchFuelBall(
                       new Translation3d(0, 0, 0),
                       10,
-                      new Rotation2d(Math.toRadians(45)),
-                      new Rotation2d(0));
+                      shotParameters.hoodAngle,
+                      shotParameters.turretAngle);
                 }));
   }
 }
