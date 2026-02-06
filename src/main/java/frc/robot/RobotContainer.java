@@ -236,24 +236,29 @@ public class RobotContainer {
                 Math.abs(controller.getLeftY()) > 0.1
                     || Math.abs(controller.getLeftX()) > 0.1
                     || Math.abs(controller.getRightX()) > 0.1);
+    // When alliance is not present (e.g. in sim with no DS alliance selected), default to Blue
+    // so drive still works.
     var alliance = DriverStation.getAlliance();
-    if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
+    boolean isRed = alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
+
+    if (isRed) {
       driverControl
           .whileTrue(
               DriveCommands.joystickDrive(
                   drive,
-                  () -> modifyJoystickAxis(controller.getLeftY()), // Changed to raw values
-                  () -> modifyJoystickAxis(controller.getLeftX()), // Changed to raw values
-                  () -> modifyJoystickAxis(-controller.getRightX()))) // Changed to raw values
+                  () -> modifyJoystickAxis(controller.getLeftY()),
+                  () -> modifyJoystickAxis(controller.getLeftX()),
+                  () -> modifyJoystickAxis(-controller.getRightX())))
           .onFalse(DriveCommands.stopDriveCommand(drive));
-    } else if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Blue) {
+    } else {
+      // Blue, or no alliance (e.g. sim) — use Blue convention
       driverControl
           .whileTrue(
               DriveCommands.joystickDrive(
                   drive,
-                  () -> modifyJoystickAxis(-controller.getLeftY()), // Changed to raw values
-                  () -> modifyJoystickAxis(-controller.getLeftX()), // Changed to raw values
-                  () -> modifyJoystickAxis(-controller.getRightX()))) // Changed to raw values
+                  () -> modifyJoystickAxis(-controller.getLeftY()),
+                  () -> modifyJoystickAxis(-controller.getLeftX()),
+                  () -> modifyJoystickAxis(-controller.getRightX())))
           .onFalse(DriveCommands.stopDriveCommand(drive));
     }
 
