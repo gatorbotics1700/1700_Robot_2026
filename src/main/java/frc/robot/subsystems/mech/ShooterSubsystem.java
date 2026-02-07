@@ -1,7 +1,5 @@
 package frc.robot.subsystems.mech;
 
-import org.littletonrobotics.junction.Logger;
-
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -12,6 +10,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
+import org.littletonrobotics.junction.Logger;
 
 public class ShooterSubsystem extends SubsystemBase {
   public static final double TRANSITION_SPEED = 0;
@@ -82,7 +81,7 @@ public class ShooterSubsystem extends SubsystemBase {
     this.transitionSpeed = transitionSpeed;
   }
 
-  public void setShooterVoltages(double flywheelVoltage, double transitionVoltage){
+  public void setShooterVoltages(double flywheelVoltage, double transitionVoltage) {
     flywheelMotor.setVoltage(flywheelVoltage);
     Logger.recordOutput("flywheelMotor velocity", flywheelMotor.getVelocity().getValueAsDouble());
     transitionMotor1.setVoltage(transitionVoltage);

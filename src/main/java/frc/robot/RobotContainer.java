@@ -18,7 +18,6 @@ package frc.robot;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -31,7 +30,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.ClimbCommands;
 import frc.robot.commands.IntakeCommands;
-import frc.robot.commands.ShootingCommand;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
 import frc.robot.generated.TunerConstants;
@@ -78,7 +76,7 @@ public class RobotContainer {
   private final HopperFloorSubsystem transitionSubsystem = new HopperFloorSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final GamePieceSimulation gamePieceSimulation = new GamePieceSimulation();
-  private ShotParameters shotParameters = null;
+  private ShotParameters params;
   // private final TurretSubsystem turretSubsystem;
 
   // Controllers
@@ -398,22 +396,20 @@ public class RobotContainer {
       // }
 
       controller_two
-        .a()
-        .onTrue(
-          new InstantCommand(
-            () -> {
-              shooterSubsystem.setShooterVoltages(0, 0);
-            }
-        ));
+          .a()
+          .onTrue(
+              new InstantCommand(
+                  () -> {
+                    shooterSubsystem.setShooterVoltages(0, 0);
+                  }));
 
       controller_two
-        .b()
-        .onTrue(
-          new InstantCommand(
-            () -> {
-              shooterSubsystem.setShooterVoltages(10, 9);
-            }
-        ));
+          .b()
+          .onTrue(
+              new InstantCommand(
+                  () -> {
+                    shooterSubsystem.setShooterVoltages(10, 9);
+                  }));
 
       // controller_two
       //     .a()
@@ -424,19 +420,11 @@ public class RobotContainer {
       //             }));
 
       controller_two
-          .b()
-          .onTrue(
-              new InstantCommand(
-                  () -> {
-                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(30.0)));
-                  }));
-
-      controller_two
           .x()
           .onTrue(
               new InstantCommand(
                   () -> {
-                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0.0)));
+                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.PI/2).minus(params.hoodAngle));
                   }));
 
       controller_two
@@ -542,9 +530,8 @@ public class RobotContainer {
     // Log if commands are running
     Logger.recordOutput("Commands/DriveCommandActive", driveCmd != null);
 
-    shotParameters =
+    params =
         ShotCalculator.calculateShot(
             drive.getPose(), drive.getChassisSpeeds(), Constants.BLUE_HUB, 10);
-    drive.setDesiredAngleSupplier(shotParameters.turretAngle);
   }
 }
