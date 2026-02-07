@@ -20,7 +20,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -503,6 +502,6 @@ public class RobotContainer {
 
     shotParameters =
         ShotCalculator.calculateShot(
-            drive.getPose(), new ChassisSpeeds(0, 0, 0), Constants.BLUE_HUB, 10);
+            drive.getPose(), drive.getChassisSpeeds(), Constants.BLUE_HUB, 10);
   }
 }

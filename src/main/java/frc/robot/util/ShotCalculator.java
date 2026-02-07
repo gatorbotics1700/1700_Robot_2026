@@ -7,10 +7,12 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.Constants;
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.Logger;
 
 // this is what we will use in constant tracking command!
 
-// @AutoLog
+@AutoLog
 public class ShotCalculator {
 
   public ShotCalculator() {}
@@ -36,6 +38,8 @@ public class ShotCalculator {
             Math.atan2(
                 target.getY() - fieldToShooter.getY(), target.getX() - fieldToShooter.getX()));
 
+    Logger.recordOutput("shotCalculator/uncompYaw", uncompYaw);
+
     Translation2d botVelo =
         new Translation2d(
             drivetrainVelocity.vxMetersPerSecond, drivetrainVelocity.vxMetersPerSecond);
@@ -46,12 +50,17 @@ public class ShotCalculator {
     // rotation
     Translation2d trajectoryRelativeShooterVelo =
         shooterVelo.rotateBy(
-            uncompYaw); // uncomp yaw is the angle from the robot to the hub so long as turret
-    // zero is robot zero
+            uncompYaw); // uncomp yaw is the angle from the robot to the hub so long as
+    // turret zero is robot zero
+
+    Logger.recordOutput(
+        "shotCalculator/trajectoryRelativeShooterVelo", trajectoryRelativeShooterVelo);
+
     double tangentialVelo = trajectoryRelativeShooterVelo.getY();
     double radialVelo = trajectoryRelativeShooterVelo.getX();
     Rotation2d turretAdjust = new Rotation2d(Math.atan2(-tangentialVelo, shotSpeed));
     Rotation2d compYaw = uncompYaw.plus(turretAdjust);
+    Logger.recordOutput("shotCalculator/turretAdjust", turretAdjust);
     Rotation2d turretAngle =
         compYaw; // if we don't want shoot on the move then just switch this to uncomp yaw!
 
@@ -67,7 +76,8 @@ public class ShotCalculator {
     // matters) but it might be fine to approximate like this
     double compRange =
         shotTime * Math.sqrt(tangentialVelo * tangentialVelo + shotSpeed * shotSpeed);
-    // Amelia adds ballistics equation here to calculate the angle using compRange and
+    Logger.recordOutput("shotCalculator/compRangeAdjust", compRange - uncompRange);
+    // Amelia uses ballistics equation here to calculate the angle using compRange and
     // shooterToHubHeight!
 
     Rotation2d hoodAngle =
@@ -83,6 +93,7 @@ public class ShotCalculator {
                                     * Math.pow(shotSpeed, 2)
                                     * shooterToHubHeight))
                     / (-2 * 9.8 * Math.pow(compRange, 2))));
+    Logger.recordOutput("shotCalculator/hoodAngle", hoodAngle.getDegrees());
     return new ShotParameters(turretAngle, hoodAngle);
   }
 }
