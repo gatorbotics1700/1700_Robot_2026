@@ -97,7 +97,9 @@
     {
       "useGamepad": true
     },
-    {},
+    {
+      "useGamepad": true
+    },
     {
       "useGamepad": true
     }

@@ -285,17 +285,17 @@ public class RobotContainer {
       //               }
       //             }));
       // gamepiece sim
-      controller
-          .a()
-          .onTrue(
-              new InstantCommand(
-                  () -> {
-                    gamePieceSimulation.launchFuelBall(
-                        new Translation3d(0, 0, 0),
-                        10,
-                        shotParameters.hoodAngle,
-                        shotParameters.turretAngle);
-                  }));
+      // controller
+      //     .a()
+      //     .onTrue(
+      //         new InstantCommand(
+      //             () -> {
+      //               gamePieceSimulation.launchFuelBall(
+      //                   new Translation3d(0, 0, 0),
+      //                   10,
+      //                   shotParameters.hoodAngle,
+      //                   shotParameters.turretAngle);
+      //             }));
 
       // Reset gyro to 0° when B button is pressed
       controller
