@@ -17,6 +17,18 @@ public class ShotCalculator {
 
   public ShotCalculator() {}
 
+  /** Field-frame 3D position of the shooter exit given the robot pose. */
+  public static Translation3d getFieldShooterPosition(Pose2d drivetrainPose) {
+    Translation2d botToShooter =
+        new Translation2d(Constants.BOT_TO_SHOOTER.getX(), Constants.BOT_TO_SHOOTER.getY());
+    Pose2d fieldToShooter2d =
+        drivetrainPose.transformBy(new Transform2d(botToShooter, new Rotation2d(0)));
+    return new Translation3d(
+        fieldToShooter2d.getX(),
+        fieldToShooter2d.getY(),
+        Constants.BOT_TO_SHOOTER.getZ());
+  }
+
   public static ShotParameters calculateShot(
       Pose2d drivetrainPose,
       ChassisSpeeds drivetrainVelocity,
@@ -40,7 +52,7 @@ public class ShotCalculator {
 
     Translation2d botVelo =
         new Translation2d(
-            drivetrainVelocity.vxMetersPerSecond, drivetrainVelocity.vxMetersPerSecond);
+            drivetrainVelocity.vxMetersPerSecond, drivetrainVelocity.vyMetersPerSecond);
 
     Translation2d shooterVelo =
         botVelo; // TODO add math later because shooter velo isn't the same as robot velo
@@ -79,6 +91,8 @@ public class ShotCalculator {
     double compRange =
         shotTime * Math.sqrt(tangentialVelo * tangentialVelo + shotSpeed * shotSpeed);
     Logger.recordOutput("shotCalculator/compRangeAdjust", compRange - uncompRange);
+    Logger.recordOutput("shotCalculator/compRange", compRange);
+    Logger.recordOutput("shotCalculator/shotTime", shotTime);
     // Amelia uses ballistics equation here to calculate the angle using compRange and
     // shooterToHubHeight!
 

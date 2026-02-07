@@ -18,6 +18,7 @@ package frc.robot;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -77,7 +78,7 @@ public class RobotContainer {
   private final HopperFloorSubsystem transitionSubsystem = new HopperFloorSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final GamePieceSimulation gamePieceSimulation = new GamePieceSimulation();
-  private ShotParameters params;
+  private ShotParameters shotParameters;
   // private final TurretSubsystem turretSubsystem;
 
   // Controllers
@@ -362,27 +363,30 @@ public class RobotContainer {
         controller_two = new CommandXboxController(3);
       }
 
-      // if (Constants.currentMode == Constants.Mode.SIM) {
-      //   controller_two
-      //       .a()
-      //       .onTrue(
-      //           new InstantCommand(
-      //               () -> {
-      //                 gamePieceSimulation.launchFuelBall(
-      //                     new Translation3d(
-      //                         drive.getPose().getX(),
-      //                         drive.getPose().getY(),
-      //                         Constants.BOT_TO_SHOOTER
-      //                             .getZ()), // TODO make this shooter pose instead of drive pose
-      //                     10,
-      //                     new Translation3d(
-      //                         drive.getChassisSpeeds().vxMetersPerSecond,
-      //                         drive.getChassisSpeeds().vyMetersPerSecond,
-      //                         0),
-      //                     shotParameters.hoodAngle,
-      //                     shotParameters.turretAngle.plus(drive.getPose().getRotation()));
-      //               }));
-      // } else {
+      if (Constants.currentMode == Constants.Mode.SIM) {
+        controller_two
+            .a()
+            .onTrue(
+                new InstantCommand(
+                    () -> {
+                      // ChassisSpeeds are in robot frame; ball velocity is built in field frame.
+                      // Convert robot velocity to field frame so the sim adds it correctly.
+                      ChassisSpeeds cs = drive.getChassisSpeeds();
+                      Rotation2d heading = drive.getPose().getRotation();
+                      double vxField =
+                          cs.vxMetersPerSecond * heading.getCos()
+                              - cs.vyMetersPerSecond * heading.getSin();
+                      double vyField =
+                          cs.vxMetersPerSecond * heading.getSin()
+                              + cs.vyMetersPerSecond * heading.getCos();
+                      gamePieceSimulation.launchFuelBall(
+                          ShotCalculator.getFieldShooterPosition(drive.getPose()),
+                          10,
+                          new Translation3d(vxField, vyField, 0),
+                          shotParameters.hoodAngle,
+                          shotParameters.turretAngle.plus(heading));
+                    }));
+      } // else {
       //   controller_two
       //       .a()
       //       .onTrue(
@@ -442,14 +446,14 @@ public class RobotContainer {
       //               hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(20.0)));
       //             }));
 
-      // controller_two
-      //     .x()
-      //     .onTrue(
-      //         new InstantCommand(
-      //             () -> {
-      //               hoodSubsystem.setDesiredAngle(new
-      // Rotation2d(Math.PI/2).minus(params.hoodAngle));
-      //             }));
+      controller_two
+          .x()
+          .onTrue(
+              new InstantCommand(
+                  () -> {
+                    hoodSubsystem.setDesiredAngle(
+                        new Rotation2d(Math.PI / 2).minus(shotParameters.hoodAngle));
+                  }));
 
       // controller_two
       //     .y()
@@ -554,7 +558,7 @@ public class RobotContainer {
     // Log if commands are running
     Logger.recordOutput("Commands/DriveCommandActive", driveCmd != null);
 
-    params =
+    shotParameters =
         ShotCalculator.calculateShot(
             drive.getPose(), drive.getChassisSpeeds(), Constants.BLUE_HUB, 10);
   }
