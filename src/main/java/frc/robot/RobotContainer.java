@@ -19,7 +19,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,12 +27,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.ClimbCommands;
+import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
-import frc.robot.commands.drive.LineupCommand;
-import frc.robot.commands.drive.LineupCommand.ReefSide;
-import frc.robot.commands.drive.LineupCommand.YOffset;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -41,13 +39,19 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.mech.ClimberSubsystem;
 import frc.robot.subsystems.mech.HoodSubsystem;
 import frc.robot.subsystems.mech.HopperFloorSubsystem;
+import frc.robot.subsystems.mech.IntakeSubsystem;
+import frc.robot.subsystems.mech.MechIOs.HoodIO;
+import frc.robot.subsystems.mech.MechIOs.HoodIOSim;
+import frc.robot.subsystems.mech.MechIOs.HoodIOTalonFX;
 import frc.robot.subsystems.mech.ShooterSubsystem;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import frc.robot.util.CommandSimMacXboxController;
 import frc.robot.util.MultiStepAutoChooser;
 import frc.robot.util.RobotConfigLoader;
 import java.util.function.Supplier;
@@ -64,96 +68,21 @@ public class RobotContainer {
   private final Drive drive;
   private final Vision vision;
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+  private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
   private final HoodSubsystem hoodSubsystem;
   private final HopperFloorSubsystem transitionSubsystem = new HopperFloorSubsystem();
+  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   // private final TurretSubsystem turretSubsystem;
 
   // Controllers
-  private final CommandXboxController controller = new CommandXboxController(0);
-  private final CommandXboxController controller_two = new CommandXboxController(3);
-
-  private final GenericHID buttonBoard1A = new GenericHID(1);
-  private final GenericHID buttonBoard1B = new GenericHID(2);
+  private CommandXboxController controller = null;
+  private CommandXboxController controller_two = null;
 
   // Dashboard inputs
   private final MultiStepAutoChooser multiStepAutoChooser;
 
-  // Button Bindings
-
-  private final Trigger Q1LeftLineup = new Trigger(() -> buttonBoard1A.getRawButtonPressed(1));
-  private final Trigger Q1RightLineup = new Trigger(() -> buttonBoard1A.getRawButtonPressed(2));
-
-  private final Trigger Q2LeftLineup = new Trigger(() -> buttonBoard1B.getRawButtonPressed(2));
-  private final Trigger Q2RightLineup = new Trigger(() -> buttonBoard1B.getRawButtonPressed(1));
-
-  private final Trigger Q3LeftLineup = new Trigger(() -> buttonBoard1B.getRawButtonPressed(4));
-  private final Trigger Q3RightLineup = new Trigger(() -> buttonBoard1B.getRawButtonPressed(3));
-
-  private final Trigger Q4LeftLineup = new Trigger(() -> buttonBoard1B.getRawButtonPressed(6));
-  private final Trigger Q4RightLineup = new Trigger(() -> buttonBoard1B.getRawButtonPressed(5));
-
-  private final Trigger Q5LeftLineup = new Trigger(() -> buttonBoard1A.getRawButtonPressed(5));
-  private final Trigger Q5RightLineup = new Trigger(() -> buttonBoard1A.getRawButtonPressed(6));
-
-  private final Trigger Q6LeftLineup = new Trigger(() -> buttonBoard1A.getRawButtonPressed(3));
-  private final Trigger Q6RightLineup = new Trigger(() -> buttonBoard1A.getRawButtonPressed(4));
-
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // new Trigger(controller_two::getAButtonPressed)
-    //     .onTrue(
-    //         new ShooterCommand(shooterSubsystem, Constants.FLYWHEEL_SHOOTING_VOLTAGE)
-    //             .alongWith(new WaitCommand(3.0))
-    //             .andThen(
-    //                 new HopperFloorCommand(
-    //                     transitionSubsystem, Constants.KICKER_SHOOTING_VOLTAGE, 0)));
-    // new Trigger(controller_two::getBButtonPressed)
-    //     .onTrue(
-    //         new TransitionCommand(transitionSubsystem, 0, 0)
-    //             .alongWith(new ShooterCommand(shooterSubsystem, 0)));
-
-    // Named Commands
-    NamedCommands.registerCommand(
-        "Shooter Command",
-        new InstantCommand(
-            () -> {
-              CommandScheduler.getInstance().schedule(Commands.none());
-            }));
-    NamedCommands.registerCommand(
-        "Climb Command",
-        new InstantCommand(
-            () -> {
-              CommandScheduler.getInstance().schedule(Commands.none());
-            }));
-
-    NamedCommands.registerCommand(
-        "Intake Command",
-        new InstantCommand(
-            () -> {
-              CommandScheduler.getInstance().schedule(Commands.none());
-            }));
-
-    NamedCommands.registerCommand(
-        "Stop Kicker Command",
-        new InstantCommand(
-            () -> {
-              CommandScheduler.getInstance().schedule(Commands.none());
-            }));
-
-    NamedCommands.registerCommand(
-        "Q1 Left Lineup",
-        new InstantCommand(
-            () -> {
-              CommandScheduler.getInstance()
-                  .schedule(LineupCommand.Lineup(ReefSide.Q1, YOffset.Left));
-            }));
-    NamedCommands.registerCommand(
-        "Q1 Right Lineup",
-        new InstantCommand(
-            () -> {
-              CommandScheduler.getInstance()
-                  .schedule(LineupCommand.Lineup(ReefSide.Q1, YOffset.Right));
-            }));
 
     // Set up robot depending on mode
     switch (Constants.currentMode) {
@@ -174,6 +103,7 @@ public class RobotContainer {
                     VisionConstants.CAMERA_0_NAME, VisionConstants.ROBOT_TO_CAMERA_0),
                 new VisionIOPhotonVision(
                     VisionConstants.CAMERA_1_NAME, VisionConstants.ROBOT_TO_CAMERA_1));
+        hoodSubsystem = new HoodSubsystem(new HoodIOTalonFX());
         break;
 
       case SIM:
@@ -197,6 +127,7 @@ public class RobotContainer {
                     VisionConstants.CAMERA_1_NAME,
                     VisionConstants.ROBOT_TO_CAMERA_1,
                     drive::getPose));
+        hoodSubsystem = new HoodSubsystem(new HoodIOSim());
         break;
 
       default: // TODO: should the default be real as a safety for matches? to be discussed
@@ -210,6 +141,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 (pose) -> {});
         vision = new Vision(drive);
+        hoodSubsystem = new HoodSubsystem(new HoodIO() {});
         break;
     }
 
@@ -219,7 +151,48 @@ public class RobotContainer {
         };
     // turretSubsystem = new TurretSubsystem(robotPose);
 
-    hoodSubsystem = new HoodSubsystem();
+    //     hoodSubsystem = new HoodSubsystem();
+
+    // Named Commands
+    NamedCommands.registerCommand(
+        "Shooter Command",
+        new InstantCommand(
+            () -> {
+              CommandScheduler.getInstance().schedule(Commands.none());
+            }));
+
+    // intake commands
+
+    NamedCommands.registerCommand(
+        "Intake Command",
+        new InstantCommand(
+            () -> {
+              CommandScheduler.getInstance()
+                  .schedule(
+                      IntakeCommands.DeployIntake(intakeSubsystem)
+                          .andThen(IntakeCommands.RunIntake(intakeSubsystem)));
+            }));
+
+    NamedCommands.registerCommand(
+        "Stop Kicker Command",
+        new InstantCommand(
+            () -> {
+              CommandScheduler.getInstance().schedule(Commands.none());
+            }));
+
+    // CLIMB COMMAND
+
+    NamedCommands.registerCommand(
+        "Climb Command",
+        new InstantCommand(
+            () -> {
+              try {
+                CommandScheduler.getInstance()
+                    .schedule(ClimbCommands.Climb(drive, climberSubsystem));
+              } catch (Exception e) {
+                e.printStackTrace();
+              }
+            }));
 
     // mech buttons
     // new Trigger(controller_two::getXButtonPressed)
@@ -247,7 +220,6 @@ public class RobotContainer {
     //     "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
-    configureButtonBindings();
   }
 
   /**
@@ -256,301 +228,115 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  public void configureButtonBindings() {
-    // Default command, normal field-relative drive
-    // Uses joystickDriveAtAngle when desiredAngle is set, otherwise uses joystickDrive
-    Trigger driverControl =
-        new Trigger(
-            () ->
-                Math.abs(controller.getLeftY()) > 0.1
-                    || Math.abs(controller.getLeftX()) > 0.1
-                    || Math.abs(controller.getRightX()) > 0.1);
-    var alliance = DriverStation.getAlliance();
-    if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
-      driverControl
-          .whileTrue(
-              DriveCommands.joystickDrive(
-                  drive,
-                  () -> modifyJoystickAxis(controller.getLeftY()), // Changed to raw values
-                  () -> modifyJoystickAxis(controller.getLeftX()), // Changed to raw values
-                  () -> modifyJoystickAxis(-controller.getRightX()))) // Changed to raw values
-          .onFalse(DriveCommands.stopDriveCommand(drive));
-    } else if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Blue) {
-      driverControl
-          .whileTrue(
-              DriveCommands.joystickDrive(
-                  drive,
-                  () -> modifyJoystickAxis(-controller.getLeftY()), // Changed to raw values
-                  () -> modifyJoystickAxis(-controller.getLeftX()), // Changed to raw values
-                  () -> modifyJoystickAxis(-controller.getRightX()))) // Changed to raw values
-          .onFalse(DriveCommands.stopDriveCommand(drive));
+  public void configureDriverButtonBindings() {
+    if (DriverStation.isJoystickConnected(0)) {
+      if (Constants.currentMode == Constants.Mode.SIM
+          && System.getProperty("os.name").contains("Mac")) {
+        controller = new CommandSimMacXboxController(0);
+      } else {
+        controller = new CommandXboxController(0);
+      }
+
+      // Default command, normal field-relative drive
+      Trigger driverControl =
+          new Trigger(
+              () ->
+                  Math.abs(controller.getLeftY()) > 0.1
+                      || Math.abs(controller.getLeftX()) > 0.1
+                      || Math.abs(controller.getRightX()) > 0.1);
+      var alliance = DriverStation.getAlliance();
+      boolean isRed = alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
+      if (isRed) {
+        driverControl
+            .whileTrue(
+                DriveCommands.joystickDrive(
+                    drive,
+                    () -> modifyJoystickAxis(controller.getLeftY()), // Changed to raw values
+                    () -> modifyJoystickAxis(controller.getLeftX()), // Changed to raw values
+                    () -> modifyJoystickAxis(-controller.getRightX()))) // Changed to raw values
+            .onFalse(DriveCommands.stopDriveCommand(drive));
+      } else {
+        driverControl
+            .whileTrue(
+                DriveCommands.joystickDrive(
+                    drive,
+                    () -> modifyJoystickAxis(-controller.getLeftY()), // Changed to raw values
+                    () -> modifyJoystickAxis(-controller.getLeftX()), // Changed to raw values
+                    () -> modifyJoystickAxis(-controller.getRightX()))) // Changed to raw values
+            .onFalse(DriveCommands.stopDriveCommand(drive));
+      }
+
+      // drive over bump
+      controller
+          .a()
+          .onTrue(
+              Commands.runOnce(
+                  () -> {
+                    try {
+                      CommandScheduler.getInstance()
+                          .schedule(DriveOverBumpCommand.driveOverBump(drive));
+                    } catch (Exception e) {
+                      e.printStackTrace();
+                    }
+                  }));
+
+      // Reset gyro to 0° when B button is pressed
+      controller
+          .b()
+          .onTrue(
+              Commands.runOnce(
+                      () -> {
+                        if (DriverStation.getAlliance().isPresent()
+                            && DriverStation.getAlliance().get() == DriverStation.Alliance.Red) {
+                          drive.setPose(
+                              new Pose2d(
+                                  drive.getPose().getTranslation(),
+                                  new Rotation2d(Math.toRadians(0))));
+                        } else {
+                          drive.setPose(
+                              new Pose2d(
+                                  drive.getPose().getTranslation(),
+                                  new Rotation2d(Math.toRadians(0))));
+                        }
+                      },
+                      drive)
+                  .ignoringDisable(true));
+
+      // drive under trench
+      controller
+          .x()
+          .onTrue(
+              Commands.runOnce(
+                  () -> {
+                    try {
+                      CommandScheduler.getInstance()
+                          .schedule(DriveUnderTrenchCommand.driveUnderTrench(drive));
+                    } catch (Exception e) {
+                      e.printStackTrace();
+                    }
+                  }));
+
+      controller
+          .rightBumper()
+          .onTrue(
+              Commands.runOnce(
+                  () -> {
+                    drive.setSlowDrive();
+                  },
+                  drive));
     }
+  }
 
-    controller
-        .a()
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  try {
-                    CommandScheduler.getInstance()
-                        .schedule(DriveOverBumpCommand.driveOverBump(drive));
-                  } catch (Exception e) {
-                    // System.out.println("CATCHING EXCEPTION DAHHHHHHHHHHHHHHHHHH");
-                    e.printStackTrace();
-                  }
-                }));
+  public void configureCodriverButtonBindings() {
+    if (DriverStation.isJoystickConnected(3)) {
+      if (Constants.currentMode == Constants.Mode.SIM
+          && System.getProperty("os.name").contains("Mac")) {
+        controller_two = new CommandSimMacXboxController(3);
+      } else {
+        controller_two = new CommandXboxController(3);
+      }
 
-    // Reset gyro to 0° when B button is pressed
-    controller
-        .b()
-        .onTrue(
-            Commands.runOnce(
-                    () -> {
-                      if (DriverStation.getAlliance().isPresent()
-                          && DriverStation.getAlliance().get() == DriverStation.Alliance.Red) {
-                        drive.setPose(
-                            new Pose2d(
-                                drive.getPose().getTranslation(),
-                                new Rotation2d(Math.toRadians(0))));
-                      } else {
-                        drive.setPose(
-                            new Pose2d(
-                                drive.getPose().getTranslation(),
-                                new Rotation2d(Math.toRadians(0))));
-                      }
-                    },
-                    drive)
-                .ignoringDisable(true));
-    controller
-        .x()
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  try {
-                    CommandScheduler.getInstance()
-                        .schedule(DriveUnderTrenchCommand.driveUnderTrench(drive, hoodSubsystem));
-                  } catch (Exception e) {
-                    e.printStackTrace();
-                  }
-                }));
-
-    controller
-        .y()
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  drive.disableTargetPointFacing();
-                }));
-    controller
-        .a()
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  try {
-                    CommandScheduler.getInstance()
-                        .schedule(DriveOverBumpCommand.driveOverBump(drive));
-                  } catch (Exception e) {
-                    e.printStackTrace();
-                  }
-                }));
-
-    // controller_two
-    //     .back()
-    //     .onTrue(
-    //         Commands.runOnce(
-    //             () -> {
-    //               drive.setPose(new Pose2d(4, 2, new Rotation2d(Math.toRadians(0))));
-    //             },
-    //             drive));
-
-    // controller_two
-    //     .x()
-    //     .onTrue(
-    //         Commands.runOnce(
-    //                 () -> {
-    //                   vision.takePicture();
-    //                 })
-    //             .ignoringDisable(true));
-
-    controller
-        .rightBumper()
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  drive.setSlowDrive();
-                },
-                drive));
-
-    Q1LeftLineup.onTrue(
-        new InstantCommand(
-                () -> {
-                  // Log lineup target directly - much simpler!
-                  Logger.recordOutput(
-                      "Robot/TargetPose",
-                      LineupCommand.getLineupTagPose(
-                          DriverStation.getAlliance().orElse(Alliance.Blue), ReefSide.Q1));
-                  Logger.recordOutput("Robot/LineupSide", "Q1");
-                  Logger.recordOutput("Robot/IsLeftSide", true);
-                  CommandScheduler.getInstance()
-                      .schedule(LineupCommand.Lineup(ReefSide.Q1, YOffset.Left));
-                })
-            .withName("Q1LeftLineup"));
-
-    Q1RightLineup.onTrue(
-        new InstantCommand(
-                () -> {
-                  Logger.recordOutput(
-                      "Robot/TargetPose",
-                      LineupCommand.getLineupTagPose(
-                          DriverStation.getAlliance().orElse(Alliance.Blue), ReefSide.Q1));
-                  Logger.recordOutput("Robot/LineupSide", "Q1");
-                  Logger.recordOutput("Robot/IsLeftSide", false);
-                  CommandScheduler.getInstance()
-                      .schedule(LineupCommand.Lineup(ReefSide.Q1, YOffset.Right));
-                })
-            .withName("Q1RightLineup"));
-
-    Q2LeftLineup.onTrue(
-        new InstantCommand(
-                () -> {
-                  Logger.recordOutput(
-                      "Robot/TargetPose",
-                      LineupCommand.getLineupTagPose(
-                          DriverStation.getAlliance().orElse(Alliance.Blue), ReefSide.Q2));
-                  Logger.recordOutput("Robot/LineupSide", "Q2");
-                  Logger.recordOutput("Robot/IsLeftSide", true);
-                  CommandScheduler.getInstance()
-                      .schedule(LineupCommand.Lineup(ReefSide.Q2, YOffset.Left));
-                })
-            .withName("Q2LeftLineup"));
-
-    Q2RightLineup.onTrue(
-        new InstantCommand(
-                () -> {
-                  Logger.recordOutput(
-                      "Robot/TargetPose",
-                      LineupCommand.getLineupTagPose(
-                          DriverStation.getAlliance().orElse(Alliance.Blue), ReefSide.Q2));
-                  Logger.recordOutput("Robot/LineupSide", "Q2");
-                  Logger.recordOutput("Robot/IsLeftSide", false);
-                  CommandScheduler.getInstance()
-                      .schedule(LineupCommand.Lineup(ReefSide.Q2, YOffset.Right));
-                })
-            .withName("Q2RightLineup"));
-
-    Q3LeftLineup.onTrue(
-        new InstantCommand(
-                () -> {
-                  Logger.recordOutput(
-                      "Robot/TargetPose",
-                      LineupCommand.getLineupTagPose(
-                          DriverStation.getAlliance().orElse(Alliance.Blue), ReefSide.Q3));
-                  Logger.recordOutput("Robot/LineupSide", "Q3");
-                  Logger.recordOutput("Robot/IsLeftSide", true);
-                  CommandScheduler.getInstance()
-                      .schedule(LineupCommand.Lineup(ReefSide.Q3, YOffset.Left));
-                })
-            .withName("Q3LeftLineup"));
-
-    Q3RightLineup.onTrue(
-        new InstantCommand(
-                () -> {
-                  Logger.recordOutput(
-                      "Robot/TargetPose",
-                      LineupCommand.getLineupTagPose(
-                          DriverStation.getAlliance().orElse(Alliance.Blue), ReefSide.Q3));
-                  Logger.recordOutput("Robot/LineupSide", "Q3");
-                  Logger.recordOutput("Robot/IsLeftSide", false);
-                  CommandScheduler.getInstance()
-                      .schedule(LineupCommand.Lineup(ReefSide.Q3, YOffset.Right));
-                })
-            .withName("Q3RightLineup"));
-
-    Q4LeftLineup.onTrue(
-        new InstantCommand(
-                () -> {
-                  Logger.recordOutput(
-                      "Robot/TargetPose",
-                      LineupCommand.getLineupTagPose(
-                          DriverStation.getAlliance().orElse(Alliance.Blue), ReefSide.Q4));
-                  Logger.recordOutput("Robot/LineupSide", "Q4");
-                  Logger.recordOutput("Robot/IsLeftSide", true);
-                  CommandScheduler.getInstance()
-                      .schedule(LineupCommand.Lineup(ReefSide.Q4, YOffset.Left));
-                })
-            .withName("Q4LeftLineup"));
-
-    Q4RightLineup.onTrue(
-        new InstantCommand(
-                () -> {
-                  Logger.recordOutput(
-                      "Robot/TargetPose",
-                      LineupCommand.getLineupTagPose(
-                          DriverStation.getAlliance().orElse(Alliance.Blue), ReefSide.Q4));
-                  Logger.recordOutput("Robot/LineupSide", "Q4");
-                  Logger.recordOutput("Robot/IsLeftSide", false);
-                  CommandScheduler.getInstance()
-                      .schedule(LineupCommand.Lineup(ReefSide.Q4, YOffset.Right));
-                })
-            .withName("Q4RightLineup"));
-
-    Q5LeftLineup.onTrue(
-        new InstantCommand(
-                () -> {
-                  Logger.recordOutput(
-                      "Robot/TargetPose",
-                      LineupCommand.getLineupTagPose(
-                          DriverStation.getAlliance().orElse(Alliance.Blue), ReefSide.Q5));
-                  Logger.recordOutput("Robot/LineupSide", "Q5");
-                  Logger.recordOutput("Robot/IsLeftSide", true);
-                  CommandScheduler.getInstance()
-                      .schedule(LineupCommand.Lineup(ReefSide.Q5, YOffset.Left));
-                })
-            .withName("Q5LeftLineup"));
-
-    Q5RightLineup.onTrue(
-        new InstantCommand(
-                () -> {
-                  Logger.recordOutput(
-                      "Robot/TargetPose",
-                      LineupCommand.getLineupTagPose(
-                          DriverStation.getAlliance().orElse(Alliance.Blue), ReefSide.Q5));
-                  Logger.recordOutput("Robot/LineupSide", "Q5");
-                  Logger.recordOutput("Robot/IsLeftSide", false);
-                  CommandScheduler.getInstance()
-                      .schedule(LineupCommand.Lineup(ReefSide.Q5, YOffset.Right));
-                })
-            .withName("Q5RightLineup"));
-
-    Q6LeftLineup.onTrue(
-        new InstantCommand(
-                () -> {
-                  Logger.recordOutput(
-                      "Robot/TargetPose",
-                      LineupCommand.getLineupTagPose(
-                          DriverStation.getAlliance().orElse(Alliance.Blue), ReefSide.Q6));
-                  Logger.recordOutput("Robot/LineupSide", "Q6");
-                  Logger.recordOutput("Robot/IsLeftSide", true);
-                  CommandScheduler.getInstance()
-                      .schedule(LineupCommand.Lineup(ReefSide.Q6, YOffset.Left));
-                })
-            .withName("Q6LeftLineup"));
-
-    Q6RightLineup.onTrue(
-        new InstantCommand(
-                () -> {
-                  Logger.recordOutput(
-                      "Robot/TargetPose",
-                      LineupCommand.getLineupTagPose(
-                          DriverStation.getAlliance().orElse(Alliance.Blue), ReefSide.Q6));
-                  Logger.recordOutput("Robot/LineupSide", "Q6");
-                  Logger.recordOutput("Robot/IsLeftSide", false);
-                  CommandScheduler.getInstance()
-                      .schedule(LineupCommand.Lineup(ReefSide.Q6, YOffset.Right));
-                })
-            .withName("Q6RightLineup"));
-
-    controller_two
+      controller_two
         .a()
         .onTrue(
             new InstantCommand(
@@ -581,71 +367,7 @@ public class RobotContainer {
                 () -> {
                   hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(10)));
                 }));  
-
-    
-
-    // controller_two
-    //     .a()
-    //     .onTrue(
-    //         new InstantCommand(
-    //             () -> {
-    //               hoodSubsystem.setHoodVoltage(0);
-    //             }));
-
-    // controller_two
-    //     .b()
-    //     .onTrue(
-    //         new InstantCommand(
-    //             () -> {
-    //               hoodSubsystem.setHoodVoltage(1);
-    //             }));
-
-    // controller_two
-    //     .x()
-    //     .onTrue(
-    //         new InstantCommand(
-    //             () -> {
-    //               hoodSubsystem.setHoodVoltage(2);
-    //             }));
-
-    // controller_two
-    //     .y()
-    //     .onTrue(
-    //         new InstantCommand(
-    //             () -> {
-    //               hoodSubsystem.setHoodVoltage(-1);
-    //             }));
-
-    // controller_two
-    //     .leftBumper()
-    //     .onTrue(
-    //         new InstantCommand(
-    //             () -> {
-    //               Logger.recordOutput(
-    //                   "Robot/TargetPose",
-    //                   LineupCommand.getLineupTagPose(
-    //                       DriverStation.getAlliance().orElse(Alliance.Blue),
-    //                       ReefSide.LeftSubstation));
-    //               Logger.recordOutput("Robot/LineupSide", "LeftSubstation");
-    //               Logger.recordOutput("Robot/IsLeftSide", false);
-    //               CommandScheduler.getInstance()
-    //                   .schedule(LineupCommand.Lineup(ReefSide.LeftSubstation, YOffset.Center));
-    //             }));
-    // controller_two
-    //     .rightBumper()
-    //     .onTrue(
-    //         new InstantCommand(
-    //             () -> {
-    //               Logger.recordOutput(
-    //                   "Robot/TargetPose",
-    //                   LineupCommand.getLineupTagPose(
-    //                       DriverStation.getAlliance().orElse(Alliance.Blue),
-    //                       ReefSide.RightSubstation));
-    //               Logger.recordOutput("Robot/LineupSide", "RightSubstation");
-    //               Logger.recordOutput("Robot/IsLeftSide", false);
-    //               CommandScheduler.getInstance()
-    //                   .schedule(LineupCommand.Lineup(ReefSide.RightSubstation, YOffset.Center));
-    //             }));
+    }
   }
 
   /**
@@ -698,8 +420,14 @@ public class RobotContainer {
     return value;
   }
 
+  public void configureButtonBindings() {
+    configureDriverButtonBindings();
+    configureCodriverButtonBindings();
+  }
+
   public void teleopInit() {
-    drive.enableTargetPointFacing();
+    // drive.enableTargetPointFacing();
+    configureButtonBindings();
   }
 
   /**
@@ -707,31 +435,18 @@ public class RobotContainer {
    * Robot.teleopPeriodic() and Robot.autonomousPeriodic().
    */
   public void periodic() {
+    // gamePieceSimulation.updateBalls();
     // Update multi-step auto chooser options (reads choosers to keep them active)
     multiStepAutoChooser.updateChooserOptions();
 
     // Print selected path name to console
     String selectedPathName = multiStepAutoChooser.getSelectedPathName();
-    System.out.println(
-        "Selected Auto Path: " + (selectedPathName != null ? selectedPathName : "None"));
     System.out.flush(); // Ensure output appears immediately
-
-    // Log button states directly - much simpler!
-    Logger.recordOutput("Buttons/Controller1/A", controller.a().getAsBoolean());
-    Logger.recordOutput("Buttons/Controller1/B", controller.b().getAsBoolean());
-    Logger.recordOutput("Buttons/Controller1/X", controller.x().getAsBoolean());
-    Logger.recordOutput("Buttons/Controller1/Y", controller.y().getAsBoolean());
 
     // Logger.recordOutput("Buttons/Controller2/A", controller_two.a().getAsBoolean());
     // Logger.recordOutput("Buttons/Controller2/B", controller_two.b().getAsBoolean());
     // Logger.recordOutput("Buttons/Controller2/X", controller_two.x().getAsBoolean());
     // Logger.recordOutput("Buttons/Controller2/Y", controller_two.y().getAsBoolean());
-
-    // Log button board states
-    for (int i = 1; i <= 6; i++) {
-      Logger.recordOutput("Buttons/ButtonBoard1A/Button" + i, buttonBoard1A.getRawButton(i));
-      Logger.recordOutput("Buttons/ButtonBoard1B/Button" + i, buttonBoard1B.getRawButton(i));
-    }
 
     // Log command scheduler status
     Logger.recordOutput("Commands/SchedulerActive", true);
@@ -744,5 +459,17 @@ public class RobotContainer {
 
     // Log if commands are running
     Logger.recordOutput("Commands/DriveCommandActive", driveCmd != null);
+
+    // controller_two
+    //     .a()
+    //     .onTrue(
+    //         new InstantCommand(
+    //             () -> {
+    //               gamePieceSimulation.launchFuelBall(
+    //                   new Translation3d(0, 0, 0),
+    //                   10,
+    //                   new Rotation2d(Math.toRadians(45)),
+    //                   new Rotation2d(0));
+    //             }));
   }
 }

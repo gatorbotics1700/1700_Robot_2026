@@ -22,7 +22,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private final TalonFXConfiguration talonFXConfigs; 
   private static MotionMagicExpoVoltage m_request; 
   // so that something can push the intake back in
-  private Rotation2d desiredAngle;
+  private Rotation2d desiredAngle = new Rotation2d();
   private final double POSITION_DEADBAND_DEGREES = 1; // TODO: tune
   private final int DEPLOY_GEAR_RATIO = 9; // TODO find the real value
   private final double PULLEY_ONE_GEAR_RATIO = 42/18; 
