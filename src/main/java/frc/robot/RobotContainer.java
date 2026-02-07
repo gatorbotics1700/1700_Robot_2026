@@ -51,6 +51,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import frc.robot.util.CommandSimMacXboxController;
 import frc.robot.util.MultiStepAutoChooser;
 import frc.robot.util.RobotConfigLoader;
 import java.util.function.Supplier;
@@ -229,7 +230,12 @@ public class RobotContainer {
    */
   public void configureDriverButtonBindings() {
     if (DriverStation.isJoystickConnected(0)) {
-      controller = new CommandXboxController(0);
+      if (Constants.currentMode == Constants.Mode.SIM
+          && System.getProperty("os.name").contains("Mac")) {
+        controller = new CommandSimMacXboxController(0);
+      } else {
+        controller = new CommandXboxController(0);
+      }
 
       // Default command, normal field-relative drive
       Trigger driverControl =
@@ -323,7 +329,12 @@ public class RobotContainer {
 
   public void configureCodriverButtonBindings() {
     if (DriverStation.isJoystickConnected(3)) {
-      controller_two = new CommandXboxController(3);
+      if (Constants.currentMode == Constants.Mode.SIM
+          && System.getProperty("os.name").contains("Mac")) {
+        controller_two = new CommandSimMacXboxController(3);
+      } else {
+        controller_two = new CommandXboxController(3);
+      }
 
       // controller_two
       //     .a()
@@ -408,8 +419,14 @@ public class RobotContainer {
     return value;
   }
 
+  public void configureButtonBindings() {
+    configureDriverButtonBindings();
+    configureCodriverButtonBindings();
+  }
+
   public void teleopInit() {
-    drive.enableTargetPointFacing();
+    // drive.enableTargetPointFacing();
+    configureButtonBindings();
   }
 
   /**
