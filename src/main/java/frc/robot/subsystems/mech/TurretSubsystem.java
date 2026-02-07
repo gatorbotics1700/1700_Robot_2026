@@ -19,8 +19,8 @@ public class TurretSubsystem extends SubsystemBase {
   // some motion magic stuff here
   private Rotation2d desiredAngle;
   private final double POSITION_DEADBAND_DEGREES = 1; // TODO: tune
-  private final int TURRET_GEARBOX_RATIO = 9; 
-  private final int GEAR_REVS_PER_TURRET_REV = 6; 
+  private final int TURRET_GEARBOX_RATIO = 9;
+  private final int GEAR_REVS_PER_TURRET_REV = 6;
   private static DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
   private static TalonFXConfiguration talonFXConfigs;
   private static MotionMagicExpoVoltage m_request;
@@ -38,9 +38,12 @@ public class TurretSubsystem extends SubsystemBase {
     // TODO: make tuneable constants
     Slot0Configs slot0Configs = talonFXConfigs.Slot0;
 
-    slot0Configs.kG = 0.2128; // Add 0.2128 V output to overcome gravity (tuned in early feedforward testing)
+    slot0Configs.kG =
+        0.2128; // Add 0.2128 V output to overcome gravity (tuned in early feedforward testing)
 
-    slot0Configs.kS = 0.25; // Add 0.01 V output to overcome static friction (just a guesstimate, but this might just be 0
+    slot0Configs.kS =
+        0.25; // Add 0.01 V output to overcome static friction (just a guesstimate, but this might
+    // just be 0
 
     slot0Configs.kV = 0.16; // A velocity target of 1 rps results in 0.12 V output
 
@@ -65,7 +68,7 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   @Override
-  public void periodic() { 
+  public void periodic() {
     turretMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
   }
 
@@ -89,11 +92,9 @@ public class TurretSubsystem extends SubsystemBase {
         Math.toRadians(
             turretAngleDegrees)); // TODO: figure out how to use the fromDegrees method because it
     // seems nicer :/
-  } 
-  
+  }
+
   public double degreesToRevs(double turretAngleDegrees) {
     return turretAngleDegrees / 360 * GEAR_REVS_PER_TURRET_REV * TURRET_GEARBOX_RATIO;
   }
-
-
 }

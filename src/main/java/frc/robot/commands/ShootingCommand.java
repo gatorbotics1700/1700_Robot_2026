@@ -74,7 +74,8 @@ public class ShootingCommand extends Command {
     // to be a button
     // TODO: add funnel command (separate command) & instant command to stop running the flywheel
     if (flywheelSpeed != 0
-        && shooterSubsystem.getFlywheelVelocity() == flywheelSpeed) { // TODO add a deadband probably
+        && shooterSubsystem.getFlywheelVelocity()
+            == flywheelSpeed) { // TODO add a deadband probably
       shooterSubsystem.setTransitionSpeed(ShooterSubsystem.TRANSITION_SPEED);
     } else {
       shooterSubsystem.setTransitionSpeed(0);

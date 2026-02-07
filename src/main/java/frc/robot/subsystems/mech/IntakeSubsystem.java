@@ -19,14 +19,14 @@ public class IntakeSubsystem extends SubsystemBase {
   public final TalonFX deployMotor; // deploys the entire intake
 
   // motion magic stuff for deploy NOTE: we will need to figure out some sort of current limit thing
-  private final TalonFXConfiguration talonFXConfigs; 
-  private static MotionMagicExpoVoltage m_request; 
+  private final TalonFXConfiguration talonFXConfigs;
+  private static MotionMagicExpoVoltage m_request;
   // so that something can push the intake back in
   private Rotation2d desiredAngle = new Rotation2d();
   private final double POSITION_DEADBAND_DEGREES = 1; // TODO: tune
   private final int DEPLOY_GEAR_RATIO = 9; // TODO find the real value
-  private final double PULLEY_ONE_GEAR_RATIO = 42/18; 
-  private final double PULLEY_TWO_GEAR_RATIO = 36/18; 
+  private final double PULLEY_ONE_GEAR_RATIO = 42 / 18;
+  private final double PULLEY_TWO_GEAR_RATIO = 36 / 18;
   private static DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
 
   public final Rotation2d EXTENDED_POSITION =
@@ -125,6 +125,10 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public double degreesToRevs(double deployAngleDegrees) {
-    return deployAngleDegrees / 360.0 * PULLEY_ONE_GEAR_RATIO * PULLEY_TWO_GEAR_RATIO * DEPLOY_GEAR_RATIO; 
+    return deployAngleDegrees
+        / 360.0
+        * PULLEY_ONE_GEAR_RATIO
+        * PULLEY_TWO_GEAR_RATIO
+        * DEPLOY_GEAR_RATIO;
   }
 }

@@ -1,32 +1,20 @@
 package frc.robot.subsystems.mech;
 
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.generated.TunerConstants;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.mech.MechIOs.HoodIO;
 import org.littletonrobotics.junction.Logger;
 
 public class HoodSubsystem extends SubsystemBase {
-  public static final Rotation2d RETRACTED_POSITION = new Rotation2d(Math.toRadians(0)); //TODO: find a real number
+  public static final Rotation2d RETRACTED_POSITION =
+      new Rotation2d(Math.toRadians(0)); // TODO: find a real number
 
   private final HoodIO io;
   private final HoodIO.HoodIOInputs inputs = new HoodIO.HoodIOInputs();
 
   private Rotation2d desiredAngle = RETRACTED_POSITION;
   private final double POSITION_DEADBAND_DEGREES = 1; // TODO: tune
-  private static final double HOOD_SHAFT_REVS_PER_MECH_REV = 155/15.0;
+  private static final double HOOD_SHAFT_REVS_PER_MECH_REV = 155 / 15.0;
   private static final double HOOD_GEARBOX_RATIO = 9.0;
   private double desiredSpeed;
 

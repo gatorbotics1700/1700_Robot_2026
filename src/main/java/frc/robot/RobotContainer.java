@@ -337,36 +337,36 @@ public class RobotContainer {
       }
 
       controller_two
-        .a()
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(20.0)));
-                }));
+          .a()
+          .onTrue(
+              new InstantCommand(
+                  () -> {
+                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(20.0)));
+                  }));
 
-    controller_two
-        .b()
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(30.0)));
-                }));
+      controller_two
+          .b()
+          .onTrue(
+              new InstantCommand(
+                  () -> {
+                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(30.0)));
+                  }));
 
-    controller_two
-        .x()
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0.0)));
-                }));
+      controller_two
+          .x()
+          .onTrue(
+              new InstantCommand(
+                  () -> {
+                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0.0)));
+                  }));
 
-    controller_two
-        .y()
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(10)));
-                }));  
+      controller_two
+          .y()
+          .onTrue(
+              new InstantCommand(
+                  () -> {
+                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(10)));
+                  }));
     }
   }
 
