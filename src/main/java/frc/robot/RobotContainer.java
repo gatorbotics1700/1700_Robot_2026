@@ -363,39 +363,57 @@ public class RobotContainer {
         controller_two = new CommandXboxController(3);
       }
 
-      if (Constants.currentMode == Constants.Mode.SIM) {
-        controller_two
-            .a()
-            .onTrue(
-                new InstantCommand(
-                    () -> {
-                      gamePieceSimulation.launchFuelBall(
-                          new Translation3d(
-                              drive.getPose().getX(),
-                              drive.getPose().getY(),
-                              Constants.BOT_TO_SHOOTER
-                                  .getZ()), // TODO make this shooter pose instead of drive pose
-                          10,
-                          new Translation3d(
-                              drive.getChassisSpeeds().vxMetersPerSecond,
-                              drive.getChassisSpeeds().vyMetersPerSecond,
-                              0),
-                          shotParameters.hoodAngle,
-                          shotParameters.turretAngle.plus(drive.getPose().getRotation()));
-                    }));
-      } else {
-        controller_two
-            .a()
-            .onTrue(
-                new ShootingCommand(
-                    shooterSubsystem,
-                    hoodSubsystem,
-                    transitionSubsystem,
-                    0,
-                    robotPose,
-                    chassisSpeeds,
-                    Constants.BLUE_HUB));
-      }
+      // if (Constants.currentMode == Constants.Mode.SIM) {
+      //   controller_two
+      //       .a()
+      //       .onTrue(
+      //           new InstantCommand(
+      //               () -> {
+      //                 gamePieceSimulation.launchFuelBall(
+      //                     new Translation3d(
+      //                         drive.getPose().getX(),
+      //                         drive.getPose().getY(),
+      //                         Constants.BOT_TO_SHOOTER
+      //                             .getZ()), // TODO make this shooter pose instead of drive pose
+      //                     10,
+      //                     new Translation3d(
+      //                         drive.getChassisSpeeds().vxMetersPerSecond,
+      //                         drive.getChassisSpeeds().vyMetersPerSecond,
+      //                         0),
+      //                     shotParameters.hoodAngle,
+      //                     shotParameters.turretAngle.plus(drive.getPose().getRotation()));
+      //               }));
+      // } else {
+      //   controller_two
+      //       .a()
+      //       .onTrue(
+      //           new ShootingCommand(
+      //               shooterSubsystem,
+      //               hoodSubsystem,
+      //               transitionSubsystem,
+      //               0,
+      //               robotPose,
+      //               chassisSpeeds,
+      //               Constants.BLUE_HUB));
+      // }
+
+      controller_two
+        .a()
+        .onTrue(
+          new InstantCommand(
+            () -> {
+              shooterSubsystem.setShooterVoltages(0, 0);
+            }
+        ));
+
+      controller_two
+        .b()
+        .onTrue(
+          new InstantCommand(
+            () -> {
+              shooterSubsystem.setShooterVoltages(10, 9);
+            }
+        ));
 
       // controller_two
       //     .a()
