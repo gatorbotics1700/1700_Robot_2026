@@ -60,9 +60,14 @@ public class ShootingCommand extends Command {
   public void execute() {
     // calculate angles and get the hood and turret to track
     ShotParameters params = new ShotParameters(new Rotation2d(), new Rotation2d());
-    params = ShotCalculator.calculateShot(drivetrainPose.get(), drivetrainVelocity.get(), target, shooterSubsystem.getExitVelocity());
-    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.PI/2).minus(params.hoodAngle));
- 
+    params =
+        ShotCalculator.calculateShot(
+            drivetrainPose.get(),
+            drivetrainVelocity.get(),
+            target,
+            shooterSubsystem.getExitVelocity());
+    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.PI / 2).minus(params.hoodAngle));
+
     // set the flywheel desired speed
     shooterSubsystem.setFlywheelVelocity(flywheelSpeed);
 

@@ -16,8 +16,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public static final double TRANSITION_SPEED = 0;
   public static final double FLYWHEEL_SPEED_DEADBAND = 0.1;
   private final TalonFX flywheelMotor;
-  private final TalonFX transitionMotor1;
-  private final TalonFX transitionMotor2;
+  private final TalonFX transitionMotor;
   private double desiredFlywheelVelocity; // in revolutions per second
   private double transitionSpeed;
   private static DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
@@ -27,8 +26,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public ShooterSubsystem() {
     flywheelMotor = new TalonFX(Constants.FLYWHEEL_MOTOR_CAN_ID, TunerConstants.mechCANBus);
-    transitionMotor1 = new TalonFX(31, TunerConstants.mechCANBus);
-    transitionMotor2 = new TalonFX(15, TunerConstants.mechCANBus);
+    transitionMotor = new TalonFX(31, TunerConstants.mechCANBus);
 
     setShooterVoltages(0, 0);
 
@@ -84,11 +82,18 @@ public class ShooterSubsystem extends SubsystemBase {
   public void setShooterVoltages(double flywheelVoltage, double transitionVoltage) {
     flywheelMotor.setVoltage(flywheelVoltage);
     Logger.recordOutput("flywheelMotor velocity", flywheelMotor.getVelocity().getValueAsDouble());
-    transitionMotor1.setVoltage(transitionVoltage);
-    transitionMotor2.setVoltage(transitionVoltage);
+    transitionMotor.setVoltage(transitionVoltage);
   }
 
-  public double getExitVelocity(){
-    return 10; //TODO replace with actual math for ball's exit velocity
+  public void setFlywheelVoltage(double voltage) {
+    flywheelMotor.setVoltage(voltage);
+  }
+
+  public void setTransitionVoltage(double voltage) {
+    transitionMotor.setVoltage(voltage);
+  }
+
+  public double getExitVelocity() {
+    return 10; // TODO replace with actual math for ball's exit velocity
   }
 }
