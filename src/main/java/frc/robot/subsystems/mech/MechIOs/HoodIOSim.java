@@ -13,6 +13,7 @@
 
 package frc.robot.subsystems.mech.MechIOs;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Timer;
 
 /** Simulated hood IO: integrates speed to get position in revs. */
@@ -35,7 +36,7 @@ public class HoodIOSim implements HoodIO {
   }
 
   @Override
-  public void setSpeed(double speed) {
+  public void setSpeed(Rotation2d desiredAngle) {
     this.speed = speed;
   }
 }

@@ -7,14 +7,15 @@ import org.littletonrobotics.junction.Logger;
 
 public class HoodSubsystem extends SubsystemBase {
   public static final Rotation2d RETRACTED_POSITION =
-      new Rotation2d(Math.toRadians(0)); // TODO find a real number for this
+      new Rotation2d(Math.toRadians(0)); // TODO: find a real number
 
   private final HoodIO io;
   private final HoodIO.HoodIOInputs inputs = new HoodIO.HoodIOInputs();
 
   private Rotation2d desiredAngle = RETRACTED_POSITION;
   private final double POSITION_DEADBAND_DEGREES = 1; // TODO: tune
-  private final int HOOD_GEAR_RATIO = 3; // TODO find the real value
+  private static final double HOOD_SHAFT_REVS_PER_MECH_REV = 155 / 15.0;
+  private static final double HOOD_GEARBOX_RATIO = 9.0;
   private double desiredSpeed;
 
   public HoodSubsystem(HoodIO io) {
@@ -23,31 +24,28 @@ public class HoodSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    setHoodSpeed(desiredAngle);
+
+    Logger.recordOutput("hood desired angle", desiredAngle.getDegrees());
+    // Logger.recordOutput("hood motor output", hoodMotor.get());
+    // Logger.recordOutput("hood current angle", getCurrentAngle().getDegrees());
+    // Logger.recordOutput("hood current velocity", hoodMotor.getVelocity().getValueAsDouble());
     io.updateInputs(inputs);
     //  Logger.processInputs("Hood", inputs);
     Logger.recordOutput("Hood/Velocity", inputs.velocityRevsPerSec);
     Logger.recordOutput("Hood/position", inputs.positionRevs);
     Logger.recordOutput("Hood/DesiredSpeed", desiredSpeed);
-
-    double angleError = currentAngle().getDegrees() - desiredAngle.getDegrees();
-    if (Math.abs(angleError) > POSITION_DEADBAND_DEGREES) {
-      setHoodSpeed(0.1 * (-angleError)); // TODO check if this should be -angleError or if I have it
-      // backwards
-      desiredSpeed = 0.1 * -angleError;
-    }
   }
 
   public void setDesiredAngle(Rotation2d desiredAngle) {
     this.desiredAngle = desiredAngle;
   }
 
-  public void setHoodSpeed(double speed) {
-    io.setSpeed(speed);
+  public void setHoodSpeed(Rotation2d desiredAngle) {
+    io.setSpeed(desiredAngle);
   }
 
-  /** Current hood angle from motor position (in revs) and gear ratio. */
-  public Rotation2d currentAngle() {
-    double outputRevs = inputs.positionRevs / HOOD_GEAR_RATIO;
-    return Rotation2d.fromRotations(outputRevs);
+  public double degreesToRevs(double hoodAngleDegrees) {
+    return hoodAngleDegrees / 360.0 * HOOD_SHAFT_REVS_PER_MECH_REV * HOOD_GEARBOX_RATIO;
   }
 }

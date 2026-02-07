@@ -336,36 +336,37 @@ public class RobotContainer {
         controller_two = new CommandXboxController(3);
       }
 
-      // controller_two
-      //     .a()
-      //     .onTrue(
-      //         new ShooterCommand(shooterSubsystem, Constants.FLYWHEEL_SHOOTING_VOLTAGE)
-      //             .alongWith(new WaitCommand(3.0))
-      //             .andThen(
-      //                 new HopperFloorCommand(
-      //                     transitionSubsystem, Constants.KICKER_SHOOTING_VOLTAGE, 0)));
-      // controller_two
-      //   .b()
-      //     .onTrue(
-      //         new TransitionCommand(transitionSubsystem, 0, 0)
-      //             .alongWith(new ShooterCommand(shooterSubsystem, 0)));
+      controller_two
+          .a()
+          .onTrue(
+              new InstantCommand(
+                  () -> {
+                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(20.0)));
+                  }));
 
-      // mech buttons
-      // controller_two
-      //     .x()
-      //     .onTrue(new HoodCommand(hoodSubsystem, false, 15));
-      // controller_two
-      //     .y()
-      //     .onTrue(new HoodCommand(hoodSubsystem, false, 0));
+      controller_two
+          .b()
+          .onTrue(
+              new InstantCommand(
+                  () -> {
+                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(30.0)));
+                  }));
 
-      // controller_two
-      //     .x()
-      //     .onTrue(
-      //         Commands.runOnce(
-      //                 () -> {
-      //                   vision.takePicture();
-      //                 })
-      //             .ignoringDisable(true));
+      controller_two
+          .x()
+          .onTrue(
+              new InstantCommand(
+                  () -> {
+                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0.0)));
+                  }));
+
+      controller_two
+          .y()
+          .onTrue(
+              new InstantCommand(
+                  () -> {
+                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(10)));
+                  }));
     }
   }
 
