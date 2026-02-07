@@ -109,7 +109,7 @@ class VisionMathTest {
   private static final double TEMPLATE_POSE_TOLERANCE_METERS = 0.05;
 
   /** Tolerance for fuel pose rotation assertion (degrees). */
-  private static final double TEMPLATE_ANGULAR_TOLERANCE_DEGREES = 10;
+  private static final double TEMPLATE_ANGULAR_TOLERANCE_DEGREES = 5;
 
   // =============================================================================
 

@@ -103,7 +103,7 @@ public class Vision extends SubsystemBase {
               getCameraToTargetDistance(
                   Math.toRadians(-target.getPitch()),
                   cameraPitchRadians,
-                  Math.toRadians(target.getYaw()),
+                  Math.toRadians(-target.getYaw()),
                   robotToCamera.getMeasureZ().in(Centimeters));
 
           System.out.println(
@@ -133,13 +133,9 @@ public class Vision extends SubsystemBase {
           fuelPose =
               robotPose3d
                   .transformBy(robotToCamera)
-                  .transformBy(
-                      new Transform3d(
-                          new Translation3d(),
-                          new Rotation3d(
-                              0,
-                              Math.toRadians(-target.getPitch()),
-                              Math.toRadians(target.getYaw()))))
+                  .rotateBy(
+                      new Rotation3d(
+                          0, Math.toRadians(-target.getPitch()), Math.toRadians(-target.getYaw())))
                   .transformBy(
                       new Transform3d(
                           new Translation3d(
