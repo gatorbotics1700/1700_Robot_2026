@@ -374,76 +374,38 @@ public class RobotContainer {
         controller_two = new CommandXboxController(3);
       }
 
-      // controller_two
-      //     .a()
-      //     .onTrue(
-      //         new ShooterCommand(shooterSubsystem, Constants.FLYWHEEL_SHOOTING_VOLTAGE)
-      //             .alongWith(new WaitCommand(3.0))
-      //             .andThen(
-      //                 new HopperFloorCommand(
-      //                     transitionSubsystem, Constants.KICKER_SHOOTING_VOLTAGE, 0)));
-      // controller_two
-      //   .b()
-      //     .onTrue(
-      //         new TransitionCommand(transitionSubsystem, 0, 0)
-      //             .alongWith(new ShooterCommand(shooterSubsystem, 0)));
+      controller_two
+          .a()
+          .onTrue(
+              new InstantCommand(
+                  () -> {
+                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(20.0)));
+                  }));
 
-      // mech buttons
-      // controller_two
-      //     .x()
-      //     .onTrue(new HoodCommand(hoodSubsystem, false, 15));
-      // controller_two
-      //     .y()
-      //     .onTrue(new HoodCommand(hoodSubsystem, false, 0));
+      controller_two
+          .b()
+          .onTrue(
+              new InstantCommand(
+                  () -> {
+                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(30.0)));
+                  }));
 
-    // controller_two
-    //     .x()
-    //     .onTrue(
-    //         Commands.runOnce(
-    //                 () -> {
-    //                   vision.takePicture();
-    //                 })
-    //             .ignoringDisable(true));
+      controller_two
+          .x()
+          .onTrue(
+              new InstantCommand(
+                  () -> {
+                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0.0)));
+                  }));
 
-    controller
-        .rightBumper()
-        .onTrue(
-            Commands.runOnce(
-                () -> {
-                  drive.setSlowDrive();
-                },
-                drive));
-
-    // controller_two
-    //     .leftBumper()
-    //     .onTrue(
-    //         new InstantCommand(
-    //             () -> {
-    //               Logger.recordOutput(
-    //                   "Robot/TargetPose",
-    //                   LineupCommand.getLineupTagPose(
-    //                       DriverStation.getAlliance().orElse(Alliance.Blue),
-    //                       ReefSide.LeftSubstation));
-    //               Logger.recordOutput("Robot/LineupSide", "LeftSubstation");
-    //               Logger.recordOutput("Robot/IsLeftSide", false);
-    //               CommandScheduler.getInstance()
-    //                   .schedule(LineupCommand.Lineup(ReefSide.LeftSubstation, YOffset.Center));
-    //             }));
-    // controller_two
-    //     .rightBumper()
-    //     .onTrue(
-    //         new InstantCommand(
-    //             () -> {
-    //               Logger.recordOutput(
-    //                   "Robot/TargetPose",
-    //                   LineupCommand.getLineupTagPose(
-    //                       DriverStation.getAlliance().orElse(Alliance.Blue),
-    //                       ReefSide.RightSubstation));
-    //               Logger.recordOutput("Robot/LineupSide", "RightSubstation");
-    //               Logger.recordOutput("Robot/IsLeftSide", false);
-    //               CommandScheduler.getInstance()
-    //                   .schedule(LineupCommand.Lineup(ReefSide.RightSubstation, YOffset.Center));
-    //             }));
+      controller_two
+          .y()
+          .onTrue(
+              new InstantCommand(
+                  () -> {
+                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(10)));
+                  }));
+    }
   }
 
   /**

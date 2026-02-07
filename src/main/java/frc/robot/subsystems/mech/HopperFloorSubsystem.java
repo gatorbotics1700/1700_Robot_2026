@@ -7,7 +7,6 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
@@ -33,8 +32,11 @@ public class HopperFloorSubsystem extends SubsystemBase {
 
     slot0Configs = talonFXConfigs.Slot0;
 
-    slot0Configs.kG = 0.2128; // Add 0.2128 V output to overcome gravity (tuned in early feedforward testing)
-    slot0Configs.kS = 0.25; // Add 0.01 V output to overcome static friction (just a guesstimate, but this might just be 0
+    slot0Configs.kG =
+        0.2128; // Add 0.2128 V output to overcome gravity (tuned in early feedforward testing)
+    slot0Configs.kS =
+        0.25; // Add 0.01 V output to overcome static friction (just a guesstimate, but this might
+    // just be 0
     slot0Configs.kV = 0.16; // A velocity target of 1 rps results in 0.12 V output
     slot0Configs.kA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
 
@@ -48,7 +50,7 @@ public class HopperFloorSubsystem extends SubsystemBase {
   }
 
   public void periodic() {
-      hopperMotor.setControl(m_velocity.withVelocity(hopperVelocity));
+    hopperMotor.setControl(m_velocity.withVelocity(hopperVelocity));
   }
 
   public void setHopperFloorVelocity(double hopperVelocity) {

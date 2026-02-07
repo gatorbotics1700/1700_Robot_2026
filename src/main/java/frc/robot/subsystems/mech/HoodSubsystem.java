@@ -1,41 +1,24 @@
 package frc.robot.subsystems.mech;
 
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.mech.MechIOs.HoodIO;
 import org.littletonrobotics.junction.Logger;
 
 public class HoodSubsystem extends SubsystemBase {
   public static final Rotation2d RETRACTED_POSITION =
-      new Rotation2d(Math.toRadians(20)); // TODO find a real number for this
-  public final TalonFX hoodMotor;
-  // some motion magic stuff here
-  private TalonFXConfiguration talonFXConfigs;
-  private Rotation2d desiredAngle;
-  private final double POSITION_DEADBAND_DEGREES = 0.5; // TODO: tune
-  private final int HOOD_GEARBOX_RATIO = 9; // TODO find the real value
-  private final int HOOD_SHAFT_REVS_PER_MECH_REV = 155 / 15; // TODO find real value
-  private static double currentPositionTicks;
-  private static DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
-  private static MotionMagicExpoVoltage m_request;
+      new Rotation2d(Math.toRadians(0)); // TODO: find a real number
 
   public HoodSubsystem() {
     hoodMotor = new TalonFX(Constants.HOOD_MOTOR_CAN_ID, TunerConstants.mechCANBus);
     hoodMotor.setNeutralMode(NeutralModeValue.Brake);
     desiredAngle = new Rotation2d(0);
 
-    // MOTION MAGIC PID/FEEDFORWARD CONFIGS // TODO: must tune everything!!
-    talonFXConfigs = new TalonFXConfiguration();
+  private Rotation2d desiredAngle = RETRACTED_POSITION;
+  private final double POSITION_DEADBAND_DEGREES = 1; // TODO: tune
+  private static final double HOOD_SHAFT_REVS_PER_MECH_REV = 155 / 15.0;
+  private static final double HOOD_GEARBOX_RATIO = 9.0;
+  private double desiredSpeed;
 
     talonFXConfigs.withMotorOutput(
         new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));

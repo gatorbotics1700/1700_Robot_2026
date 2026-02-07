@@ -16,20 +16,20 @@ import frc.robot.generated.TunerConstants;
 public class ClimberSubsystem extends SubsystemBase {
 
   private static final int CLIMBER_GEAR_RATIO = 81; // TODO get a real number
-  private static final double WINCH_INCHES_PER_REV = (3/4) * Math.PI; // TODO get a real number
+  private static final double WINCH_INCHES_PER_REV = (3 / 4) * Math.PI; // TODO get a real number
   public final TalonFX motor;
   private static DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
   private double desiredPositionInches;
   // motion magic stuff goes here
   private final double DEADBAND_INCHES = 1;
-  private static TalonFXConfiguration talonFXConfigs; 
-  private static MotionMagicExpoVoltage m_request; 
+  private static TalonFXConfiguration talonFXConfigs;
+  private static MotionMagicExpoVoltage m_request;
 
   public ClimberSubsystem() {
     motor = new TalonFX(Constants.CLIMBER_MOTOR_CAN_ID, TunerConstants.mechCANBus);
     motor.setNeutralMode(NeutralModeValue.Brake);
     // motion magic stuff
-        // MOTION MAGIC PID/FEEDFORWARD CONFIGS // TODO: must tune everything!!
+    // MOTION MAGIC PID/FEEDFORWARD CONFIGS // TODO: must tune everything!!
     talonFXConfigs = new TalonFXConfiguration();
 
     talonFXConfigs.withMotorOutput(
@@ -69,8 +69,6 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public void periodic() {
     motor.setControl(m_request.withPosition(inchesToRevs(desiredPositionInches)));
-    motor.setNeutralMode(NeutralModeValue.Brake); // do we really need this here?
-    
   }
 
   private void setMotorOutput(double speed) {

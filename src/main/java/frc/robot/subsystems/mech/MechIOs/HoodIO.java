@@ -13,6 +13,7 @@
 
 package frc.robot.subsystems.mech.MechIOs;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface HoodIO {
@@ -23,11 +24,13 @@ public interface HoodIO {
 
     /** Motor velocity in revolutions per second. */
     public double velocityRevsPerSec = 0.0;
+
+    public double desiredAngle = 0.0;
   }
 
   /** Updates the set of loggable inputs. */
   public default void updateInputs(HoodIOInputs inputs) {}
 
   /** Run open loop at the specified speed (duty cycle, typically -1 to 1). */
-  public default void setSpeed(double speed) {}
+  public default void setSpeed(Rotation2d desiredAngle) {}
 }
