@@ -1,5 +1,7 @@
 package frc.robot.subsystems.mech;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -15,52 +17,54 @@ public class ShooterSubsystem extends SubsystemBase {
   public static final double TRANSITION_SPEED = 0;
   public static final double FLYWHEEL_SPEED_DEADBAND = 0.1;
   private final TalonFX flywheelMotor;
-  private final TalonFX transitionMotor;
+  private final TalonFX transitionMotor1;
+  private final TalonFX transitionMotor2;
   private double desiredFlywheelVelocity; // in revolutions per second
   private double transitionSpeed;
   private static DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
-  private static TalonFXConfiguration talonFXConfigs;
-  private static Slot0Configs slot0Configs;
-  private static VelocityVoltage m_velocity;
+  private static TalonFXConfiguration flywheelTalonFXConfigs;
+  private static Slot0Configs flywheelSlot0Configs;
+  private static VelocityVoltage m_flywheelVelocity;
 
   public ShooterSubsystem() {
     flywheelMotor = new TalonFX(Constants.FLYWHEEL_MOTOR_CAN_ID, TunerConstants.mechCANBus);
-    transitionMotor = new TalonFX(31, TunerConstants.mechCANBus);
+    transitionMotor1 = new TalonFX(31, TunerConstants.mechCANBus);
+    transitionMotor2 = new TalonFX(15, TunerConstants.mechCANBus);
+
+    setShooterVoltages(0, 0);
 
     // SLOT 0 CONFIGS & VELOCITY VOLTAGE CONTROL // TODO needs tuning
-    m_velocity = new VelocityVoltage(0);
-    talonFXConfigs = new TalonFXConfiguration();
+    m_flywheelVelocity = new VelocityVoltage(0);
+    flywheelTalonFXConfigs = new TalonFXConfiguration();
 
-    talonFXConfigs.withMotorOutput(
+    flywheelTalonFXConfigs.withMotorOutput(
         new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
 
-    slot0Configs = talonFXConfigs.Slot0;
+    flywheelSlot0Configs = flywheelTalonFXConfigs.Slot0;
 
-    slot0Configs.kG =
+    flywheelSlot0Configs.kG =
         0.2128; // Add 0.2128 V output to overcome gravity (tuned in early feedforward testing
-    slot0Configs.kS =
+    flywheelSlot0Configs.kS =
         0.25; // Add 0.01 V output to overcome static friction (just a guesstimate, but this might
     // just be 0
-    slot0Configs.kV = 0.16; // A velocity target of 1 rps results in 0.12 V output
-    slot0Configs.kA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
+    flywheelSlot0Configs.kV = 0.16; // A velocity target of 1 rps results in 0.12 V output
+    flywheelSlot0Configs.kA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
 
-    slot0Configs.kP = 4.8; // A position error of 2.5 rotations results in 12V output
-    slot0Configs.kI = 0; // no output for integrated error
-    slot0Configs.kD = 0.1; // a velocity error of 1 rps results in 0.1 V output
+    flywheelSlot0Configs.kP = 4.8; // A position error of 2.5 rotations results in 12V output
+    flywheelSlot0Configs.kI = 0; // no output for integrated error
+    flywheelSlot0Configs.kD = 0.1; // a velocity error of 1 rps results in 0.1 V output
 
-    flywheelMotor.getConfigurator().apply(talonFXConfigs, 0.050);
+    flywheelMotor.getConfigurator().apply(flywheelTalonFXConfigs, 0.050);
 
-    m_velocity.Slot = 0;
+    m_flywheelVelocity.Slot = 0;
   }
 
   public void periodic() {
-    flywheelMotor.setControl(
-        dutyCycleOut.withOutput(desiredFlywheelVelocity)); // TODO use motion magic to keep at speed
-    flywheelMotor.setControl(m_velocity.withVelocity(desiredFlywheelVelocity));
+    // flywheelMotor.setControl(m_velocity.withVelocity(desiredFlywheelVelocity));
 
-    transitionMotor.setControl(
-        dutyCycleOut.withOutput(
-            transitionSpeed)); // TODO double check that this actually sets speed in the way we
+    // transitionMotor.setControl(
+    //     dutyCycleOut.withOutput(
+    //         transitionSpeed)); // TODO double check that this actually sets speed in the way we
     // think it does
   }
 
@@ -76,5 +80,12 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public void setTransitionSpeed(double transitionSpeed) {
     this.transitionSpeed = transitionSpeed;
+  }
+
+  public void setShooterVoltages(double flywheelVoltage, double transitionVoltage){
+    flywheelMotor.setVoltage(flywheelVoltage);
+    Logger.recordOutput("flywheelMotor velocity", flywheelMotor.getVelocity().getValueAsDouble());
+    transitionMotor1.setVoltage(transitionVoltage);
+    transitionMotor2.setVoltage(transitionVoltage);
   }
 }
