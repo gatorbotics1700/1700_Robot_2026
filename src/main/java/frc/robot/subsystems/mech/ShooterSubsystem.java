@@ -13,6 +13,7 @@ import frc.robot.generated.TunerConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
   public static final double TRANSITION_SPEED = 0;
+  public static final double FLYWHEEL_SPEED_DEADBAND = 0.1;
   private final TalonFX flywheelMotor;
   private final TalonFX transitionMotor;
   private double desiredFlywheelVelocity; // in revolutions per second

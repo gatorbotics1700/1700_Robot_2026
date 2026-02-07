@@ -19,6 +19,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -30,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.ClimbCommands;
 import frc.robot.commands.IntakeCommands;
+import frc.robot.commands.ShootingCommand;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
 import frc.robot.generated.TunerConstants;
@@ -85,6 +87,8 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final MultiStepAutoChooser multiStepAutoChooser;
+  private Supplier<Pose2d> robotPose;
+  private Supplier<ChassisSpeeds> chassisSpeeds;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -150,9 +154,13 @@ public class RobotContainer {
         break;
     }
 
-    Supplier<Pose2d> robotPose =
+    robotPose =
         () -> {
           return drive.getPose();
+        };
+    chassisSpeeds =
+        () -> {
+          return drive.getChassisSpeeds();
         };
     // turretSubsystem = new TurretSubsystem(robotPose);
 
@@ -254,7 +262,7 @@ public class RobotContainer {
       if (isRed) {
         driverControl
             .whileTrue(
-                DriveCommands.joystickDrive(
+                DriveCommands.joystickDriveWithAutoRotation(
                     drive,
                     () -> modifyJoystickAxis(controller.getLeftY()), // Changed to raw values
                     () -> modifyJoystickAxis(controller.getLeftX()), // Changed to raw values
@@ -263,7 +271,7 @@ public class RobotContainer {
       } else {
         driverControl
             .whileTrue(
-                DriveCommands.joystickDrive(
+                DriveCommands.joystickDriveWithAutoRotation(
                     drive,
                     () -> modifyJoystickAxis(controller.getLeftY()), // Changed to raw values
                     () -> modifyJoystickAxis(controller.getLeftX()), // Changed to raw values
@@ -375,15 +383,27 @@ public class RobotContainer {
                           shotParameters.hoodAngle,
                           shotParameters.turretAngle.plus(drive.getPose().getRotation()));
                     }));
+      } else {
+        controller_two
+            .a()
+            .onTrue(
+                new ShootingCommand(
+                    shooterSubsystem,
+                    hoodSubsystem,
+                    transitionSubsystem,
+                    0,
+                    robotPose,
+                    chassisSpeeds,
+                    Constants.BLUE_HUB));
       }
 
-      controller_two
-          .a()
-          .onTrue(
-              new InstantCommand(
-                  () -> {
-                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(20.0)));
-                  }));
+      // controller_two
+      //     .a()
+      //     .onTrue(
+      //         new InstantCommand(
+      //             () -> {
+      //               hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(20.0)));
+      //             }));
 
       controller_two
           .b()
@@ -507,5 +527,6 @@ public class RobotContainer {
     shotParameters =
         ShotCalculator.calculateShot(
             drive.getPose(), drive.getChassisSpeeds(), Constants.BLUE_HUB, 10);
+    drive.setDesiredAngleSupplier(shotParameters.turretAngle);
   }
 }

@@ -8,6 +8,8 @@ import org.littletonrobotics.junction.Logger;
 public class HoodSubsystem extends SubsystemBase {
   public static final Rotation2d RETRACTED_POSITION =
       new Rotation2d(Math.toRadians(0)); // TODO: find a real number
+  public static final Rotation2d MAX_EXTENSION =
+      new Rotation2d(Math.toRadians(0)); // TODO: find a real number
 
   private final HoodIO io;
   private final HoodIO.HoodIOInputs inputs = new HoodIO.HoodIOInputs();
