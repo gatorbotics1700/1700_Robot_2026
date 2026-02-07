@@ -88,6 +88,13 @@ public class Vision extends SubsystemBase {
           maxArea = target.getArea();
 
           Transform3d robotToCamera = VisionConstants.ROBOT_TO_CAMERA_TRANSFORMS_ARRAY[cameraIndex];
+          System.out.println(
+              "robot camera transform: "
+                  + robotToCamera
+                  + " "
+                  + Math.toDegrees(robotToCamera.getRotation().getX())
+                  + " "
+                  + robotToCamera.getRotation().getMeasureY());
           double cameraPitchRadians =
               VisionConstants.UNANGLED_CAMERA_SPACE_PITCH_ARRAY[cameraIndex];
           // photonvision gives us pitch in degrees, the rotation3d in robotToCamera gives us pitch
@@ -99,7 +106,7 @@ public class Vision extends SubsystemBase {
                   robotToCamera.getMeasureZ());
 
           System.out.println(
-              "testing revolutionary math1: "
+              "testing revolutionary math 2 "
                   + -target.getPitch()
                   + " "
                   + cameraPitchRadians

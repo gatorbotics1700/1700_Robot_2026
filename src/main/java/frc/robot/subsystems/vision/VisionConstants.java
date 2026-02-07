@@ -97,47 +97,42 @@ public class VisionConstants {
   public static int FUEL_CLASS_ID = 0;
 
   public static Transform3d createRobotToCamera0Transform() {
-    Pose3d unangledCameraSpace =
-        new Pose3d(
-                ROBOT_TO_CAMERA_0_X_METERS,
-                ROBOT_TO_CAMERA_0_Y_METERS,
-                ROBOT_TO_CAMERA_0_Z_METERS,
-                new Rotation3d(0, 0, Math.toRadians(ROBOT_TO_CAMERA_0_YAW_DEGREES)))
-            .rotateBy(
-                new Rotation3d(
-                    Math.toRadians(CAMERA_0_ROLL_DEGREES),
-                    Math.toRadians(CAMERA_0_PITCH_DEGREES),
-                    0));
-    double robotSpaceRoll = unangledCameraSpace.getX();
-    double robotSpacePitch = unangledCameraSpace.getY();
-    return new Transform3d(
+    return createRobotToCameraTransform(
         ROBOT_TO_CAMERA_0_X_METERS,
         ROBOT_TO_CAMERA_0_Y_METERS,
         ROBOT_TO_CAMERA_0_Z_METERS,
-        new Rotation3d(
-            robotSpaceRoll, robotSpacePitch, Math.toRadians(ROBOT_TO_CAMERA_0_YAW_DEGREES)));
+        CAMERA_0_ROLL_DEGREES,
+        CAMERA_0_PITCH_DEGREES,
+        ROBOT_TO_CAMERA_0_YAW_DEGREES);
   }
 
   public static Transform3d createRobotToCamera1Transform() {
-    Pose3d unangledCameraSpace =
-        new Pose3d(
-                ROBOT_TO_CAMERA_1_X_METERS,
-                ROBOT_TO_CAMERA_1_Y_METERS,
-                ROBOT_TO_CAMERA_1_Z_METERS,
-                new Rotation3d(0, 0, Math.toRadians(ROBOT_TO_CAMERA_1_YAW_DEGREES)))
-            .rotateBy(
-                new Rotation3d(
-                    Math.toRadians(CAMERA_1_ROLL_DEGREES),
-                    Math.toRadians(CAMERA_1_PITCH_DEGREES),
-                    0));
-    double robotSpaceRoll = unangledCameraSpace.getX();
-    double robotSpacePitch = unangledCameraSpace.getY();
-    return new Transform3d(
+    return createRobotToCameraTransform(
         ROBOT_TO_CAMERA_1_X_METERS,
         ROBOT_TO_CAMERA_1_Y_METERS,
         ROBOT_TO_CAMERA_1_Z_METERS,
-        new Rotation3d(
-            robotSpaceRoll, robotSpacePitch, Math.toRadians(ROBOT_TO_CAMERA_1_YAW_DEGREES)));
+        CAMERA_1_ROLL_DEGREES,
+        CAMERA_1_PITCH_DEGREES,
+        ROBOT_TO_CAMERA_1_YAW_DEGREES);
+  }
+
+  public static Transform3d createRobotToCameraTransform(
+      double xMeters,
+      double yMeters,
+      double zMeters,
+      double rollDegrees,
+      double pitchDegrees,
+      double yawDegrees) {
+    Pose3d cameraInRobotSpacePose =
+        new Pose3d(xMeters, yMeters, zMeters, new Rotation3d(0, 0, Math.toRadians(yawDegrees)))
+            .rotateBy(new Rotation3d(Math.toRadians(rollDegrees), Math.toRadians(pitchDegrees), 0));
+    double robotSpaceRoll = cameraInRobotSpacePose.getRotation().getX();
+    double robotSpacePitch = cameraInRobotSpacePose.getRotation().getY();
+    return new Transform3d(
+        xMeters,
+        yMeters,
+        zMeters,
+        new Rotation3d(robotSpaceRoll, robotSpacePitch, Math.toRadians(yawDegrees)));
   }
 
   public static Transform3d[] createCameraTransformsArray() {
