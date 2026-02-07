@@ -87,4 +87,8 @@ public class ShooterSubsystem extends SubsystemBase {
     transitionMotor1.setVoltage(transitionVoltage);
     transitionMotor2.setVoltage(transitionVoltage);
   }
+
+  public double getExitVelocity(){
+    return 10; //TODO replace with actual math for ball's exit velocity
+  }
 }

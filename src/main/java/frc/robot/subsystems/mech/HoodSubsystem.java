@@ -40,7 +40,13 @@ public class HoodSubsystem extends SubsystemBase {
   }
 
   public void setDesiredAngle(Rotation2d desiredAngle) {
-    this.desiredAngle = desiredAngle;
+    if(desiredAngle.getDegrees()<0){
+      desiredAngle = new Rotation2d(0);
+    }
+    if (desiredAngle.getDegrees()>30){
+      desiredAngle = new Rotation2d(Math.PI/6);
+    }
+        this.desiredAngle = desiredAngle;
   }
 
   public void setHoodSpeed(Rotation2d desiredAngle) {
