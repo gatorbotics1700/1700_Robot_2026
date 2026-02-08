@@ -40,7 +40,7 @@ public class ShotCalculator {
 
     Translation2d botVelo =
         new Translation2d(
-            drivetrainVelocity.vxMetersPerSecond, drivetrainVelocity.vxMetersPerSecond);
+            drivetrainVelocity.vxMetersPerSecond, drivetrainVelocity.vyMetersPerSecond);
 
     Translation2d shooterVelo =
         botVelo; // TODO add math later because shooter velo isn't the same as robot velo
@@ -79,6 +79,8 @@ public class ShotCalculator {
     double compRange =
         shotTime * Math.sqrt(tangentialVelo * tangentialVelo + shotSpeed * shotSpeed);
     Logger.recordOutput("shotCalculator/compRangeAdjust", compRange - uncompRange);
+    Logger.recordOutput("shotCalculator/compRange", compRange);
+    Logger.recordOutput("shotCalculator/shotTime", shotTime);
     // Amelia uses ballistics equation here to calculate the angle using compRange and
     // shooterToHubHeight!
 

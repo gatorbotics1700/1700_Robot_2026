@@ -68,7 +68,8 @@ public class GamePieceSimulation {
    * Launch a fuel ball from the shooter.
    *
    * @param shooterPosition 3D position of shooter exit on field
-   * @param shooterVelocity Velocity of game piece from shooter (field frame)
+   * @param shooterVelocity Velocity of shooter/robot in field frame (must not be robot-frame
+   *     ChassisSpeeds; convert with heading before passing)
    * @param launchAngle Hood angle (from horizontal)
    * @param turretAngle Turret angle (field-relative)
    */
@@ -146,6 +147,7 @@ public class GamePieceSimulation {
   private void updateBallPhysics(FuelBall ball, double dt) {
     // Calculate drag force
     double speed = ball.velocity.getNorm();
+    double landingTime = 0;
 
     // Avoid division by zero
     if (speed < 0.001) {
@@ -175,6 +177,7 @@ public class GamePieceSimulation {
     // Clamp to ground
     if (ball.position.getZ() < 0) {
       ball.position = new Translation3d(ball.position.getX(), ball.position.getY(), 0);
+      Logger.recordOutput("GamePiece/realShotTime", ball.getAge());
       ball.velocity = new Translation3d(0, 0, 0); // Stop on ground
     }
   }
