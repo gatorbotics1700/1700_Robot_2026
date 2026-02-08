@@ -113,9 +113,9 @@ public class ShotCalculator {
     if (Math.abs(error) > 0.02) {
       if (Math.abs(lastError) < Math.abs(error)) {
         System.out.println("ERROR GETTING BIGGER ERROR GETTING BIGGER");
-        lastError = 20;
-        loopCount = 0;
-        return new ShotParameters(turretAngle, hoodAngle);
+        // lastError = 20;
+        // loopCount = 0;
+        // return new ShotParameters(turretAngle, hoodAngle);
       }
       lastError = error;
       loopCount++;
