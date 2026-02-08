@@ -88,13 +88,13 @@ public class Vision extends SubsystemBase {
           maxArea = target.getArea();
 
           Transform3d robotToCamera = VisionConstants.ROBOT_TO_CAMERA_TRANSFORMS_ARRAY[cameraIndex];
-          System.out.println(
-              "robot camera transform: "
-                  + robotToCamera
-                  + " "
-                  + Math.toDegrees(robotToCamera.getRotation().getX())
-                  + " "
-                  + robotToCamera.getRotation().getMeasureY());
+          // System.out.println(
+          //     "robot camera transform: "
+          //         + robotToCamera
+          //         + " "
+          //         + Math.toDegrees(robotToCamera.getRotation().getX())
+          //         + " "
+          //         + robotToCamera.getRotation().getMeasureY());
           double cameraPitchRadians =
               VisionConstants.UNANGLED_CAMERA_SPACE_PITCH_ARRAY[cameraIndex];
           // photonvision gives us pitch in degrees, the rotation3d in robotToCamera gives us pitch
@@ -106,13 +106,13 @@ public class Vision extends SubsystemBase {
                   Math.toRadians(-target.getYaw()),
                   robotToCamera.getMeasureZ().in(Centimeters));
 
-          System.out.println(
-              "testing revolutionary math 2 "
-                  + -target.getPitch()
-                  + " "
-                  + cameraPitchRadians
-                  + " "
-                  + cameraToTargetDistance);
+          // System.out.println(
+          //     "testing revolutionary math 2 "
+          //         + -target.getPitch()
+          //         + " "
+          //         + cameraPitchRadians
+          //         + " "
+          //         + cameraToTargetDistance);
           // Pose3d cameraToFuel =
           //     new Pose3d()
           //         .transformBy(
@@ -145,7 +145,7 @@ public class Vision extends SubsystemBase {
         }
       }
     }
-    System.out.println("fuelPose before rotation stuff: " + fuelPose);
+    // System.out.println("fuelPose before rotation stuff: " + fuelPose);
     if (fuelPose == null) {
       return null;
     }
@@ -161,7 +161,7 @@ public class Vision extends SubsystemBase {
                         Math.toRadians(
                             90)))); // TODO: make the 90 a constant based on where the intake is
     // which is 180
-    System.out.println("fuelPose before rotation stuff again: " + fuelPose);
+    // System.out.println("fuelPose before rotation stuff again: " + fuelPose);
     return fuelPose;
   }
 
@@ -173,9 +173,9 @@ public class Vision extends SubsystemBase {
     // TODO: this logic assumes that roll of the camera is 0
     // TODO: photonvision pitch is backwards
     double verticalOffset = heightInCentimeters - 7.5;
-    System.out.println(
-        "straight out horizontal: "
-            + verticalOffset / Math.tan(cameraPitchInRadians + pitchInRadians));
+    // System.out.println(
+    //     "straight out horizontal: "
+    //         + verticalOffset / Math.tan(cameraPitchInRadians + pitchInRadians));
     double horizontalDistanceToOffset =
         Math.abs(
             verticalOffset
@@ -185,13 +185,13 @@ public class Vision extends SubsystemBase {
         Math.sqrt(
             verticalOffset * verticalOffset
                 + horizontalDistanceToOffset * horizontalDistanceToOffset);
-    System.out.println(
-        "***hi i'm in the method imma print out some information: "
-            + verticalOffset
-            + " "
-            + horizontalDistanceToOffset
-            + " "
-            + distanceToTarget);
+    // System.out.println(
+    //     "***hi i'm in the method imma print out some information: "
+    //         + verticalOffset
+    //         + " "
+    //         + horizontalDistanceToOffset
+    //         + " "
+    //         + distanceToTarget);
     return Centimeters.of(distanceToTarget);
   }
 

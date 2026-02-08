@@ -27,7 +27,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.ClimbCommands;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveOverBumpCommand;
@@ -39,10 +38,7 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.mech.ClimberSubsystem;
-import frc.robot.subsystems.mech.HopperFloorSubsystem;
 import frc.robot.subsystems.mech.IntakeSubsystem;
-import frc.robot.subsystems.mech.ShooterSubsystem;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
@@ -62,10 +58,10 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
-  private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
-  private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+  // private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+  // private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
   // private final HoodSubsystem hoodSubsystem;
-  private final HopperFloorSubsystem transitionSubsystem = new HopperFloorSubsystem();
+  // private final HopperFloorSubsystem transitionSubsystem = new HopperFloorSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   // private final TurretSubsystem turretSubsystem;
 
@@ -174,17 +170,17 @@ public class RobotContainer {
 
     // CLIMB COMMAND
 
-    NamedCommands.registerCommand(
-        "Climb Command",
-        new InstantCommand(
-            () -> {
-              try {
-                CommandScheduler.getInstance()
-                    .schedule(ClimbCommands.Climb(drive, climberSubsystem));
-              } catch (Exception e) {
-                e.printStackTrace();
-              }
-            }));
+    // NamedCommands.registerCommand(
+    //     "Climb Command",
+    //     new InstantCommand(
+    //         () -> {
+    //           try {
+    //             CommandScheduler.getInstance()
+    //                 .schedule(ClimbCommands.Climb(drive, climberSubsystem));
+    //           } catch (Exception e) {
+    //             e.printStackTrace();
+    //           }
+    //         }));
 
     // mech buttons
     // new Trigger(controller_two::getXButtonPressed)
@@ -405,8 +401,8 @@ public class RobotContainer {
 
     // Print selected path name to console
     String selectedPathName = multiStepAutoChooser.getSelectedPathName();
-    System.out.println(
-        "Selected Auto Path: " + (selectedPathName != null ? selectedPathName : "None"));
+    // System.out.println(
+    //     "Selected Auto Path: " + (selectedPathName != null ? selectedPathName : "None"));
     System.out.flush(); // Ensure output appears immediately
 
     // Log button states directly - much simpler!

@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.mech.IntakeSubsystem;
 import frc.robot.subsystems.vision.Vision;
+import org.littletonrobotics.junction.Logger;
 
 public class IntakeCommands {
 
@@ -48,9 +49,12 @@ public class IntakeCommands {
 
   public static Command DriveToFuel(Drive drive, Vision vision) {
     PathConstraints constraints =
-        new PathConstraints(1, 1, Units.degreesToRadians(700), Units.degreesToRadians(1000));
+        new PathConstraints(2, 3, Units.degreesToRadians(700), Units.degreesToRadians(1000));
 
     Pose2d desiredPose = vision.getFuelPose(drive.getPose());
+    Logger.recordOutput("Odometry/Desired Pose", desiredPose);
+    // Pose2d desiredPose = new Pose2d(5, 7, new Rotation2d());
+    System.out.println("this is the desired pose here u go: " + desiredPose);
     if (desiredPose == null) {
       return Commands.none();
     }
