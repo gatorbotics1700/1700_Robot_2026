@@ -44,9 +44,6 @@ import frc.robot.subsystems.mech.ClimberSubsystem;
 import frc.robot.subsystems.mech.HoodSubsystem;
 import frc.robot.subsystems.mech.HopperFloorSubsystem;
 import frc.robot.subsystems.mech.IntakeSubsystem;
-import frc.robot.subsystems.mech.MechIOs.HoodIO;
-import frc.robot.subsystems.mech.MechIOs.HoodIOSim;
-import frc.robot.subsystems.mech.MechIOs.HoodIOTalonFX;
 import frc.robot.subsystems.mech.ShooterSubsystem;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
@@ -111,7 +108,7 @@ public class RobotContainer {
                     VisionConstants.CAMERA_0_NAME, VisionConstants.ROBOT_TO_CAMERA_0),
                 new VisionIOPhotonVision(
                     VisionConstants.CAMERA_1_NAME, VisionConstants.ROBOT_TO_CAMERA_1));
-        hoodSubsystem = new HoodSubsystem(new HoodIOTalonFX());
+        hoodSubsystem = new HoodSubsystem();
         break;
 
       case SIM:
@@ -135,7 +132,7 @@ public class RobotContainer {
                     VisionConstants.CAMERA_1_NAME,
                     VisionConstants.ROBOT_TO_CAMERA_1,
                     drive::getPose));
-        hoodSubsystem = new HoodSubsystem(new HoodIOSim());
+        hoodSubsystem = new HoodSubsystem();
         break;
 
       default: // TODO: should the default be real as a safety for matches? to be discussed
@@ -149,7 +146,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 (pose) -> {});
         vision = new Vision(drive);
-        hoodSubsystem = new HoodSubsystem(new HoodIO() {});
+        hoodSubsystem = new HoodSubsystem();
         break;
     }
 
@@ -409,13 +406,13 @@ public class RobotContainer {
           .onTrue(
               new InstantCommand(
                       () -> {
-                        shooterSubsystem.setFlywheelVoltage(10);
+                        shooterSubsystem.setFlywheelVelocity(85);
                       })
                   .alongWith(new WaitCommand(3))
                   .andThen(
                       new InstantCommand(
                           () -> {
-                            shooterSubsystem.setTransitionVoltage(9);
+                            shooterSubsystem.setTransitionVoltage(1);
                           })));
 
       controller_two
@@ -423,7 +420,7 @@ public class RobotContainer {
           .onTrue(
               new InstantCommand(
                   () -> {
-                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(30)));
+                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(20)));
                   }));
 
       controller_two

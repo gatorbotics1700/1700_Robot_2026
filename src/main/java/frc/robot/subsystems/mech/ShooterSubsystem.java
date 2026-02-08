@@ -35,7 +35,7 @@ public class ShooterSubsystem extends SubsystemBase {
     flywheelTalonFXConfigs = new TalonFXConfiguration();
 
     flywheelTalonFXConfigs.withMotorOutput(
-        new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
+        new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive));
 
     flywheelSlot0Configs = flywheelTalonFXConfigs.Slot0;
 
@@ -57,12 +57,15 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public void periodic() {
-    // flywheelMotor.setControl(m_velocity.withVelocity(desiredFlywheelVelocity));
+    flywheelMotor.setControl(m_flywheelVelocity.withVelocity(desiredFlywheelVelocity));
 
     // transitionMotor.setControl(
     //     dutyCycleOut.withOutput(
     //         transitionSpeed)); // TODO double check that this actually sets speed in the way we
     // think it does
+
+    Logger.recordOutput(
+        "flywheel current velocity", flywheelMotor.getVelocity().getValueAsDouble());
   }
 
   public void setFlywheelVelocity(double desiredFlywheelVelocity) {
@@ -94,6 +97,6 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public double getExitVelocity() {
-    return 10; // TODO replace with actual math for ball's exit velocity
+    return 0.8 * getFlywheelVelocity()*2*Math.PI * Constants.FLYWHEEL_RADIUS_METERS; //0.8 is an estimate to account for loss of energy due to friction/slip
   }
 }

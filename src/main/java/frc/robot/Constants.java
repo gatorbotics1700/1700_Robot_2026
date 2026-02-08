@@ -76,6 +76,7 @@ public final class Constants {
   public static final int CLIMBER_MOTOR_CAN_ID = 36;
 
   public static final int KRAKEN_TICKS_PER_REV = 2048;
+  public static final double FLYWHEEL_RADIUS_METERS = 0.0508;
 
   public static final double TURRET_DEADBAND = 0.75;
 
