@@ -94,7 +94,7 @@ public class GamePieceSimulation {
     // double vz = exitVelocityMps * Math.sin(launchAngle.getRadians());
 
     // Translation3d initialVelocityUncomp = new Translation3d(vx, vy, vz);
-    Translation3d initialVelocity = exitVelocityMps;
+    Translation3d initialVelocity = exitVelocityMps.rotateBy(new Rotation3d(turretAngle));
 
     FuelBall ball = new FuelBall(shooterPosition, initialVelocity, Timer.getFPGATimestamp());
     activeBalls.add(ball);

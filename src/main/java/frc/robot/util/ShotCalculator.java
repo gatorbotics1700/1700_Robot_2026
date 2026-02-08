@@ -58,7 +58,8 @@ public class ShotCalculator {
     // rotation
     Translation2d trajectoryRelativeShooterVelo =
         shooterVelo.rotateBy(
-            uncompYaw.unaryMinus()); // uncomp yaw is the angle from the robot to the hub so long as
+            uncompYaw.unaryMinus()); // uncomp yaw is the angle from the robot to the hub so
+    // long as
     // turret zero is robot zero and uncomp yaw is field relative
 
     Logger.recordOutput(
@@ -99,6 +100,9 @@ public class ShotCalculator {
         drivetrainPose.transformBy(new Transform2d(compBotToTarget, new Rotation2d()));
     Logger.recordOutput("shotCalculator/compFieldToTarget", compFieldToTarget);
 
+    // shooterToHubHeight = Math.tan(hoodAngle) * compRange -
+    // 9.8/(2*exitSpeed*cos(hoodAngle)*cos(hoodAngle))*compRange*compRange
+
     Rotation2d hoodAngle =
         new Rotation2d(
             Math.atan(
@@ -112,19 +116,16 @@ public class ShotCalculator {
                                     * Math.pow(shotSpeed, 2)
                                     * shooterToHubHeight))
                     / (-2 * 9.8 * Math.pow(compRange, 2))));
-    Logger.recordOutput("shotCalculator/hoodAngle", hoodAngle.getDegrees());
-    Translation2d trajectoryRelativeExitVelo2d =
-        new Translation2d(radialVelo + hoodAngle.getCos() * shotSpeed, tangentialVelo);
 
-    Translation2d fieldRelativeExitVelo2d = trajectoryRelativeExitVelo2d.rotateBy(compYaw);
-    Translation3d fieldRelativeExitVelo =
+    Logger.recordOutput("shotCalculator/hoodAngle", hoodAngle.getDegrees());
+    Translation3d trajectoryRelativeExitVelo =
         new Translation3d(
-            fieldRelativeExitVelo2d.getX(),
-            fieldRelativeExitVelo2d.getY(),
+            radialVelo + hoodAngle.getCos() * shotSpeed,
+            tangentialVelo,
             hoodAngle.getSin() * shotSpeed);
-    Logger.recordOutput("shotCalculator/shooterRelativeExitVelo2d", trajectoryRelativeExitVelo2d);
-    Logger.recordOutput("shotCalculator/fieldRelativeExitVelo2d", fieldRelativeExitVelo2d);
-    Logger.recordOutput("shotCalculator/fieldRelativeExitVelo", fieldRelativeExitVelo);
-    return new ShotParameters(turretAngle, hoodAngle, fieldRelativeExitVelo);
+
+    Logger.recordOutput("shotCalculator/shooterRelativeExitVelo2d", trajectoryRelativeExitVelo);
+
+    return new ShotParameters(turretAngle, hoodAngle, trajectoryRelativeExitVelo);
   }
 }
