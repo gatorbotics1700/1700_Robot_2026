@@ -326,7 +326,7 @@ public class DriveCommands {
               Logger.recordOutput(
                   "DriveCommands/DesiredAngleDegrees",
                   desiredAngle != null ? Math.toDegrees(desiredAngle.getRadians()) : Double.NaN);
-              System.out.println("got desired angle: " + drive.getDesiredAngle());
+              // System.out.println("got desired angle: " + drive.getDesiredAngle());
               double omega;
 
               if (desiredAngle != null) {

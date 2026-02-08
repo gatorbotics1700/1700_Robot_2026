@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import java.util.ArrayList;
@@ -75,32 +76,45 @@ public class GamePieceSimulation {
    */
   public void launchFuelBall(
       Translation3d shooterPosition,
-      Translation3d exitVelocityMps,
-      Rotation2d launchAngle,
-      Rotation2d turretAngle) {
+      ChassisSpeeds chassisSpeeds,
+      Rotation2d drivetrainHeading,
+      double shotSpeed,
+      Rotation2d turretAngleRobotRelative,
+      Rotation2d hoodAngle) {
 
     if (Constants.currentMode != Constants.Mode.SIM) {
       return; // Only simulate in sim mode
     }
 
-    System.out.println("LAUNCHING BALL AT " + exitVelocityMps + " MPS");
+    System.out.println("LAUNCHING BALL AT " + shotSpeed + " MPS");
+    Rotation2d turretAngle = turretAngleRobotRelative.rotateBy(drivetrainHeading.unaryMinus());
 
     // Turret angle is "where we aim" (toward target); on many bots the barrel exits the opposite
     // side, so launch direction = turretAngle + 180° to match compFieldToTarget.
 
     // Calculate initial velocity vector in field frame
-    // double vx = exitVelocityMps * Math.cos(launchAngle.getRadians()) * turretAngle.getCos();
-    // double vy = exitVelocityMps * Math.cos(launchAngle.getRadians()) * turretAngle.getSin();
-    // double vz = exitVelocityMps * Math.sin(launchAngle.getRadians());
+    double vx = shotSpeed * Math.cos(hoodAngle.getRadians()) * turretAngle.getCos();
+    double vy = shotSpeed * Math.cos(hoodAngle.getRadians()) * turretAngle.getSin();
+    double vz = shotSpeed * Math.sin(hoodAngle.getRadians());
 
-    // Translation3d initialVelocityUncomp = new Translation3d(vx, vy, vz);
-    Translation3d initialVelocity = exitVelocityMps.rotateBy(new Rotation3d(turretAngle));
+    vx += chassisSpeeds.vxMetersPerSecond;
+    vy += chassisSpeeds.vyMetersPerSecond;
+
+    //  Translation3d trajectoryRelativeExitVelo =
+    //     new Translation3d(
+    //         radialVelo + hoodAngle.getCos() * shotSpeed,
+    //         tangentialVelo,
+    //         hoodAngle.getSin() * shotSpeed);
+    // Logger.recordOutput("shotCalculator/shooterRelativeExitVelo2d", trajectoryRelativeExitVelo);
+
+    Translation3d initialVelocity = new Translation3d(vx, vy, vz);
 
     FuelBall ball = new FuelBall(shooterPosition, initialVelocity, Timer.getFPGATimestamp());
     activeBalls.add(ball);
 
     // Logger.recordOutput("GamePiece/initialVelocityUncomp", initialVelocityUncomp);
     Logger.recordOutput("GamePiece/InitialVelocity", initialVelocity);
+    Logger.recordOutput("GampePiece/turretAngle", turretAngle);
     // Logger.recordOutput("GamePiece/ShooterVelocity", shooterVelocity);
     Logger.recordOutput("GamePiece/LaunchedBall", new Pose3d(shooterPosition, new Rotation3d()));
     Logger.recordOutput("GamePiece/LaunchVelocity", initialVelocity.getNorm());

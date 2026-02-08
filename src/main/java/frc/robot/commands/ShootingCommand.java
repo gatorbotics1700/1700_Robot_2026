@@ -65,7 +65,10 @@ public class ShootingCommand extends Command {
             drivetrainVelocity.get(),
             target,
             shooterSubsystem.getExitVelocity());
-    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.PI / 2).minus(params.hoodAngle)); //this requires the hood's zero to be parallel to the ground since angle calculations for the shot are ground-rleative
+    hoodSubsystem.setDesiredAngle(
+        new Rotation2d(Math.PI / 2)
+            .minus(params.hoodAngle)); // this requires the hood's zero to be parallel to the ground
+    // since angle calculations for the shot are ground-rleative
 
     // set the flywheel desired speed
     shooterSubsystem.setFlywheelVelocity(flywheelSpeed);

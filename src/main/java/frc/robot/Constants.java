@@ -15,8 +15,6 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Centimeters;
 
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Distance;
@@ -86,7 +84,7 @@ public final class Constants {
   public static final int MID_RUNG_ARM_LENGTH = 18;
   public static final int HIGH_RUNG_ARM_LENGTH = 18;
   public static final double HOPPER_FLOOR_SPEED = 9; // TODO find a real number
-  public static final Pose3d BOT_TO_SHOOTER = new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0));
+  public static final Translation3d BOT_TO_SHOOTER = new Translation3d(0, 0, 0);
   public static final Translation3d BLUE_HUB =
       new Translation3d(
           4.625594, 4.034663,

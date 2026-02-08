@@ -45,10 +45,6 @@ import frc.robot.subsystems.mech.HoodSubsystem;
 import frc.robot.subsystems.mech.HopperFloorSubsystem;
 import frc.robot.subsystems.mech.IntakeSubsystem;
 import frc.robot.subsystems.mech.ShooterSubsystem;
-import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionConstants;
-import frc.robot.subsystems.vision.VisionIOPhotonVision;
-import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.util.CommandSimMacXboxController;
 import frc.robot.util.GamePieceSimulation;
 import frc.robot.util.MultiStepAutoChooser;
@@ -67,7 +63,7 @@ import org.littletonrobotics.junction.Logger;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  private final Vision vision;
+  // private final Vision vision;
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
   private final HoodSubsystem hoodSubsystem = new HoodSubsystem();
@@ -101,14 +97,13 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight),
                 (pose) -> {});
-        vision =
-            new Vision(
-                drive,
-                new VisionIOPhotonVision(
-                    VisionConstants.CAMERA_0_NAME, VisionConstants.ROBOT_TO_CAMERA_0),
-                new VisionIOPhotonVision(
-                    VisionConstants.CAMERA_1_NAME, VisionConstants.ROBOT_TO_CAMERA_1));
-        hoodSubsystem = new HoodSubsystem(new HoodIOTalonFX());
+        // vision =
+        //     new Vision(
+        //         drive,
+        //         new VisionIOPhotonVision(
+        //             VisionConstants.CAMERA_0_NAME, VisionConstants.ROBOT_TO_CAMERA_0),
+        //         new VisionIOPhotonVision(
+        //             VisionConstants.CAMERA_1_NAME, VisionConstants.ROBOT_TO_CAMERA_1));
         break;
 
       case SIM:
@@ -121,18 +116,18 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight),
                 (pose) -> {});
-        vision =
-            new Vision(
-                drive,
-                new VisionIOPhotonVisionSim(
-                    VisionConstants.CAMERA_0_NAME,
-                    VisionConstants.ROBOT_TO_CAMERA_0,
-                    drive::getPose),
-                new VisionIOPhotonVisionSim(
-                    VisionConstants.CAMERA_1_NAME,
-                    VisionConstants.ROBOT_TO_CAMERA_1,
-                    drive::getPose));
-        hoodSubsystem = new HoodSubsystem(new HoodIOSim());
+        // vision =
+        //     new Vision(
+        //         drive,
+        //         new VisionIOPhotonVisionSim(
+        //             VisionConstants.CAMERA_0_NAME,
+        //             VisionConstants.ROBOT_TO_CAMERA_0,
+        //             drive::getPose),
+        //         new VisionIOPhotonVisionSim(
+        //             VisionConstants.CAMERA_1_NAME,
+        //             VisionConstants.ROBOT_TO_CAMERA_1,
+        //             drive::getPose));
+        DriverStation.silenceJoystickConnectionWarning(true);
         break;
 
       default: // TODO: should the default be real as a safety for matches? to be discussed
@@ -145,8 +140,8 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 (pose) -> {});
-        vision = new Vision(drive);
-        hoodSubsystem = new HoodSubsystem(new HoodIO() {});
+        // vision = new Vision(drive);
+
         break;
     }
 
@@ -367,16 +362,28 @@ public class RobotContainer {
                     () -> {
                       // Use current pose and chassis speeds at this instant so all values match.
                       Pose2d pose = drive.getPose();
+
                       ChassisSpeeds cs = drive.getChassisSpeeds();
                       ShotParameters params =
                           ShotCalculator.calculateShot(pose, cs, Constants.BLUE_HUB, 10);
 
                       gamePieceSimulation.launchFuelBall(
-                          ShotCalculator.getFieldShooterPosition(pose),
-                          params.fieldRelativeExitVelo,
-                          params.hoodAngle,
-                          params.turretAngle.plus(drive.getPose().getRotation()));
+                          ShotCalculator.getFieldToShooter(pose, Constants.BOT_TO_SHOOTER),
+                          cs,
+                          pose.getRotation(),
+                          10,
+                          params.turretAngle,
+                          params.hoodAngle);
                     }));
+        // controller_two
+        //   .b()
+        //   .onTrue(
+        //       new InstantCommand(
+        //           () -> {
+
+        //             ShotCalculator.testTrajectoryPlotting();
+        //           }));
+
       } // else {
       //   controller_two
       //       .a()

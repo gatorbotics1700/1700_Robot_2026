@@ -13,7 +13,8 @@
         },
         {
           "decKey": 87,
-          "incKey": 83
+          "incKey": 83,
+          "keyRate": 0.009999999776482582
         },
         {
           "decKey": 69,
@@ -96,9 +97,7 @@
     {
       "guid": "Keyboard0"
     },
-    {
-      "useGamepad": true
-    },
+    {},
     {
       "useGamepad": true
     },
