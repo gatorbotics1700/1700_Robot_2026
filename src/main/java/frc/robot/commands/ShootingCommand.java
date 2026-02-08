@@ -59,8 +59,7 @@ public class ShootingCommand extends Command {
   @Override
   public void execute() {
     // calculate angles and get the hood and turret to track
-    ShotParameters params = new ShotParameters(new Rotation2d(), new Rotation2d());
-    params =
+    ShotParameters params =
         ShotCalculator.calculateShot(
             drivetrainPose.get(),
             drivetrainVelocity.get(),

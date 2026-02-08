@@ -17,6 +17,16 @@ public class ShotCalculator {
 
   public ShotCalculator() {}
 
+  /** Field-frame 3D position of the shooter exit given the robot pose. */
+  public static Translation3d getFieldShooterPosition(Pose2d drivetrainPose) {
+    Translation2d botToShooter =
+        new Translation2d(Constants.BOT_TO_SHOOTER.getX(), Constants.BOT_TO_SHOOTER.getY());
+    Pose2d fieldToShooter2d =
+        drivetrainPose.transformBy(new Transform2d(botToShooter, new Rotation2d(0)));
+    return new Translation3d(
+        fieldToShooter2d.getX(), fieldToShooter2d.getY(), Constants.BOT_TO_SHOOTER.getZ());
+  }
+
   public static ShotParameters calculateShot(
       Pose2d drivetrainPose,
       ChassisSpeeds drivetrainVelocity,
@@ -103,6 +113,18 @@ public class ShotCalculator {
                                     * shooterToHubHeight))
                     / (-2 * 9.8 * Math.pow(compRange, 2))));
     Logger.recordOutput("shotCalculator/hoodAngle", hoodAngle.getDegrees());
-    return new ShotParameters(turretAngle, hoodAngle);
+    Translation2d trajectoryRelativeExitVelo2d =
+        new Translation2d(radialVelo + hoodAngle.getCos() * shotSpeed, tangentialVelo);
+
+    Translation2d fieldRelativeExitVelo2d = trajectoryRelativeExitVelo2d.rotateBy(compYaw);
+    Translation3d fieldRelativeExitVelo =
+        new Translation3d(
+            fieldRelativeExitVelo2d.getX(),
+            fieldRelativeExitVelo2d.getY(),
+            hoodAngle.getSin() * shotSpeed);
+    Logger.recordOutput("shotCalculator/shooterRelativeExitVelo2d", trajectoryRelativeExitVelo2d);
+    Logger.recordOutput("shotCalculator/fieldRelativeExitVelo2d", fieldRelativeExitVelo2d);
+    Logger.recordOutput("shotCalculator/fieldRelativeExitVelo", fieldRelativeExitVelo);
+    return new ShotParameters(turretAngle, hoodAngle, fieldRelativeExitVelo);
   }
 }

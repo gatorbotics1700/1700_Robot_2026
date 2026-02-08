@@ -18,8 +18,6 @@ package frc.robot;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -367,27 +365,17 @@ public class RobotContainer {
             .onTrue(
                 new InstantCommand(
                     () -> {
-                      // ChassisSpeeds are in robot frame; ball velocity is built in field frame.
-                      // Convert robot velocity to field frame so the sim adds it correctly.
-                      Translation2d cs =
-                          new Translation2d(
-                              drive.getChassisSpeeds().vxMetersPerSecond,
-                              drive.getChassisSpeeds().vyMetersPerSecond);
-                      Rotation2d heading = drive.getPose().getRotation();
-                      Translation2d fieldRelativeSpeeds = cs.rotateBy(heading);
-                      // double vxField =
-                      //     cs.vxMetersPerSecond * heading.getCos()
-                      //         - cs.vyMetersPerSecond * heading.getSin();
-                      // double vyField =
-                      //     cs.vxMetersPerSecond * heading.getSin()
-                      //         + cs.vyMetersPerSecond * heading.getCos();
+                      // Use current pose and chassis speeds at this instant so all values match.
+                      Pose2d pose = drive.getPose();
+                      ChassisSpeeds cs = drive.getChassisSpeeds();
+                      ShotParameters params =
+                          ShotCalculator.calculateShot(pose, cs, Constants.BLUE_HUB, 10);
+
                       gamePieceSimulation.launchFuelBall(
-                          new Translation3d(drive.getPose().getX(), drive.getPose().getY(), 0),
-                          10,
-                          new Translation3d(
-                              fieldRelativeSpeeds.getX(), fieldRelativeSpeeds.getY(), 0),
-                          shotParameters.hoodAngle,
-                          shotParameters.turretAngle.plus(heading));
+                          ShotCalculator.getFieldShooterPosition(pose),
+                          params.fieldRelativeExitVelo,
+                          params.hoodAngle,
+                          params.turretAngle.plus(drive.getPose().getRotation()));
                     }));
       } // else {
       //   controller_two
