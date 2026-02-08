@@ -18,6 +18,7 @@ package frc.robot;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -45,9 +46,6 @@ import frc.robot.subsystems.mech.ClimberSubsystem;
 import frc.robot.subsystems.mech.HoodSubsystem;
 import frc.robot.subsystems.mech.HopperFloorSubsystem;
 import frc.robot.subsystems.mech.IntakeSubsystem;
-import frc.robot.subsystems.mech.MechIOs.HoodIO;
-import frc.robot.subsystems.mech.MechIOs.HoodIOSim;
-import frc.robot.subsystems.mech.MechIOs.HoodIOTalonFX;
 import frc.robot.subsystems.mech.ShooterSubsystem;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
@@ -74,7 +72,7 @@ public class RobotContainer {
   private final Vision vision;
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
-  private final HoodSubsystem hoodSubsystem;
+  private final HoodSubsystem hoodSubsystem = new HoodSubsystem();
   private final HopperFloorSubsystem transitionSubsystem = new HopperFloorSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final GamePieceSimulation gamePieceSimulation = new GamePieceSimulation();
@@ -112,7 +110,6 @@ public class RobotContainer {
                     VisionConstants.CAMERA_0_NAME, VisionConstants.ROBOT_TO_CAMERA_0),
                 new VisionIOPhotonVision(
                     VisionConstants.CAMERA_1_NAME, VisionConstants.ROBOT_TO_CAMERA_1));
-        hoodSubsystem = new HoodSubsystem(new HoodIOTalonFX());
         break;
 
       case SIM:
@@ -136,7 +133,6 @@ public class RobotContainer {
                     VisionConstants.CAMERA_1_NAME,
                     VisionConstants.ROBOT_TO_CAMERA_1,
                     drive::getPose));
-        hoodSubsystem = new HoodSubsystem(new HoodIOSim());
         break;
 
       default: // TODO: should the default be real as a safety for matches? to be discussed
@@ -150,7 +146,6 @@ public class RobotContainer {
                 new ModuleIO() {},
                 (pose) -> {});
         vision = new Vision(drive);
-        hoodSubsystem = new HoodSubsystem(new HoodIO() {});
         break;
     }
 
@@ -371,18 +366,23 @@ public class RobotContainer {
                     () -> {
                       // ChassisSpeeds are in robot frame; ball velocity is built in field frame.
                       // Convert robot velocity to field frame so the sim adds it correctly.
-                      ChassisSpeeds cs = drive.getChassisSpeeds();
+                      Translation2d cs =
+                          new Translation2d(
+                              drive.getChassisSpeeds().vxMetersPerSecond,
+                              drive.getChassisSpeeds().vyMetersPerSecond);
                       Rotation2d heading = drive.getPose().getRotation();
-                      double vxField =
-                          cs.vxMetersPerSecond * heading.getCos()
-                              - cs.vyMetersPerSecond * heading.getSin();
-                      double vyField =
-                          cs.vxMetersPerSecond * heading.getSin()
-                              + cs.vyMetersPerSecond * heading.getCos();
+                      Translation2d fieldRelativeSpeeds = cs.rotateBy(heading);
+                      // double vxField =
+                      //     cs.vxMetersPerSecond * heading.getCos()
+                      //         - cs.vyMetersPerSecond * heading.getSin();
+                      // double vyField =
+                      //     cs.vxMetersPerSecond * heading.getSin()
+                      //         + cs.vyMetersPerSecond * heading.getCos();
                       gamePieceSimulation.launchFuelBall(
-                          ShotCalculator.getFieldShooterPosition(drive.getPose()),
+                          new Translation3d(drive.getPose().getX(), drive.getPose().getY(), 0),
                           10,
-                          new Translation3d(vxField, vyField, 0),
+                          new Translation3d(
+                              fieldRelativeSpeeds.getX(), fieldRelativeSpeeds.getY(), 0),
                           shotParameters.hoodAngle,
                           shotParameters.turretAngle.plus(heading));
                     }));

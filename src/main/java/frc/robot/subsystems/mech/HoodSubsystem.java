@@ -1,11 +1,5 @@
 package frc.robot.subsystems.mech;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.generated.TunerConstants;
-import org.littletonrobotics.junction.Logger;
-
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -14,13 +8,17 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.generated.TunerConstants;
+import org.littletonrobotics.junction.Logger;
 
 public class HoodSubsystem extends SubsystemBase {
   public static final Rotation2d RETRACTED_POSITION =
       new Rotation2d(Math.toRadians(0)); // TODO: find a real number
   public static final Rotation2d MAX_EXTENSION =
       new Rotation2d(Math.toRadians(0)); // TODO: find a real number
-
 
   private Rotation2d desiredAngle = RETRACTED_POSITION;
   private final double POSITION_DEADBAND_DEGREES = 1; // TODO: tune
@@ -34,7 +32,6 @@ public class HoodSubsystem extends SubsystemBase {
   private TalonFXConfiguration talonFXConfigs;
   private static MotionMagicExpoVoltage m_request;
 
-
   public HoodSubsystem() {
     // MOTION MAGIC PID/FEEDFORWARD CONFIGS // TODO: must tune everything!!
     talonFXConfigs = new TalonFXConfiguration();
@@ -45,8 +42,11 @@ public class HoodSubsystem extends SubsystemBase {
     // TODO: make tuneable constants
     Slot0Configs slot0Configs = talonFXConfigs.Slot0;
 
-    slot0Configs.kG = 0.2128; // Add 0.2128 V output to overcome gravity (tuned in early feedforward testing)
-    slot0Configs.kS = 0.25; // Add 0.01 V output to overcome static friction (just a guesstimate, but this might just be 0
+    slot0Configs.kG =
+        0.2128; // Add 0.2128 V output to overcome gravity (tuned in early feedforward testing)
+    slot0Configs.kS =
+        0.25; // Add 0.01 V output to overcome static friction (just a guesstimate, but this might
+    // just be 0
     slot0Configs.kV = 0.16; // A velocity target of 1 rps results in 0.12 V output
     slot0Configs.kA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
 
@@ -100,7 +100,8 @@ public class HoodSubsystem extends SubsystemBase {
         motorPositionRevs / HOOD_GEARBOX_RATIO / HOOD_SHAFT_REVS_PER_MECH_REV * 360 % 360;
     return new Rotation2d(
         Math.toRadians(
-            hoodAngleDegrees)); // TODO: figure out how to use the fromDegrees method because it seems nicer :/
+            hoodAngleDegrees)); // TODO: figure out how to use the fromDegrees method because it
+    // seems nicer :/
   }
 
   public void setHoodVoltage(double voltage) {
