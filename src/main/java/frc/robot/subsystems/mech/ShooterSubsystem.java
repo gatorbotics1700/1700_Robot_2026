@@ -97,12 +97,12 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public double getExitVelocity() {
-    return 0.8
+    return 0.7
         * getFlywheelVelocity()
         * 2
         * Math.PI
         * Constants
-            .FLYWHEEL_RADIUS_METERS; // 0.8 is an estimate to account for loss of energy due to
-    // friction/slip
+            .FLYWHEEL_RADIUS_METERS; // 0.7 is a tentative estimate to account for loss of energy due to
+    // energy dissipation/slip. this model assumes that the ball's exit speed matches the wheel's surface speed
   }
 }
