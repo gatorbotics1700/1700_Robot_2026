@@ -6,6 +6,7 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
@@ -85,5 +86,9 @@ public class IntakeSubsystem extends SubsystemBase {
         Math.toRadians(
             deployAngleDegrees)); // TODO: figure out how to use the fromDegrees method because it
     // seems nicer :/
+  }
+
+  public boolean statusOfIntake(Command intakeCommand) {
+    return intakeCommand.isScheduled();
   }
 }

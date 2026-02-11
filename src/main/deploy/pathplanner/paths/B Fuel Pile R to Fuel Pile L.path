@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.842219328703704,
+        "y": 2.1844549334490737
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.8377578125,
+        "y": 4.129807219328704
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.842219328703704,
+        "y": 5.892434172453704
+      },
+      "prevControl": {
+        "x": 7.852848234953704,
+        "y": 5.013187427662038
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 5.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -93.25656146297264
+  },
+  "reversed": false,
+  "folder": "Fuel Pile Inner Paths",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -88.25492224369859
+  },
+  "useDefaultConstraints": true
+}

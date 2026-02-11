@@ -15,6 +15,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Centimeters;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -54,6 +56,16 @@ public final class Constants {
   public static final Translation2d FIELD_CENTER = new Translation2d(8.270494, 4.034663);
   public static final double BLUE_BUMP_AND_TRENCH_X = 4.626;
   public static final double RED_BUMP_AND_TRENCH_X = 11.915;
+
+  // Tower climb positions (extracted from PathPlanner paths)
+  // Blue tower is on the left side of the field (low X), Red tower is on the right (high X)
+  public static final Pose2d BLUE_TOWER_LEFT =
+      new Pose2d(1.177, 4.697, Rotation2d.fromDegrees(180));
+  public static final Pose2d BLUE_TOWER_RIGHT =
+      new Pose2d(1.025, 2.86, Rotation2d.fromDegrees(180));
+  public static final Pose2d RED_TOWER_LEFT = new Pose2d(15.336, 3.446, Rotation2d.fromDegrees(0));
+  public static final Pose2d RED_TOWER_RIGHT =
+      new Pose2d(15.488, 5.179, Rotation2d.fromDegrees(180));
 
   public static final Distance CENTER_TO_BUMPER_OFFSET = Centimeters.of(40);
   // left and right offsets for the poles on the reef

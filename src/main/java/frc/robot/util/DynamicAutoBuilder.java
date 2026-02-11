@@ -81,6 +81,26 @@ public class DynamicAutoBuilder {
     }
   }
 
+  private Command loadDepotToTowerPath(String alliance, String depotLocation) {
+    // All depots go to Tower Left based on existing path naming
+    String pathName = alliance + " " + depotLocation + " to Tower Left";
+
+    try {
+      PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
+      System.out.println("  Loaded depot-to-tower path: " + pathName);
+      return AutoBuilder.followPath(path);
+    } catch (Exception e) {
+      System.out.println("  Depot-to-tower path not available: " + pathName);
+      return null;
+    }
+  }
+
+  /** Checks if the location is a depot (DR, DC, or DL). */
+  private boolean isDepot(String location) {
+    return location != null
+        && (location.equals("DR") || location.equals("DC") || location.equals("DL"));
+  }
+
   public Command buildAuto(
       String alliance, String startPos, String dest1, String dest2, String dest3, boolean climb) {
 
@@ -147,6 +167,17 @@ public class DynamicAutoBuilder {
 
     if (climb) {
       try {
+        // If the last destination is a depot, use a specific depot-to-tower path first
+        // because pathfinding from depot to tower doesn't work well in tight spaces
+        if (isDepot(currentLocation)) {
+          Command depotToTower = loadDepotToTowerPath(alliance, currentLocation);
+          if (depotToTower != null) {
+            System.out.println("  Adding depot-to-tower path before climb");
+            commandSequence.add(depotToTower);
+          } else {
+            System.out.println("  WARNING: No depot-to-tower path found for " + currentLocation);
+          }
+        }
         commandSequence.add(ClimbCommands.Climb(drive, climberSubsystem, alliance));
       } catch (Exception e) {
         System.out.println("DynamicAutoBuilder: Climb command not available - skipping");
