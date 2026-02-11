@@ -102,7 +102,9 @@ public class ShooterSubsystem extends SubsystemBase {
         * 2
         * Math.PI
         * Constants
-            .FLYWHEEL_RADIUS_METERS; // 0.7 is a tentative estimate to account for loss of energy due to
-    // energy dissipation/slip. this model assumes that the ball's exit speed matches the wheel's surface speed
+            .FLYWHEEL_RADIUS_METERS; // 0.7 is a tentative estimate to account for loss of energy
+    // due to
+    // energy dissipation/slip. this model assumes that the ball's exit speed matches the wheel's
+    // surface speed
   }
 }

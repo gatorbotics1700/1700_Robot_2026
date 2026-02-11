@@ -16,6 +16,8 @@ import org.littletonrobotics.junction.Logger;
 
 @AutoLog
 public class ShotCalculator {
+  public static double MIN_SHOT_HEIGHT = 10;
+  public static double MAX_SHOT_HEIGHT = 300;
   public static double MIN_SHOT_SPEED = 2;
   public static double MAX_SHOT_SPEED = 21;
   public static Rotation2d MIN_HOOD_ANGLE = new Rotation2d(0);
@@ -34,8 +36,8 @@ public class ShotCalculator {
   public static Rotation2d angleIncrement =
       new Rotation2d(Math.toRadians(hoodAngleRange / (double) angleIterations));
   public static double smallestError = 200;
-  public static Rotation2d bestTurretAngle = null;
-  public static Rotation2d bestHoodAngle = null;
+  public static Rotation2d bestTurretAngle = new Rotation2d();
+  public static Rotation2d bestHoodAngle = new Rotation2d();
   public static double bestShotSpeed = 0;
 
   public static Rotation2d hoodAngleGuess = new Rotation2d(Math.toRadians(45));
@@ -139,6 +141,7 @@ public class ShotCalculator {
         Rotation2d compTurretToTargetAngle =
             uncompTurretToTargetAngle.plus(turretAdjust); // field relative
         turretAngle = compTurretToTargetAngle.minus(drivetrainPose.getRotation()); // robot relative
+
         double error =
             getTrajectoryError(
                 compTurretToTargetAngle,
@@ -147,17 +150,33 @@ public class ShotCalculator {
                 fieldToShooter,
                 shotSpeed,
                 target);
-        System.out.println("sweeping");
-        // System.out.println(shotSpeed + ", " + hoodAngle.getDegrees() + ", " + error);
-        if (Math.abs(error) < Math.abs(smallestError)) {
-          smallestError = error;
-          bestTurretAngle = turretAngle;
-          bestHoodAngle = hoodAngle;
-          bestShotSpeed = shotSpeed;
-          System.out.println("NEW SMALLEST ERROR = " + error);
-          // System.out.println("new best shot params: turret = " + bestTurretAngle.getDegrees() + "
-          // hood = " + bestHoodAngle.getDegrees() + " shotspeed = " + bestShotSpeed);
+        System.out.println(
+            "error: "
+                + error
+                + " turret: "
+                + turretAngle.getDegrees()
+                + " hood: "
+                + hoodAngle.getDegrees()
+                + " shotspeed: "
+                + shotSpeed);
+
+        double vertexHeight =
+            vertexHeight(fieldToShooter.getZ(), shotSpeed * Math.sin(hoodAngle.getRadians()));
+        if (vertexHeight >= MIN_SHOT_HEIGHT && vertexHeight <= MAX_SHOT_HEIGHT) {
+          // System.out.println(error);
+          if (Math.abs(error) < Math.abs(smallestError)) {
+            smallestError = error;
+            bestTurretAngle = turretAngle;
+            bestHoodAngle = hoodAngle;
+            bestShotSpeed = shotSpeed;
+            System.out.println("NEW SMALLEST ERROR = " + error);
+            // System.out.println("new best shot params: turret = " + bestTurretAngle.getDegrees() +
+            // "
+            // hood = " + bestHoodAngle.getDegrees() + " shotspeed = " + bestShotSpeed);
+          }
         }
+        // System.out.println(shotSpeed + ", " + hoodAngle.getDegrees() + ", " + error);
+
       }
     }
     smallestError = 200;
@@ -241,6 +260,15 @@ public class ShotCalculator {
     // Translation2d error =
     //     new Translation2d(ballCoords.getX() - target.getX(), ballCoords.getY() - target.getY());
     return error;
+  }
+
+  public static double vertexHeight(double startingHeight, double vz) {
+    double t = parabolaVertexT((-0.5) * 9.8, vz);
+    return startingHeight + vz * t + (-0.5) * 9.8 * t * t;
+  }
+
+  public static double parabolaVertexT(double a, double b) {
+    return (-b) / 2 / a;
   }
 
   /**
