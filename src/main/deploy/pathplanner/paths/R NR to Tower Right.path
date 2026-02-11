@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.588038266782408,
-        "y": 0.6075057870370371
+        "x": 10.55095015914352,
+        "y": 7.377134910300927
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.7573673321759262,
-        "y": 0.8687013165509254
+        "x": 13.657543258101853,
+        "y": 7.383564742476851
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.0247376,
-        "y": 2.86
+        "x": 15.4883104,
+        "y": 5.179
       },
       "prevControl": {
-        "x": 1.7397180989583338,
-        "y": 0.6437228009259268
+        "x": 14.087948350694443,
+        "y": 7.270583405671296
       },
       "nextControl": null,
       "isLocked": false,
@@ -48,7 +48,7 @@
   "folder": "Tower",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -177.92651506196717
+    "rotation": 179.11188742423673
   },
   "useDefaultConstraints": true
 }

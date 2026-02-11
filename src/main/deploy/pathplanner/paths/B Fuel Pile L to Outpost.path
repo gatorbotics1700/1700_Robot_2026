@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.588038266782408,
-        "y": 0.6075057870370371
+        "x": 7.794061197916667,
+        "y": 5.912642216435185
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.7573673321759262,
-        "y": 0.8687013165509254
+        "x": 8.267113136574075,
+        "y": -0.23913252314814848
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.0247376,
-        "y": 2.86
+        "x": 0.4191,
+        "y": 0.666
       },
       "prevControl": {
-        "x": 1.7397180989583338,
-        "y": 0.6437228009259268
+        "x": 5.82987868923611,
+        "y": 0.43258810763888955
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 179.72466467852163
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Tower",
+  "folder": "Blue Fuel Pile Starts",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -177.92651506196717
+    "rotation": 87.55324371109104
   },
   "useDefaultConstraints": true
 }
