@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.588038266782408,
-        "y": 0.6075057870370371
+        "x": 7.842219328703704,
+        "y": 5.867174117476853
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.7573673321759262,
-        "y": 0.8687013165509254
+        "x": 7.856522424768519,
+        "y": 3.9632876880787045
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.0247376,
-        "y": 2.86
+        "x": 7.842219328703704,
+        "y": 4.0315226417824075
       },
       "prevControl": {
-        "x": 1.7397180989583338,
-        "y": 0.6437228009259268
+        "x": 7.844646918402779,
+        "y": 5.807402922453703
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 5.0,
+    "maxAcceleration": 5.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 179.72466467852163
+    "rotation": 89.55569484278018
   },
   "reversed": false,
-  "folder": "Tower",
+  "folder": "Fuel Pile Inner Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -177.92651506196717
+    "rotation": 86.67779322380466
   },
   "useDefaultConstraints": true
 }

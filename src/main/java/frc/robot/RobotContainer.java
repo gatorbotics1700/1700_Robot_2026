@@ -22,8 +22,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -33,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.ClimbCommands;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.drive.DriveCommands;
+import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -59,15 +58,10 @@ import frc.robot.util.MultiStepAutoChooser;
 import frc.robot.util.RobotConfigLoader;
 import frc.robot.util.ShotCalculator;
 import frc.robot.util.ShotParameters;
+import java.util.Optional;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
-/**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and button mappings) should be declared here.
- */
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
@@ -82,8 +76,8 @@ public class RobotContainer {
   // private final TurretSubsystem turretSubsystem;
 
   // Controllers
-  private CommandXboxController controller = null;
-  private CommandXboxController controller_two = null;
+  private CommandXboxController controller = null; // port 0
+  private CommandXboxController controller_two = null; // port 3
 
   // Dashboard inputs
   private final MultiStepAutoChooser multiStepAutoChooser;
@@ -208,7 +202,7 @@ public class RobotContainer {
     // 0));
 
     // Set up auto routines with multi-step chooser
-    multiStepAutoChooser = new MultiStepAutoChooser();
+    multiStepAutoChooser = new MultiStepAutoChooser(intakeSubsystem, drive, climberSubsystem);
 
     // Set up SysId routines
     // autoChooser.addOption(
@@ -273,31 +267,19 @@ public class RobotContainer {
             .onFalse(DriveCommands.stopDriveCommand(drive));
       }
 
-      // // drive over bump
-      // controller
-      //     .a()
-      //     .onTrue(
-      //         Commands.runOnce(
-      //             () -> {
-      //               try {
-      //                 CommandScheduler.getInstance()
-      //                     .schedule(DriveOverBumpCommand.driveOverBump(drive));
-      //               } catch (Exception e) {
-      //                 e.printStackTrace();
-      //               }
-      //             }));
-      // gamepiece sim
-      // controller
-      //     .a()
-      //     .onTrue(
-      //         new InstantCommand(
-      //             () -> {
-      //               gamePieceSimulation.launchFuelBall(
-      //                   new Translation3d(0, 0, 0),
-      //                   10,
-      //                   shotParameters.hoodAngle,
-      //                   shotParameters.turretAngle);
-      //             }));
+      // drive over bump
+      controller
+          .a()
+          .onTrue(
+              Commands.runOnce(
+                  () -> {
+                    try {
+                      CommandScheduler.getInstance()
+                          .schedule(DriveOverBumpCommand.driveOverBump(drive));
+                    } catch (Exception e) {
+                      e.printStackTrace();
+                    }
+                  }));
 
       // Reset gyro to 0° when B button is pressed
       controller
@@ -408,11 +390,6 @@ public class RobotContainer {
     }
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
   public Command getAutonomousCommand() {
     try {
       return multiStepAutoChooser.getAutonomousCommand();
@@ -420,6 +397,11 @@ public class RobotContainer {
       System.out.println("bad io error");
       return Commands.none();
     }
+  }
+
+  /** Start pose of the currently selected auto (from first path). Empty if no paths. */
+  public Optional<Pose2d> getAutoStartPose() {
+    return multiStepAutoChooser.getAutoStartPose();
   }
 
   public Drive getDriveSubsystem() {
@@ -468,10 +450,6 @@ public class RobotContainer {
     configureButtonBindings();
   }
 
-  /**
-   * Periodic method to log button states and other robot information. Call this from
-   * Robot.teleopPeriodic() and Robot.autonomousPeriodic().
-   */
   public void periodic() {
     if (Constants.currentMode == Constants.simMode) {
       gamePieceSimulation.updateBalls();
@@ -480,7 +458,7 @@ public class RobotContainer {
     // Update multi-step auto chooser options (reads choosers to keep them active)
     multiStepAutoChooser.updateChooserOptions();
 
-    // Print selected path name to console
+    // Print  path name to console me thinks
     String selectedPathName = multiStepAutoChooser.getSelectedPathName();
     System.out.flush(); // Ensure output appears immediately
 

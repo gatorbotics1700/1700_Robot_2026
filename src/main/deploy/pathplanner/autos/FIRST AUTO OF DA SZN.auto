@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "B RF to Fuel Pile RC"
+            "pathName": null
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Leave Autos",
   "choreoAuto": false
 }
