@@ -379,7 +379,8 @@ public class RobotContainer {
           .onTrue(
               new InstantCommand(
                   () -> {
-                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(20.0)));
+                    // hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(20.0)));
+                    intakeSubsystem.setIntakeVoltage(0);
                   }));
 
       controller_two
@@ -387,7 +388,8 @@ public class RobotContainer {
           .onTrue(
               new InstantCommand(
                   () -> {
-                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(30.0)));
+                    // hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(30.0)));
+                    intakeSubsystem.setIntakeVoltage(4);
                   }));
 
       controller_two
@@ -395,7 +397,8 @@ public class RobotContainer {
           .onTrue(
               new InstantCommand(
                   () -> {
-                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0.0)));
+                    // hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0.0)));
+                    intakeSubsystem.setIntakeVoltage(14);
                   }));
 
       controller_two
@@ -403,7 +406,8 @@ public class RobotContainer {
           .onTrue(
               new InstantCommand(
                   () -> {
-                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(10)));
+                    // hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(10)));
+                    intakeSubsystem.setIntakeVoltage(16);
                   }));
     }
   }

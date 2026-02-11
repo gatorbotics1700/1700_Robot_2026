@@ -64,7 +64,7 @@ public final class Constants {
   public static final Distance ROBOT_RADIUS_WITH_BUMPERS = Centimeters.of(57);
 
   /* MECH */
-  public static final int INTAKE_MOTOR_CAN_ID = 11; // needs changing
+  public static final int INTAKE_MOTOR_CAN_ID = 9; // needs changing
   public static final int EXTENSION_MOTOR_CAN_ID = 12; // needs changing
   public static final int FLYWHEEL_MOTOR_CAN_ID = 30;
   public static final int HOOD_MOTOR_CAN_ID = 17;
