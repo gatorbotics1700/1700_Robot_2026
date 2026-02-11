@@ -476,7 +476,7 @@ public class RobotContainer {
           .onTrue(
               new InstantCommand(
                       () -> {
-                        shooterSubsystem.setFlywheelVelocity(85);
+                        shooterSubsystem.setFlywheelVelocity(80);
                       })
                   .alongWith(new WaitCommand(3))
                   .andThen(
@@ -485,24 +485,48 @@ public class RobotContainer {
                             shooterSubsystem.setTransitionVoltage(1);
                           })));
 
-      controller_two
-          .x()
-          .onTrue(
-              new InstantCommand(
-                  () -> {
-                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(20)));
-                  }));
+      // controller_two
+      //     .x()
+      //     .onTrue(
+      //         new InstantCommand(
+      //             () -> {
+      //               hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(20)));
+      //             }));
 
-      controller_two
-          .y()
-          .onTrue(
-              new InstantCommand(
-                  () -> {
-                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0)));
-                  }));
+      // controller_two
+      //     .y()
+      //     .onTrue(
+      //         new InstantCommand(
+      //             () -> {
+      //               hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0)));
+      //             }));
 
       // controller_two
       //     .a()
+      //     .onTrue(
+      //         new InstantCommand(
+      //             () -> {
+      //               hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0.0)));
+      //             }));
+
+      // controller_two
+      //     .b()
+      //     .onTrue(
+      //         new InstantCommand(
+      //             () -> {
+      //               hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(5.0)));
+      //             }));
+
+      // controller_two
+      //     .x()
+      //     .onTrue(
+      //         new InstantCommand(
+      //             () -> {
+      //               hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(10.0)));
+      //             }));
+
+      // controller_two
+      //     .y()
       //     .onTrue(
       //         new InstantCommand(
       //             () -> {

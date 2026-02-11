@@ -9,7 +9,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.generated.TunerConstants;
 import org.littletonrobotics.junction.Logger;
 
 public class ShooterSubsystem extends SubsystemBase {
@@ -25,8 +24,8 @@ public class ShooterSubsystem extends SubsystemBase {
   private static VelocityVoltage m_flywheelVelocity;
 
   public ShooterSubsystem() {
-    flywheelMotor = new TalonFX(Constants.FLYWHEEL_MOTOR_CAN_ID, TunerConstants.mechCANBus);
-    transitionMotor = new TalonFX(31, TunerConstants.mechCANBus);
+    flywheelMotor = new TalonFX(Constants.FLYWHEEL_MOTOR_CAN_ID, ""); // TunerConstants.mechCANBus);
+    transitionMotor = new TalonFX(31, ""); // TunerConstants.mechCANBus);
 
     setShooterVoltages(0, 0);
 
@@ -102,7 +101,9 @@ public class ShooterSubsystem extends SubsystemBase {
         * 2
         * Math.PI
         * Constants
-            .FLYWHEEL_RADIUS_METERS; // 0.7 is a tentative estimate to account for loss of energy due to
-    // energy dissipation/slip. this model assumes that the ball's exit speed matches the wheel's surface speed
+            .FLYWHEEL_RADIUS_METERS; // 0.7 is a tentative estimate to account for loss of energy
+    // due to
+    // energy dissipation/slip. this model assumes that the ball's exit speed matches the wheel's
+    // surface speed
   }
 }

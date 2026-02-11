@@ -11,7 +11,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.generated.TunerConstants;
 import org.littletonrobotics.junction.Logger;
 
 public class HoodSubsystem extends SubsystemBase {
@@ -22,12 +21,17 @@ public class HoodSubsystem extends SubsystemBase {
 
   private Rotation2d desiredAngle = RETRACTED_POSITION;
   private final double POSITION_DEADBAND_DEGREES = 1; // TODO: tune
+
+  // PROTOTYPE GEAR RATIOS
   private static final double HOOD_SHAFT_REVS_PER_MECH_REV = 155 / 15.0;
   private static final double HOOD_GEARBOX_RATIO = 9.0;
   private double desiredVelocity;
 
+  // REAL HOOD GEAR RATIOS
+  private static final double REAL_HOOD_GEAR_RATIO = 2.25;
+
   private final TalonFX hoodMotor =
-      new TalonFX(Constants.HOOD_MOTOR_CAN_ID, TunerConstants.mechCANBus);
+      new TalonFX(Constants.HOOD_MOTOR_CAN_ID, ""); // TunerConstants.mechCANBus);
   private final DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
   private TalonFXConfiguration talonFXConfigs;
   private static MotionMagicExpoVoltage m_request;
@@ -91,13 +95,16 @@ public class HoodSubsystem extends SubsystemBase {
   }
 
   public double degreesToRevs(double hoodAngleDegrees) {
-    return hoodAngleDegrees / 360.0 * HOOD_SHAFT_REVS_PER_MECH_REV * HOOD_GEARBOX_RATIO;
+    return hoodAngleDegrees
+        / 360.0
+        * REAL_HOOD_GEAR_RATIO; // * HOOD_SHAFT_REVS_PER_MECH_REV * HOOD_GEARBOX_RATIO;
   }
 
   public Rotation2d getCurrentAngle() {
     double motorPositionRevs = hoodMotor.getPosition().getValueAsDouble();
     double hoodAngleDegrees =
-        motorPositionRevs / HOOD_GEARBOX_RATIO / HOOD_SHAFT_REVS_PER_MECH_REV * 360 % 360;
+        motorPositionRevs / REAL_HOOD_GEAR_RATIO; // motorPositionRevs / HOOD_GEARBOX_RATIO /
+    // HOOD_SHAFT_REVS_PER_MECH_REV * 360 % 360;
     return new Rotation2d(
         Math.toRadians(
             hoodAngleDegrees)); // TODO: figure out how to use the fromDegrees method because it
