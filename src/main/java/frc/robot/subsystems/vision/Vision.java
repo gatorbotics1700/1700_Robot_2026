@@ -75,7 +75,6 @@ public class Vision extends SubsystemBase {
     return inputs[cameraIndex].latestTargetObservation.tx();
   }
 
-  @AutoLogOutput(key = "Odometry/Fuel")
   public Pose2d getFuelPose(Pose2d robotPose) {
     Pose3d robotPose3d = new Pose3d(robotPose);
     Pose2d fuelPose = null;
@@ -165,7 +164,7 @@ public class Vision extends SubsystemBase {
     return fuelPose;
   }
 
-  private Distance getCameraToTargetDistance(
+  public Distance getCameraToTargetDistance(
       double pitchInRadians,
       double cameraPitchInRadians,
       double yawInRadians,
@@ -192,6 +191,8 @@ public class Vision extends SubsystemBase {
     //         + horizontalDistanceToOffset
     //         + " "
     //         + distanceToTarget);
+    Logger.recordOutput("Odometry/Distance to Fuel",Centimeters.of(distanceToTarget));
+
     return Centimeters.of(distanceToTarget);
   }
 
