@@ -35,7 +35,6 @@ import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import frc.robot.util.Calculations;
 import java.util.LinkedList;
 import java.util.List;
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -191,7 +190,7 @@ public class Vision extends SubsystemBase {
     //         + horizontalDistanceToOffset
     //         + " "
     //         + distanceToTarget);
-    Logger.recordOutput("Odometry/Distance to Fuel",Centimeters.of(distanceToTarget));
+    Logger.recordOutput("Odometry/Distance to Fuel", Centimeters.of(distanceToTarget));
 
     return Centimeters.of(distanceToTarget);
   }

@@ -52,7 +52,7 @@ public class IntakeCommands {
         new PathConstraints(2, 3, Units.degreesToRadians(700), Units.degreesToRadians(1000));
 
     Pose2d currentPose = drive.getPose();
-        Pose2d desiredPose = vision.getFuelPose(currentPose);
+    Pose2d desiredPose = vision.getFuelPose(currentPose);
     Logger.recordOutput("Odometry/Desired Pose in Intake", desiredPose);
     Logger.recordOutput("Odometry/Current Pose in Intake", currentPose);
     // Pose2d desiredPose = new Pose2d(5, 7, new Rotation2d());
