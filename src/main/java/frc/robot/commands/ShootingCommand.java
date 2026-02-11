@@ -60,11 +60,7 @@ public class ShootingCommand extends Command {
   public void execute() {
     // calculate angles and get the hood and turret to track
     ShotParameters params =
-        ShotCalculator.calculateShot(
-            drivetrainPose.get(),
-            drivetrainVelocity.get(),
-            target,
-            shooterSubsystem.getExitVelocity());
+        ShotCalculator.calculateShot(drivetrainPose.get(), drivetrainVelocity.get(), target);
     hoodSubsystem.setDesiredAngle(
         new Rotation2d(Math.PI / 2)
             .minus(params.hoodAngle)); // this requires the hood's zero to be parallel to the ground

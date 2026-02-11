@@ -88,7 +88,7 @@ public class GamePieceSimulation {
 
     System.out.println(
         "LAUNCHING BALL AT " + shotSpeed + " MPS WITH DRIVETRAIN SPEED " + chassisSpeeds);
-    Rotation2d turretAngle = turretAngleRobotRelative.rotateBy(drivetrainHeading.unaryMinus());
+    Rotation2d turretAngle = turretAngleRobotRelative; // .plus(drivetrainHeading);
 
     // Turret angle is "where we aim" (toward target); on many bots the barrel exits the opposite
     // side, so launch direction = turretAngle + 180° to match compFieldToTarget.
@@ -106,7 +106,8 @@ public class GamePieceSimulation {
     //         radialVelo + hoodAngle.getCos() * shotSpeed,
     //         tangentialVelo,
     //         hoodAngle.getSin() * shotSpeed);
-    // Logger.recordOutput("shotCalculator/shooterRelativeExitVelo2d", trajectoryRelativeExitVelo);
+    Logger.recordOutput("GamePiece/drivetrainHeading", drivetrainHeading);
+    Logger.recordOutput("GamePiece/turretAngle", turretAngle);
 
     Translation3d initialVelocity = new Translation3d(vx, vy, vz);
 
@@ -115,7 +116,6 @@ public class GamePieceSimulation {
 
     // Logger.recordOutput("GamePiece/initialVelocityUncomp", initialVelocityUncomp);
     Logger.recordOutput("GamePiece/InitialVelocity", initialVelocity);
-    Logger.recordOutput("GampePiece/turretAngle", turretAngle);
     // Logger.recordOutput("GamePiece/ShooterVelocity", shooterVelocity);
     Logger.recordOutput("GamePiece/LaunchedBall", new Pose3d(shooterPosition, new Rotation3d()));
     Logger.recordOutput("GamePiece/LaunchVelocity", initialVelocity.getNorm());

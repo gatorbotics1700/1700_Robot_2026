@@ -367,12 +367,12 @@ public class RobotContainer {
 
                       ChassisSpeeds cs = drive.getChassisSpeeds();
                       ShotParameters params =
-                          ShotCalculator.calculateShot(pose, cs, Constants.BLUE_HUB, 10);
+                          ShotCalculator.calculateShot(pose, cs, Constants.BLUE_HUB);
 
                       gamePieceSimulation.launchFuelBall(
                           ShotCalculator.getFieldToShooter(pose, Constants.BOT_TO_SHOOTER),
                           cs,
-                          pose.getRotation(),
+                          drive.getRotation(),
                           params.shotSpeed,
                           params.turretAngle,
                           params.hoodAngle);
@@ -402,7 +402,7 @@ public class RobotContainer {
                                           ChassisSpeeds cs = drive.getChassisSpeeds();
                                           ShotParameters params =
                                               ShotCalculator.calculateShot(
-                                                  pose, cs, Constants.BLUE_HUB, 10);
+                                                  pose, cs, Constants.BLUE_HUB);
 
                                           gamePieceSimulation.launchFuelBall(
                                               ShotCalculator.getFieldToShooter(
@@ -438,14 +438,14 @@ public class RobotContainer {
                                           ChassisSpeeds cs = drive.getChassisSpeeds();
                                           ShotParameters params =
                                               ShotCalculator.calculateShot(
-                                                  pose, cs, Constants.BLUE_HUB, 10);
+                                                  pose, cs, Constants.BLUE_HUB);
 
                                           gamePieceSimulation.launchFuelBall(
                                               ShotCalculator.getFieldToShooter(
                                                   pose, Constants.BOT_TO_SHOOTER),
                                               cs,
                                               pose.getRotation(),
-                                              10,
+                                              params.shotSpeed,
                                               params.turretAngle,
                                               params.hoodAngle);
                                         })))));

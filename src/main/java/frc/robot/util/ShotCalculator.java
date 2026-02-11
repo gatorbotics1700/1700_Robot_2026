@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.Constants;
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.Logger;
 
 // this is what we will use in constant tracking command!
 
@@ -42,10 +43,7 @@ public class ShotCalculator {
   public ShotCalculator() {}
 
   public static ShotParameters calculateShot(
-      Pose2d drivetrainPose,
-      ChassisSpeeds drivetrainVelocity,
-      Translation3d target,
-      double shotSpeed) {
+      Pose2d drivetrainPose, ChassisSpeeds drivetrainVelocity, Translation3d target) {
     // calculate field relative shooter pose
     Translation3d fieldToShooter = getFieldToShooter(drivetrainPose, Constants.BOT_TO_SHOOTER);
 
@@ -99,7 +97,7 @@ public class ShotCalculator {
     // Logger.recordOutput(
     //     "shotCalculator/trajectoryRelativeShooterVelo", trajectoryRelativeShooterVelo);
     // Logger.recordOutput("shotCalculator/hoodAngle", hoodAngle.getDegrees());
-    // Logger.recordOutput("shotCalculator/turretAngle", turretAngle);
+    Logger.recordOutput("shotCalculator/turretAngle", params.turretAngle);
     // Logger.recordOutput("shotCalculator/turretAdjust", turretAdjust.getDegrees());
     // Logger.recordOutput("shotCalculator/compRangeAdjust", compRange - uncompRange);
     // Logger.recordOutput("shotCalculator/compRange", compRange);
@@ -140,7 +138,7 @@ public class ShotCalculator {
         Rotation2d turretAdjust = new Rotation2d(Math.atan2(-tangentialVelo, effectiveRadialVelo));
         Rotation2d compTurretToTargetAngle =
             uncompTurretToTargetAngle.plus(turretAdjust); // field relative
-        turretAngle = compTurretToTargetAngle.plus(drivetrainPose.getRotation()); // robot relative
+        turretAngle = compTurretToTargetAngle.minus(drivetrainPose.getRotation()); // robot relative
         double error =
             getTrajectoryError(
                 compTurretToTargetAngle,
@@ -149,6 +147,7 @@ public class ShotCalculator {
                 fieldToShooter,
                 shotSpeed,
                 target);
+        System.out.println("sweeping");
         // System.out.println(shotSpeed + ", " + hoodAngle.getDegrees() + ", " + error);
         if (Math.abs(error) < Math.abs(smallestError)) {
           smallestError = error;
@@ -161,6 +160,7 @@ public class ShotCalculator {
         }
       }
     }
+    smallestError = 200;
 
     return new ShotParameters(bestTurretAngle, bestHoodAngle, bestShotSpeed);
   }
