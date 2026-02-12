@@ -159,10 +159,16 @@ public class ShotCalculator {
                 + hoodAngle.getDegrees()
                 + " shotspeed: "
                 + shotSpeed);
-
+        double apexTime = apexTime(shotSpeed * Math.sin(hoodAngle.getRadians()));
         double vertexHeight =
-            vertexHeight(fieldToShooter.getZ(), shotSpeed * Math.sin(hoodAngle.getRadians()));
-        if (vertexHeight >= MIN_SHOT_HEIGHT && vertexHeight <= MAX_SHOT_HEIGHT) {
+            vertexHeight(
+                fieldToShooter.getZ(), shotSpeed * Math.sin(hoodAngle.getRadians()), apexTime);
+
+        double vertexRange = vertexRange(shotSpeed * Math.sin(hoodAngle.getRadians()), apexTime);
+        if (
+        /*vertexHeight >= MIN_SHOT_HEIGHT
+        && vertexHeight <= MAX_SHOT_HEIGHT
+        && */ vertexRange < compRange) {
           // System.out.println(error);
           if (Math.abs(error) < Math.abs(smallestError)) {
             smallestError = error;
@@ -262,9 +268,16 @@ public class ShotCalculator {
     return error;
   }
 
-  public static double vertexHeight(double startingHeight, double vz) {
-    double t = parabolaVertexT((-0.5) * 9.8, vz);
-    return startingHeight + vz * t + (-0.5) * 9.8 * t * t;
+  public static double apexTime(double vz) {
+    return (-vz) / 2 / (-0.5 * 9.8);
+  }
+
+  public static double vertexHeight(double startingHeight, double vz, double vertexT) {
+    return startingHeight + vz * vertexT + (-0.5) * 9.8 * vertexT * vertexT;
+  }
+
+  public static double vertexRange(double vh, double vertexT) {
+    return vh * vertexT;
   }
 
   public static double parabolaVertexT(double a, double b) {
