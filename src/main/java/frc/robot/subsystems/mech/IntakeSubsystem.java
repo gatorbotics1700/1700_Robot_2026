@@ -22,8 +22,8 @@ public class IntakeSubsystem extends SubsystemBase {
   private Rotation2d desiredAngle = new Rotation2d();
   private final double POSITION_DEADBAND_DEGREES = 1; // TODO: tune
   private final int DEPLOY_GEAR_RATIO = 9; // TODO find the real value
-  private final double PULLEY_ONE_GEAR_RATIO = 42 / 18;
-  private final double PULLEY_TWO_GEAR_RATIO = 36 / 18;
+  private final double PULLEY_ONE_GEAR_RATIO = 42.0 / 18.0;
+  private final double PULLEY_TWO_GEAR_RATIO = 36.0 / 18.0;
   private static DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
 
   public final Rotation2d EXTENDED_POSITION =
@@ -35,8 +35,8 @@ public class IntakeSubsystem extends SubsystemBase {
   private double intakeVoltage;
 
   public IntakeSubsystem() {
-    intakeMotor =
-        new TalonFX(Constants.INTAKE_DEPLOY_MOTOR_CAN_ID, ""); // TunerConstants.mechCANBus);
+    // TODO change back to mechCANbus for robot
+    intakeMotor = new TalonFX(Constants.INTAKE_DEPLOY_MOTOR_CAN_ID, ""); // TunerConstants.mechCANBus);
     deployMotor = new TalonFX(Constants.INTAKE_MOTOR_CAN_ID, ""); // TunerConstants.mechCANBus);
     // TODO check if we really want it inverted because I kinda think we want clockwise to be
     // negative...

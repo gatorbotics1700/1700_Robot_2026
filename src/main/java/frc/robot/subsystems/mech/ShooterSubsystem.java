@@ -15,7 +15,7 @@ import org.littletonrobotics.junction.Logger;
 public class ShooterSubsystem extends SubsystemBase {
   public static final double TRANSITION_SPEED = 0;
   public static final double FLYWHEEL_SPEED_DEADBAND = 0.1;
-  public static final double FLYWHEEL_GEAR_RATIO = 30 / 14;
+  public static final double FLYWHEEL_GEAR_RATIO = 30.0 / 14.0;
   private final TalonFX flywheelMotor;
   private final TalonFX transitionMotor;
   private double desiredFlywheelVelocity; // in revolutions per second
@@ -26,7 +26,8 @@ public class ShooterSubsystem extends SubsystemBase {
   private static VelocityVoltage m_flywheelVelocity;
 
   public ShooterSubsystem() {
-    flywheelMotor = new TalonFX(Constants.FLYWHEEL_MOTOR_CAN_ID, ""); // TunerConstants.mechCANBus);
+    //TODO put mech canbus id for real robot
+    flywheelMotor = new TalonFX(Constants.FLYWHEEL_MOTOR_CAN_ID, ""); // TunerConstants.mechCANBus); 
     transitionMotor =
         new TalonFX(Constants.TRANSITION_MOTOR_CAN_ID, ""); // TunerConstants.mechCANBus);
 
