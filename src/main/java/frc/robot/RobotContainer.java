@@ -41,6 +41,7 @@ import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.mech.ClimberSubsystem;
 import frc.robot.subsystems.mech.HoodSubsystem;
+import frc.robot.subsystems.mech.IntakeSubsystem;
 import frc.robot.subsystems.mech.ShooterSubsystem;
 import frc.robot.subsystems.mech.TurretSubsystem;
 import frc.robot.util.MultiStepAutoChooser;
@@ -59,7 +60,7 @@ public class RobotContainer {
   // private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
   private final HoodSubsystem hoodSubsystem = new HoodSubsystem();
   // private final HopperFloorSubsystem transitionSubsystem = new HopperFloorSubsystem();
-  // private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   // private final GamePieceSimulation gamePieceSimulation = new GamePieceSimulation();
   // private ShotParameters shotParameters;
   private final TurretSubsystem turretSubsystem = new TurretSubsystem();
@@ -325,34 +326,50 @@ public class RobotContainer {
   public void configureCodriverButtonBindings() {
     controller_two = new CommandXboxController(3);
 
-    controller_two
-        .a()
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  shooterSubsystem.setShooterVoltages(0, 0);
-                }));
+    //   controller_two
+    //       .a()
+    //       .onTrue(
+    //           new InstantCommand(
+    //               () -> {
+    //                 shooterSubsystem.setShooterVoltages(0, 0);
+    //               }));
 
-    controller_two
-        .b()
-        .onTrue(
-            new InstantCommand(
-                    () -> {
-                      shooterSubsystem.setFlywheelVoltage(10);
-                    })
-                /* .alongWith(new WaitCommand(3))*/
-                .alongWith(
-                    new InstantCommand(
-                        () -> {
-                          shooterSubsystem.setTransitionVoltage(10);
-                        })));
+    //   controller_two
+    //       .b()
+    //       .onTrue(
+    //           new InstantCommand(
+    //                   () -> {
+    //                     shooterSubsystem.setFlywheelVoltage(10);
+    //                   })
+    //               /* .alongWith(new WaitCommand(3))*/
+    //               .alongWith(
+    //                   new InstantCommand(
+    //                       () -> {
+    //                         shooterSubsystem.setTransitionVoltage(10);
+    //                       })));
 
     controller_two
         .x()
         .onTrue(
             new InstantCommand(
                 () -> {
-                 
+                  intakeSubsystem.setIntakeVoltage(0);
+                }));
+
+    controller_two
+        .y()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  intakeSubsystem.setIntakeVoltage(10);
+                }));
+    // controller_two
+    //     .x()
+    //     .onTrue(
+    //         new InstantCommand(
+    //             () -> {
+    //               hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(20)));
+    //             }));
 
                       gamePieceSimulation.launchFuelBall(
                           ShotCalculator.getFieldToShooter(pose, Constants.BOT_TO_SHOOTER),

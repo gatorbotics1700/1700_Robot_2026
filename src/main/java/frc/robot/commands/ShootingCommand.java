@@ -79,9 +79,9 @@ public class ShootingCommand extends Command {
     if (flywheelSpeed != 0
         && Math.abs(shooterSubsystem.getFlywheelVelocity() - flywheelSpeed)
             < shooterSubsystem.FLYWHEEL_SPEED_DEADBAND) { // TODO add a deadband probably
-      shooterSubsystem.setTransitionSpeed(ShooterSubsystem.TRANSITION_SPEED);
+      // shooterSubsystem.setDesiredTransitionSpeed(ShooterSubsystem.TRANSITION_SPEED);
     } else {
-      shooterSubsystem.setTransitionSpeed(0);
+      // shooterSubsystem.setDesiredTransitionSpeed(0);
     }
   }
 

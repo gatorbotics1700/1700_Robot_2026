@@ -36,7 +36,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public IntakeSubsystem() {
     // TODO change back to mechCANbus for robot
-    intakeMotor = new TalonFX(Constants.INTAKE_DEPLOY_MOTOR_CAN_ID, ""); // TunerConstants.mechCANBus);
+    intakeMotor =
+        new TalonFX(Constants.INTAKE_DEPLOY_MOTOR_CAN_ID, ""); // TunerConstants.mechCANBus);
     deployMotor = new TalonFX(Constants.INTAKE_MOTOR_CAN_ID, ""); // TunerConstants.mechCANBus);
     // TODO check if we really want it inverted because I kinda think we want clockwise to be
     // negative...
@@ -90,12 +91,14 @@ public class IntakeSubsystem extends SubsystemBase {
     deployMotor.getConfigurator().apply(talonFXConfigs);
 
     m_request = new MotionMagicExpoVoltage(0);
+
+    intakeMotor.setVoltage(0);
   }
 
   @Override
   public void periodic() {
     // deployMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
-    // intakeMotor.setVoltage(intakeVoltage);
+    // intakeMotor.setControl(dutyCycleOut.withOutput(intakeSpeed));
   }
 
   public void setDesiredangle(
@@ -107,8 +110,8 @@ public class IntakeSubsystem extends SubsystemBase {
     this.intakeSpeed = intakeSpeed;
   }
 
-  public void setIntakeVoltage(double intakeVoltage) {
-    intakeMotor.setVoltage(intakeVoltage);
+  public void setIntakeVoltage(double voltage) {
+    intakeMotor.setVoltage(voltage);
   }
 
   public void setDeploySpeed(double speed) {

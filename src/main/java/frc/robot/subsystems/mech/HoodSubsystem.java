@@ -31,7 +31,9 @@ public class HoodSubsystem extends SubsystemBase {
   private static final double REAL_HOOD_GEAR_RATIO = 2.25;
 
   private final TalonFX hoodMotor =
-      new TalonFX(Constants.HOOD_MOTOR_CAN_ID, ""); // TunerConstants.mechCANBus); // TODO put back mechCANBus on real robot
+      new TalonFX(
+          Constants.HOOD_MOTOR_CAN_ID,
+          ""); // TunerConstants.mechCANBus); // TODO put back mechCANBus on real robot
   private final DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
   private TalonFXConfiguration talonFXConfigs;
   private static MotionMagicExpoVoltage m_request;
@@ -99,7 +101,7 @@ public class HoodSubsystem extends SubsystemBase {
     return hoodAngleDegrees
         / 360.0
         * REAL_HOOD_GEAR_RATIO; // * HOOD_SHAFT_REVS_PER_MECH_REV * HOOD_GEARBOX_RATIO;
-        // TODO change back for prototype testing
+    // TODO change back for prototype testing
   }
 
   public Rotation2d getCurrentAngle() {
