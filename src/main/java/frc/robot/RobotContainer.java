@@ -363,13 +363,12 @@ public class RobotContainer {
                 () -> {
                   intakeSubsystem.setIntakeVoltage(10);
                 }));
-    // controller_two
-    //     .x()
-    //     .onTrue(
-    //         new InstantCommand(
-    //             () -> {
-    //               hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(20)));
-    //             }));
+    
+    controller_two
+        .x()
+        .onTrue(
+            new InstantCommand(
+                () -> {
 
                       gamePieceSimulation.launchFuelBall(
                           ShotCalculator.getFieldToShooter(pose, Constants.BOT_TO_SHOOTER),
@@ -407,6 +406,13 @@ public class RobotContainer {
                 () -> {
                   turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(90)));
                 }));
+    // controller_two
+    //     .y()
+    //     .onTrue(
+    //         new InstantCommand(
+    //             () -> {
+    //               turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(90)));
+    //             }));
 
     controller_two
         .a()
