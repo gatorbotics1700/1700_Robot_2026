@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.mech;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
@@ -14,7 +14,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class IntakeCommands {
 
-  private static final double INTAKING_SPEED =
+  private static final double INTAKING_VOLTAGE =
       9; // TODO get a real number (I just picked my favorite)
 
   private IntakeCommands() {}
@@ -40,18 +40,14 @@ public class IntakeCommands {
   public static Command RunIntake(IntakeSubsystem intakeSubsystem) {
     return new InstantCommand(
         () -> {
-          Logger.recordOutput("Auto/Intake/Command", "RUN");
-          Logger.recordOutput("Auto/Intake/Speed", INTAKING_SPEED);
-          intakeSubsystem.setIntakeSpeed(INTAKING_SPEED);
+          intakeSubsystem.setDesiredIntakeVoltage(INTAKING_VOLTAGE);
         });
   }
 
   public static Command StopIntake(IntakeSubsystem intakeSubsystem) {
     return new InstantCommand(
         () -> {
-          Logger.recordOutput("Auto/Intake/Command", "STOP");
-          Logger.recordOutput("Auto/Intake/Speed", 0.0);
-          intakeSubsystem.setIntakeSpeed(0);
+          intakeSubsystem.setDesiredIntakeVoltage(0);
         });
   }
 

@@ -3,7 +3,6 @@ package frc.robot.subsystems.mech;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -19,20 +18,16 @@ public class IntakeSubsystem extends SubsystemBase {
   private static MotionMagicExpoVoltage m_request;
 
   private Rotation2d desiredAngle = new Rotation2d();
-  
+  private double desiredVoltage;
+
   private final int DEPLOY_GEARBOX_RATIO = 9; // TODO find the real value
   private final double DEPLOY_PULLEY_ONE_GEAR_RATIO = 42.0 / 18.0;
   private final double DEPLOY_PULLEY_TWO_GEAR_RATIO = 36.0 / 18.0;
-
-  private static DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
 
   public final Rotation2d EXTENDED_POSITION =
       new Rotation2d(Math.toRadians(90)); // ticks, TODO: change
   public final Rotation2d RETRACTED_POSITION =
       new Rotation2d(Math.toRadians(0)); // ticks, TODO: change
-  public final double DEADBAND = 2;
-  private double intakeSpeed;
-  private double intakeVoltage;
 
   public IntakeSubsystem() {
     // TODO change back to mechCANbus for robot
@@ -40,13 +35,16 @@ public class IntakeSubsystem extends SubsystemBase {
         new TalonFX(Constants.INTAKE_DEPLOY_MOTOR_CAN_ID, ""); // TunerConstants.mechCANBus);
     deployMotor = new TalonFX(Constants.INTAKE_MOTOR_CAN_ID, ""); // TunerConstants.mechCANBus);
 
+    desiredVoltage = 0;
+
     intakeMotor // TODO see if we actually need to invert
         .getConfigurator()
         .apply(
             new TalonFXConfiguration()
                 .withMotorOutput(
-                    new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive)));
-    
+                    new MotorOutputConfigs()
+                        .withInverted(InvertedValue.CounterClockwise_Positive)));
+
     deployTalonFXConfigs = new TalonFXConfiguration();
 
     deployTalonFXConfigs.withMotorOutput(
@@ -54,9 +52,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
     // TODO: TUNE ALL OF THESE
     Slot0Configs slot0Configs = deployTalonFXConfigs.Slot0;
-    
-    slot0Configs.kG = 0.2128; // Add 0.2128 V output to overcome gravity (tuned in early feedforward testing)
-    slot0Configs.kS = 0.25; // Add 0.01 V output to overcome static friction (just a guesstimate, but this might just be 0
+
+    slot0Configs.kG =
+        0.2128; // Add 0.2128 V output to overcome gravity (tuned in early feedforward testing)
+    slot0Configs.kS =
+        0.25; // Add 0.01 V output to overcome static friction (just a guesstimate, but this might
+    // just be 0
     slot0Configs.kV = 0.16; // A velocity target of 1 rps results in 0.12 V output
     slot0Configs.kA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
 
@@ -82,7 +83,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public void periodic() {
     // TODO uncomment out this code when ready to test without voltage instant commands
     // deployMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
-    // intakeMotor.setControl(dutyCycleOut.withOutput(intakeSpeed));
+    // intakeMotor.setVoltage(desiredVoltage);
   }
 
   public void setDesiredangle(
@@ -90,16 +91,12 @@ public class IntakeSubsystem extends SubsystemBase {
     this.desiredAngle = desiredAngle;
   }
 
-  public void setIntakeSpeed(double intakeSpeed) {
-    this.intakeSpeed = intakeSpeed;
+  public void setDesiredIntakeVoltage(double desiredIntakeVoltage) {
+    this.desiredVoltage = desiredIntakeVoltage;
   }
 
   public void setIntakeVoltage(double voltage) {
     intakeMotor.setVoltage(voltage);
-  }
-
-  public void setDeploySpeed(double speed) {
-    deployMotor.setControl(dutyCycleOut.withOutput(speed));
   }
 
   public Rotation2d currentAngle() {
@@ -113,7 +110,8 @@ public class IntakeSubsystem extends SubsystemBase {
             % 360; // TODO check if we multiply or divide by the gear ratio
     return new Rotation2d(
         Math.toRadians(
-            deployAngleDegrees)); // TODO: figure out how to use the fromDegrees method because it seems nicer :/
+            deployAngleDegrees)); // TODO: figure out how to use the fromDegrees method because it
+    // seems nicer :/
   }
 
   public double degreesToRevs(double deployAngleDegrees) {

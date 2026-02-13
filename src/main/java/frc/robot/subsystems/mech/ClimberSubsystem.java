@@ -4,7 +4,6 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -16,13 +15,13 @@ public class ClimberSubsystem extends SubsystemBase {
 
   private static final int CLIMBER_GEAR_RATIO = 81; // TODO get a real number
   private static final double WINCH_INCHES_PER_REV = (3 / 4) * Math.PI; // TODO get a real number
+
   public final TalonFX motor;
-  private static DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
-  private double desiredPositionInches;
-  // motion magic stuff goes here
-  private final double DEADBAND_INCHES = 1;
+
   private static TalonFXConfiguration talonFXConfigs;
   private static MotionMagicExpoVoltage m_request;
+
+  private double desiredPositionInches;
 
   public ClimberSubsystem() {
     motor = new TalonFX(Constants.CLIMBER_MOTOR_CAN_ID, ""); // TunerConstants.mechCANBus);
@@ -37,21 +36,16 @@ public class ClimberSubsystem extends SubsystemBase {
     // TODO: make tuneable constants
     Slot0Configs slot0Configs = talonFXConfigs.Slot0;
 
-    // Add 0.2128 V output to overcome gravity (tuned in early feedforward
-    // testing)
-    slot0Configs.kG = 0.2128;
-
-    // Add 0.01 V output to overcome static friction (just a guesstimate, but this might just be 0
-    slot0Configs.kS = 0.25;
-
+    slot0Configs.kG =
+        0.2128; // Add 0.2128 V output to overcome gravity (tuned in early feedforward testing)
+    slot0Configs.kS =
+        0.25; // Add 0.01 V output to overcome static friction (just a guesstimate, but this might
+    // just be 0
     slot0Configs.kV = 0.16; // A velocity target of 1 rps results in 0.12 V output
-
     slot0Configs.kA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
 
     slot0Configs.kP = 4.8; // A position error of 2.5 rotations results in 12V output
-
     slot0Configs.kI = 0; // no output for integrated error
-
     slot0Configs.kD = 0.1; // a velocity error of 1 rps results in 0.1 V output
 
     // MOTION MAGIC EXPO
@@ -70,19 +64,12 @@ public class ClimberSubsystem extends SubsystemBase {
     motor.setControl(m_request.withPosition(inchesToRevs(desiredPositionInches)));
   }
 
-  private void setMotorOutput(double speed) {
-    motor.setControl(dutyCycleOut.withOutput(speed));
+  public void setDesiredPositionInches(double desiredPositionInches) {
+    this.desiredPositionInches = desiredPositionInches;
   }
 
   public double currentPositionInches() {
-    return motor.getPosition().getValueAsDouble()
-        / Constants.KRAKEN_TICKS_PER_REV
-        * CLIMBER_GEAR_RATIO
-        * WINCH_INCHES_PER_REV; // TODO majorly check this math
-  }
-
-  public void setDesiredPositionInches(double desiredPositionInches) {
-    this.desiredPositionInches = desiredPositionInches;
+    return motor.getPosition().getValueAsDouble() / CLIMBER_GEAR_RATIO * WINCH_INCHES_PER_REV;
   }
 
   public double inchesToRevs(double positionInches) {

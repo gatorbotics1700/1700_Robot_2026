@@ -24,7 +24,10 @@ public class TurretSubsystem extends SubsystemBase {
   private Rotation2d desiredAngle;
 
   public TurretSubsystem() {
-    turretMotor = new TalonFX(Constants.TURRET_MOTOR_CAN_ID, ""); // TunerConstants.mechCANBus); // TODO change back to mechCANBus for robot
+    turretMotor =
+        new TalonFX(
+            Constants.TURRET_MOTOR_CAN_ID,
+            ""); // TunerConstants.mechCANBus); // TODO change back to mechCANBus for robot
     turretMotor.setNeutralMode(NeutralModeValue.Brake);
 
     desiredAngle = new Rotation2d(0);
@@ -32,12 +35,16 @@ public class TurretSubsystem extends SubsystemBase {
     // MOTION MAGIC PID/FEEDFORWARD CONFIGS // TODO: must tune everything!!
     talonFXConfigs = new TalonFXConfiguration();
 
-    talonFXConfigs.withMotorOutput(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
+    talonFXConfigs.withMotorOutput(
+        new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
 
     Slot0Configs slot0Configs = talonFXConfigs.Slot0;
 
-    slot0Configs.kG = 0; // Add 0.2128 V output to overcome gravity (tuned in early feedforward testing)
-    slot0Configs.kS = 0.25; // Add 0.01 V output to overcome static friction (just a guesstimate, but this might just be 0
+    slot0Configs.kG =
+        0; // Add 0.2128 V output to overcome gravity (tuned in early feedforward testing)
+    slot0Configs.kS =
+        0.25; // Add 0.01 V output to overcome static friction (just a guesstimate, but this might
+    // just be 0
     slot0Configs.kV = 0.16; // A velocity target of 1 rps results in 0.12 V output
     slot0Configs.kA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
 
@@ -59,30 +66,47 @@ public class TurretSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    turretMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
+    // turretMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
     // Logger.recordOutput("turret/output" + turretMotor.get());
+    System.out.println(desiredAngle.getDegrees());
   }
 
-  // TODO need to add something that has the motor switch directions if it reaches a bound (i.e. > 360, )
+  // TODO need to add something that has the motor switch directions if it reaches a bound (i.e. >
+  // 360, )
 
-  public void setDesiredAngle(Rotation2d desiredAngle) { // this is for once we start testing targetting
-    if(Math.abs(desiredAngle.getDegrees()) > 180){
-      desiredAngle = new Rotation2d(desiredAngle.getDegrees() % 180); // TODO check this - trying to wrap the angle so it stays within -180 and 180
+  public void setDesiredAngle(
+      Rotation2d desiredAngle) { // this is for once we start testing targetting
+    if (Math.abs(desiredAngle.getRadians()) >= Math.PI) {
+      // desiredAngle =
+      //     new Rotation2d(
+      //         MathUtil.angleModulus(
+      //             desiredAngle
+      //                 .getRadians())); // TODO check this - trying to wrap the angle so it stays
+      // within -180 and 180
+      int one_eighties = (int) (desiredAngle.getRadians() / Math.PI);
+      if (one_eighties % 2 == 0) {
+        desiredAngle = new Rotation2d(desiredAngle.getRadians() % Math.PI);
+      } else {
+        if (desiredAngle.getRadians() >= Math.PI) {
+          desiredAngle = new Rotation2d(-((Math.PI) - (desiredAngle.getRadians() % Math.PI)));
+        }
+        if (desiredAngle.getRadians() <= -Math.PI) {
+          desiredAngle = new Rotation2d((Math.PI) + (desiredAngle.getRadians() % Math.PI));
+        }
+      }
     }
+
     this.desiredAngle = desiredAngle;
   }
 
   public Rotation2d currentAngle() {
     double motorPositionRevs = turretMotor.getPosition().getValueAsDouble();
     double turretAngleDegrees =
-        motorPositionRevs
-            / TURRET_GEARBOX_RATIO
-            / GEAR_REVS_PER_TURRET_REV
-            * 360
-            % 360; // TODO check if we want to mod 180 instead 
+        motorPositionRevs / TURRET_GEARBOX_RATIO / GEAR_REVS_PER_TURRET_REV * 360 % 180;
     return new Rotation2d(
         Math.toRadians(
-            turretAngleDegrees)); // TODO: figure out how to use the fromDegrees method because it seems nicer :/
+            turretAngleDegrees)); // TODO: figure out how to use the fromDegrees method because it
+    // seems nicer :/
   }
 
   public double degreesToRevs(double turretAngleDegrees) {

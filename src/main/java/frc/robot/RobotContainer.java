@@ -56,11 +56,11 @@ public class RobotContainer {
   // Subsystems
   // private final Drive drive;
   // private final Vision vision;
-  private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+  // private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   // private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
-  private final HoodSubsystem hoodSubsystem = new HoodSubsystem();
+  // private final HoodSubsystem hoodSubsystem = new HoodSubsystem();
   // private final HopperFloorSubsystem transitionSubsystem = new HopperFloorSubsystem();
-  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  // private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   // private final GamePieceSimulation gamePieceSimulation = new GamePieceSimulation();
   // private ShotParameters shotParameters;
   private final TurretSubsystem turretSubsystem = new TurretSubsystem();
@@ -348,13 +348,21 @@ public class RobotContainer {
     //                         shooterSubsystem.setTransitionVoltage(10);
     //                       })));
 
-    controller_two
-        .x()
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  intakeSubsystem.setIntakeVoltage(0);
-                }));
+    // controller_two
+    //     .x()
+    //     .onTrue(
+    //         new InstantCommand(
+    //             () -> {
+    //               intakeSubsystem.setIntakeVoltage(0);
+    //             }));
+
+    // controller_two
+    //     .y()
+    //     .onTrue(
+    //         new InstantCommand(
+    //             () -> {
+    //               intakeSubsystem.setIntakeVoltage(10);
+    //             }));
 
     controller_two
         .y()
@@ -399,20 +407,28 @@ public class RobotContainer {
                                           // values
                                           // match.
                                           Pose2d pose = drive.getPose();
+    // controller_two
+    //     .x()
+    //     .onTrue(
+    //         new InstantCommand(
+    //             () -> {
+    //               hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(20)));
+    //             }));
+
+    controller_two
+        .x()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(400)));
+                }));
     controller_two
         .y()
         .onTrue(
             new InstantCommand(
                 () -> {
-                  turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(90)));
+                  turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(-300)));
                 }));
-    // controller_two
-    //     .y()
-    //     .onTrue(
-    //         new InstantCommand(
-    //             () -> {
-    //               turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(90)));
-    //             }));
 
     controller_two
         .a()

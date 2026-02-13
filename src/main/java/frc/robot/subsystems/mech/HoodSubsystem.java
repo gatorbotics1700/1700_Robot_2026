@@ -48,8 +48,11 @@ public class HoodSubsystem extends SubsystemBase {
     // TODO: make tuneable constants
     Slot0Configs slot0Configs = talonFXConfigs.Slot0;
 
-    slot0Configs.kG = 0.2128; // Add 0.2128 V output to overcome gravity (tuned in early feedforward testing)
-    slot0Configs.kS = 0.25; // Add 0.01 V output to overcome static friction (just a guesstimate, but this might just be 0
+    slot0Configs.kG =
+        0.2128; // Add 0.2128 V output to overcome gravity (tuned in early feedforward testing)
+    slot0Configs.kS =
+        0.25; // Add 0.01 V output to overcome static friction (just a guesstimate, but this might
+    // just be 0
     slot0Configs.kV = 0.16; // A velocity target of 1 rps results in 0.12 V output
     slot0Configs.kA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
 
@@ -108,7 +111,8 @@ public class HoodSubsystem extends SubsystemBase {
     // HOOD_SHAFT_REVS_PER_MECH_REV * 360 % 360; // TODO change back for prototype testing
     return new Rotation2d(
         Math.toRadians(
-            hoodAngleDegrees)); // TODO: figure out how to use the fromDegrees method because it seems nicer :/
+            hoodAngleDegrees)); // TODO: figure out how to use the fromDegrees method because it
+    // seems nicer :/
   }
 
   public void setHoodVoltage(double voltage) {
