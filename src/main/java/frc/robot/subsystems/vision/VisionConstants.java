@@ -124,10 +124,20 @@ public class VisionConstants {
       double pitchDegrees,
       double yawDegrees) {
     Pose3d cameraInRobotSpacePose =
-        new Pose3d(xMeters, yMeters, zMeters, new Rotation3d(0, 0, Math.toRadians(yawDegrees)))
-            .rotateBy(new Rotation3d(Math.toRadians(rollDegrees), Math.toRadians(pitchDegrees), 0));
+        new Pose3d(
+            xMeters,
+            yMeters,
+            zMeters,
+            new Rotation3d(0, 0, Math.toRadians(yawDegrees))
+                .rotateBy(
+                    new Rotation3d(Math.toRadians(rollDegrees), Math.toRadians(pitchDegrees), 0)));
     double robotSpaceRoll = cameraInRobotSpacePose.getRotation().getX();
     double robotSpacePitch = cameraInRobotSpacePose.getRotation().getY();
+    System.out.println(
+        "creating camera transform: " + Math.toDegrees(robotSpaceRoll) + " " + pitchDegrees);
+    System.out.println(
+        "creating camera transform: " + Math.toDegrees(robotSpacePitch) + " " + rollDegrees);
+
     return new Transform3d(
         xMeters,
         yMeters,

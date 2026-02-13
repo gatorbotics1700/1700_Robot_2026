@@ -101,6 +101,24 @@ public class Vision extends SubsystemBase {
           //                     Math.toRadians(-target.getYaw())))
           //             .getTranslation());
           Pose3d cameraInFieldSpace = robotPose3d.transformBy(robotToCamera);
+          System.out.println(
+              "robot to camera: "
+                  + robotToCamera
+                  + " "
+                  + Math.toDegrees(robotToCamera.getRotation().getX())
+                  + " "
+                  + Math.toDegrees(robotToCamera.getRotation().getY())
+                  + " "
+                  + Math.toDegrees(robotToCamera.getRotation().getZ()));
+          System.out.println(
+              "camera in field space: "
+                  + cameraInFieldSpace
+                  + " "
+                  + Math.toDegrees(cameraInFieldSpace.getRotation().getX())
+                  + " "
+                  + Math.toDegrees(cameraInFieldSpace.getRotation().getY())
+                  + " "
+                  + Math.toDegrees(cameraInFieldSpace.getRotation().getZ()));
           cameraInFieldSpace =
               new Pose3d(
                   cameraInFieldSpace.getTranslation(),
@@ -119,6 +137,15 @@ public class Vision extends SubsystemBase {
                               Centimeters.of(200), Centimeters.of(0), Centimeters.of(0)),
                           new Rotation3d()))
                   .getTranslation();
+          System.out.println(
+              "camera in field space: "
+                  + cameraInFieldSpace
+                  + " "
+                  + Math.toDegrees(cameraInFieldSpace.getRotation().getX())
+                  + " "
+                  + Math.toDegrees(cameraInFieldSpace.getRotation().getY())
+                  + " "
+                  + Math.toDegrees(cameraInFieldSpace.getRotation().getZ()));
           System.out.println("point 2: " + towardFuelInRobotSpace);
           double a = towardFuelInRobotSpace.getX() - cameraInFieldSpace.getX();
           double b = towardFuelInRobotSpace.getY() - cameraInFieldSpace.getY();

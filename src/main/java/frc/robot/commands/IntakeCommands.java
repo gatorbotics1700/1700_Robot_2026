@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
@@ -60,7 +61,7 @@ public class IntakeCommands {
       return Commands.none();
     }
 
-    // return AutoBuilder.pathfindToPose(desiredPose, constraints);
-    return Commands.none();
+    return AutoBuilder.pathfindToPose(desiredPose, constraints);
+    // return Commands.none();
   }
 }

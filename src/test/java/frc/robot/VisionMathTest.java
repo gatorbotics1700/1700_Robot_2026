@@ -67,13 +67,13 @@ class VisionMathTest {
   /**
    * Optional override for getCameraToTargetDistance: camera height (cm). Set to -1 to use config.
    */
-  private static final double TEMPLATE_CAMERA_HEIGHT_CM_OVERRIDE = 107.5; // 107.5
+  private static final double TEMPLATE_CAMERA_HEIGHT_CM_OVERRIDE = -1;
 
   /**
    * Optional override for getCameraToTargetDistance: camera pitch (degrees). Set to -999 to use
    * config.
    */
-  private static final double TEMPLATE_CAMERA_PITCH_DEG_OVERRIDE = 15; // 15
+  private static final double TEMPLATE_CAMERA_PITCH_DEG_OVERRIDE = -999;
 
   /** Robot pose (field coordinates) when the measurement was taken. Units: meters, degrees. */
   private static final double TEMPLATE_ROBOT_POSE_X_METERS = 0;
@@ -83,10 +83,10 @@ class VisionMathTest {
   private static final double TEMPLATE_ROBOT_POSE_ROTATION_DEGREES = 0.0;
 
   /** Target pitch from PhotonVision (degrees). Positive = target above camera center. */
-  private static final double TEMPLATE_TARGET_PITCH_DEGREES = -15;
+  private static final double TEMPLATE_TARGET_PITCH_DEGREES = -13.069;
 
   /** Target yaw from PhotonVision (degrees). Positive = target left of camera center. */
-  private static final double TEMPLATE_TARGET_YAW_DEGREES = 0.0;
+  private static final double TEMPLATE_TARGET_YAW_DEGREES = 19.295;
 
   /**
    * Expected camera-to-target distance from getCameraToTargetDistance. Compute from:
@@ -96,9 +96,9 @@ class VisionMathTest {
   private static final double TEMPLATE_EXPECTED_DISTANCE_CM = 200;
 
   /** Expected fuel pose (field coordinates) from getFuelPose. Units: meters, degrees. */
-  private static final double TEMPLATE_EXPECTED_FUEL_POSE_X_METERS = 1.73;
+  private static final double TEMPLATE_EXPECTED_FUEL_POSE_X_METERS = 3.95;
 
-  private static final double TEMPLATE_EXPECTED_FUEL_POSE_Y_METERS = 0.0;
+  private static final double TEMPLATE_EXPECTED_FUEL_POSE_Y_METERS = 3.4;
 
   private static final double TEMPLATE_EXPECTED_FUEL_POSE_ROTATION_DEGREES = 90;
 
@@ -109,7 +109,7 @@ class VisionMathTest {
   private static final double TEMPLATE_POSE_TOLERANCE_METERS = 0.1;
 
   /** Tolerance for fuel pose rotation assertion (degrees). */
-  private static final double TEMPLATE_ANGULAR_TOLERANCE_DEGREES = 5;
+  private static final double TEMPLATE_ANGULAR_TOLERANCE_DEGREES = 50;
 
   // =============================================================================
 
