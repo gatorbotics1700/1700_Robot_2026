@@ -38,6 +38,7 @@ import java.util.List;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
+import org.photonvision.targeting.TargetCorner;
 
 public class Vision extends SubsystemBase {
   private final VisionConsumer consumer;
@@ -88,14 +89,23 @@ public class Vision extends SubsystemBase {
           Transform3d robotToCamera = VisionConstants.ROBOT_TO_CAMERA_TRANSFORMS_ARRAY[cameraIndex];
           Pose3d cameraInFieldSpace = robotPose3d.transformBy(robotToCamera);
           List<TargetCorner> corners = target.getMinAreaRectCorners();
+          double sumX = 0, sumY = 0;
+          for (TargetCorner c : corners) {
+            sumX += c.x;
+            sumY += c.y;
+          }
+          double targetPixelsX = sumX / 4.0;
+          double targetPixelsY = sumY / 4.0;
+          double targetPitchDegrees = (targetPixelsX - 240) * 52.5;
+          double targetYawDegrees = (targetPixelsY - 320) * 70;
           cameraInFieldSpace =
               cameraInFieldSpace.transformBy(
                   new Transform3d(
                       new Translation3d(),
                       new Rotation3d(
                           0,
-                          Math.toRadians(-target.getPitch()),
-                          Math.toRadians(-target.getYaw()))));
+                          Math.toRadians(-targetPitchDegrees),
+                          Math.toRadians(-targetYawDegrees))));
           Translation3d towardFuelInRobotSpace =
               cameraInFieldSpace
                   .transformBy(
