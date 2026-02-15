@@ -33,7 +33,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     desiredFlywheelVelocity = 0.0;
 
-    // TALONFX & MOTIONMAGIC CONFIGS // TODO everything needs tuning; might not need all values for flywheel
+    // TALONFX & MOTIONMAGIC CONFIGS // TODO everything needs tuning; might not need all values for
+    // flywheel
     flywheelTalonFXConfigs = new TalonFXConfiguration();
 
     flywheelTalonFXConfigs.withMotorOutput(
@@ -53,11 +54,12 @@ public class ShooterSubsystem extends SubsystemBase {
     // MOTION MAGIC EXPO
     MotionMagicConfigs motionMagicConfigs = flywheelTalonFXConfigs.MotionMagic;
 
-    motionMagicConfigs.MotionMagicAcceleration = 400; // Target acceleration of 400 rps/s (0.25 seconds to max)
+    motionMagicConfigs.MotionMagicAcceleration =
+        400; // Target acceleration of 400 rps/s (0.25 seconds to max)
     motionMagicConfigs.MotionMagicJerk = 4000; // Target jerk of 4000 rps/s/s (0/1 seconds)
 
     flywheelMotor.getConfigurator().apply(flywheelTalonFXConfigs);
-    
+
     m_request = new MotionMagicVelocityVoltage(0);
   }
 
@@ -68,6 +70,12 @@ public class ShooterSubsystem extends SubsystemBase {
 
     Logger.recordOutput(
         "flywheel current velocity", flywheelMotor.getVelocity().getValueAsDouble());
+
+    if (transitionMotor.getMotorVoltage().getValueAsDouble() != 0) {
+      Logger.recordOutput("Kicker", true);
+    } else {
+      Logger.recordOutput("Kicker", false);
+    }
   }
 
   public void setFlywheelVelocity(double desiredFlywheelVelocity) {

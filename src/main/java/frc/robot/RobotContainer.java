@@ -17,7 +17,6 @@ package frc.robot;
 // import frc.robot.commands.AutoDriveCommand;
 // import frc.robot.commands.TeleopDriveCommand;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -44,7 +43,7 @@ import frc.robot.subsystems.mech.HoodSubsystem;
 import frc.robot.subsystems.mech.IntakeSubsystem;
 import frc.robot.subsystems.mech.ShooterSubsystem;
 import frc.robot.subsystems.mech.IntakeSubsystem;
-import frc.robot.subsystems.mech.TurretSubsystem;
+import frc.robot.subsystems.mech.ShooterSubsystem;
 import frc.robot.util.MultiStepAutoChooser;
 import frc.robot.util.RobotConfigLoader;
 import frc.robot.util.ShotCalculator;
@@ -57,7 +56,7 @@ public class RobotContainer {
   // Subsystems
   // private final Drive drive;
   // private final Vision vision;
-  // private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+  private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   // private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
   // private final HoodSubsystem hoodSubsystem = new HoodSubsystem();
   // private final HopperFloorSubsystem transitionSubsystem = new HopperFloorSubsystem();
@@ -337,20 +336,19 @@ public class RobotContainer {
     //                 shooterSubsystem.setShooterVoltages(0, 0);
     //               }));
 
-    //   controller_two
-    //       .b()
-    //       .onTrue(
-    //           new InstantCommand(
-    //                   () -> {
-    //                     shooterSubsystem.setFlywheelVoltage(10);
-    //                   })
-    //               /* .alongWith(new WaitCommand(3))*/
-    //               .alongWith(
-    //                   new InstantCommand(
-    //                       () -> {
-    //                         shooterSubsystem.setTransitionVoltage(10);
-    //                       })));
-
+    controller_two
+        .b()
+        .onTrue(
+            new InstantCommand(
+                    () -> {
+                      shooterSubsystem.setFlywheelVoltage(10);
+                    })
+                /* .alongWith(new WaitCommand(3))*/
+                .alongWith(
+                    new InstantCommand(
+                        () -> {
+                          shooterSubsystem.setTransitionVoltage(10);
+                        })));
 
     // TODO INTAKE TESTING BUTTONS - uncomment for use
 
@@ -369,7 +367,6 @@ public class RobotContainer {
                 () -> {
                   intakeSubsystem.setIntakeVoltage(10);
                 }));
-
 
     // TODO TURRET TESTING BUTTONS - uncomment for use
 
@@ -494,7 +491,6 @@ public class RobotContainer {
     //             () -> {
     //               hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(20.0)));
     //             }));
-
 
     // commented this out because it's using a shot parameters thing we were calculating in
     // periodic and idk if we still want that

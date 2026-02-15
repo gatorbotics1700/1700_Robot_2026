@@ -44,7 +44,8 @@ public class HopperFloorSubsystem extends SubsystemBase {
     // MOTION MAGIC EXPO
     MotionMagicConfigs motionMagicConfigs = talonFXConfigs.MotionMagic;
 
-    motionMagicConfigs.MotionMagicAcceleration = 400; // Target acceleration of 400 rps/s (0.25 seconds to max)
+    motionMagicConfigs.MotionMagicAcceleration =
+        400; // Target acceleration of 400 rps/s (0.25 seconds to max)
     motionMagicConfigs.MotionMagicJerk = 4000; // Target jerk of 4000 rps/s/s (0.1 seconds)
 
     hopperMotor.getConfigurator().apply(talonFXConfigs);
