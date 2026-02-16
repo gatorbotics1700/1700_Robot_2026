@@ -16,12 +16,13 @@ import org.littletonrobotics.junction.Logger;
 
 @AutoLog
 public class ShotCalculator {
-  public static double MIN_SHOT_HEIGHT = 10;
+  public static double SHOT_DEADBAND = 0.1;
+  public static double MIN_SHOT_HEIGHT = 2;
   public static double MAX_SHOT_HEIGHT = 300;
-  public static double MIN_SHOT_SPEED = 2;
-  public static double MAX_SHOT_SPEED = 21;
+  public static double MIN_SHOT_SPEED = 0;
+  public static double MAX_SHOT_SPEED = 25;
   public static Rotation2d MIN_HOOD_ANGLE = new Rotation2d(0);
-  public static Rotation2d MAX_HOOD_ANGLE = new Rotation2d(Math.toRadians(70));
+  public static Rotation2d MAX_HOOD_ANGLE = new Rotation2d(Math.toRadians(90));
   public static double lastError = 20;
   public static int loopCount = 0;
 
@@ -37,7 +38,8 @@ public class ShotCalculator {
   public static Rotation2d turretAngle;
   public static Rotation2d hoodAngle = MIN_HOOD_ANGLE;
 
-  public static Rotation2d hoodAngleGuess = new Rotation2d(Math.toRadians(45));
+  // for testing only
+  public static Translation3d landingCoords = new Translation3d();
 
   public ShotCalculator() {}
 
@@ -86,22 +88,8 @@ public class ShotCalculator {
             fieldToShooter,
             target);
 
-    // Turret lead: offset needed = tangentialVelo * shotTime, so tan(lead) = tangentialVelo /
-    // (shotSpeed+radialVelo)
-
-    // Translation2d compBotToTarget = new Translation2d(compRange, params.turretAngle);
-    // Pose2d compFieldToTarget =
-    //     drivetrainPose.transformBy(new Transform2d(compBotToTarget, new Rotation2d()));
-
-    // Logger.recordOutput(
-    //     "shotCalculator/trajectoryRelativeShooterVelo", trajectoryRelativeShooterVelo);
-    // Logger.recordOutput("shotCalculator/hoodAngle", hoodAngle.getDegrees());
     Logger.recordOutput("shotCalculator/turretAngle", params.turretAngle);
-    // Logger.recordOutput("shotCalculator/turretAdjust", turretAdjust.getDegrees());
-    // Logger.recordOutput("shotCalculator/compRangeAdjust", compRange - uncompRange);
-    // Logger.recordOutput("shotCalculator/compRange", compRange);
-    // Logger.recordOutput("shotCalculator/shotTime", shotTime);
-    // Logger.recordOutput("shotCalculator/compFieldToTarget", compFieldToTarget);
+    Logger.recordOutput("shotCalculator/landingCoords", landingCoords);
 
     return params;
   }
@@ -118,9 +106,12 @@ public class ShotCalculator {
       Translation3d target) {
 
     double smallestError = 200;
+    double highestArc = 0;
+
     Rotation2d testHoodAngle = MIN_HOOD_ANGLE;
     double testShotSpeed = MIN_SHOT_SPEED;
     Rotation2d testTurretAngle = new Rotation2d();
+
     Rotation2d bestTurretAngle = new Rotation2d();
     Rotation2d bestHoodAngle = new Rotation2d();
     double bestShotSpeed = 0;
@@ -130,18 +121,13 @@ public class ShotCalculator {
 
       for (int j = 0; j < angleIterations; j++) {
 
-        // System.out.println(angleIncrement + ", " + angleIterations);
-
         double effectiveRadialVelo = testShotSpeed * testHoodAngle.getCos() + radialVelo;
         double shotTime = uncompRange / (effectiveRadialVelo);
 
-        // Compensated range (for aim point): shotTime * sqrt(tangential^2 + shotSpeed^2)
         double compRange =
             shotTime
                 * Math.sqrt(
                     tangentialVelo * tangentialVelo + effectiveRadialVelo * effectiveRadialVelo);
-
-        // hoodAngle = solveBallistics(compRange, shooterToHubHeight, shotSpeed);
 
         Rotation2d turretAdjust = new Rotation2d(Math.atan2(-tangentialVelo, effectiveRadialVelo));
         Rotation2d compTurretToTargetAngle =
@@ -157,15 +143,7 @@ public class ShotCalculator {
                 fieldToShooter,
                 testShotSpeed,
                 target);
-        // System.out.println(
-        //     "error: "
-        //         + error
-        //         + " turret: "
-        //         + turretAngle.getDegrees()
-        //         + " hood: "
-        //         + hoodAngle.getDegrees()
-        //         + " shotspeed: "
-        //         + shotSpeed);
+
         double apexTime = apexTime(testShotSpeed * Math.sin(testHoodAngle.getRadians()));
         double vertexHeight =
             vertexHeight(
@@ -175,32 +153,23 @@ public class ShotCalculator {
 
         double vertexRange =
             vertexRange(testShotSpeed * Math.sin(testHoodAngle.getRadians()), apexTime);
+
         if (
         /*vertexHeight >= MIN_SHOT_HEIGHT
         && vertexHeight <= MAX_SHOT_HEIGHT
-        && */ vertexRange < compRange && shotSpeed <= MAX_SHOT_SPEED) {
-          // System.out.println(error);
-          if (Math.abs(error) < Math.abs(smallestError)) {
-            smallestError = error;
-            bestTurretAngle = testTurretAngle;
-            bestHoodAngle = testHoodAngle;
-            bestShotSpeed = testShotSpeed;
-            // System.out.println(vertexRange + ", " + compRange);
-            // System.out.println("NEW SMALLEST ERROR = " + error);
-            // System.out.println("new best shot params: turret = " + bestTurretAngle.getDegrees() +
-            // "
-            // hood = " + bestHoodAngle.getDegrees() + " shotspeed = " + bestShotSpeed);
-          }
+        &&*/ vertexRange < compRange
+            && shotSpeed <= MAX_SHOT_SPEED
+            && Math.abs(error) <= SHOT_DEADBAND
+            && vertexHeight > highestArc) {
+          bestTurretAngle = testTurretAngle;
+          bestHoodAngle = testHoodAngle;
+          bestShotSpeed = testShotSpeed;
+          highestArc = vertexHeight;
         }
-        // System.out.println(testHoodAngle.getDegrees() + ", " + angleIncrement.getDegrees());
-        // System.out.println(shotSpeed + ", " + hoodAngle.getDegrees() + ", " + error);
+
         testHoodAngle = testHoodAngle.plus(angleIncrement);
       }
       testShotSpeed += speedIncrement;
-    }
-
-    if (smallestError > 2) {
-      System.out.println("NO VIABLE SHOT");
     }
 
     return new ShotParameters(bestTurretAngle, bestHoodAngle, bestShotSpeed);
@@ -233,22 +202,6 @@ public class ShotCalculator {
     return vector.getNorm();
   }
 
-  public static Rotation2d solveBallistics(
-      double rangeForHood, double shooterToHubHeight, double shotSpeed) {
-    return new Rotation2d(
-        Math.atan(
-            (-2 * Math.pow(shotSpeed, 2) * rangeForHood
-                    - Math.sqrt(
-                        4 * Math.pow(shotSpeed, 4) * Math.pow(rangeForHood, 2)
-                            - 4 * Math.pow(9.8, 2) * Math.pow(rangeForHood, 4)
-                            - 8
-                                * 9.8
-                                * Math.pow(rangeForHood, 2)
-                                * Math.pow(shotSpeed, 2)
-                                * shooterToHubHeight))
-                / (-2 * 9.8 * Math.pow(rangeForHood, 2))));
-  }
-
   public static double getTrajectoryError(
       Rotation2d compTurretToTargetAngle,
       Rotation2d hoodAngle,
@@ -265,60 +218,40 @@ public class ShotCalculator {
     vy += fieldRelativeShooterVelo.getY();
 
     Translation3d initialVelocity = new Translation3d(vx, vy, vz);
-    // Ballistic solution is high-angle (hit on the way down). Use larger root so plotted impact
-    // matches.
+
     double t =
         timeToTargetHeight(
-            -0.5 * 9.8, initialVelocity.getZ(), fieldToShooter.getZ() - target.getZ(), true);
+            -0.5 * 9.8, initialVelocity.getZ(), fieldToShooter.getZ() - target.getZ());
 
-    Translation3d ballCoords =
+    Translation3d fieldToBall =
         new Translation3d(
             fieldToShooter.getX() + initialVelocity.getX() * t,
             fieldToShooter.getY() + initialVelocity.getY() * t,
             fieldToShooter.getZ() + initialVelocity.getZ() * t - 0.5 * 9.8 * t * t);
 
-    double error =
-        ballCoords.minus(fieldToShooter).getNorm() - target.minus(fieldToShooter).getNorm();
-    // Translation2d error =
-    //     new Translation2d(ballCoords.getX() - target.getX(), ballCoords.getY() - target.getY());
+    double error = fieldToBall.minus(target).getNorm();
     return error;
   }
 
   public static double apexTime(double vz) {
-    return (-vz) / 2 / (-0.5 * 9.8);
+    return (-vz) / (2 * (-0.5 * 9.8));
   }
 
   public static double vertexHeight(double startingHeight, double vz, double vertexT) {
-    return startingHeight + vz * vertexT + (-0.5) * 9.8 * vertexT * vertexT;
+    return startingHeight + vz * vertexT - 0.5 * 9.8 * vertexT * vertexT;
   }
 
-  public static double vertexRange(double vh, double vertexT) {
-    return vh * vertexT;
+  public static double vertexRange(double vHorizontal, double vertexT) {
+    return vHorizontal * vertexT;
   }
 
-  public static double parabolaVertexT(double a, double b) {
-    return (-b) / 2 / a;
-  }
-
-  /**
-   * Solves a*t^2 + b*t + c = 0 and returns one positive root.
-   *
-   * @param useLargerRoot true = return larger positive root (ball at target height on the way down,
-   *     matches high-angle ballistic solution); false = return smaller positive root (first
-   *     crossing on the way up).
-   */
-  public static double timeToTargetHeight(double a, double b, double c, boolean useLargerRoot) {
+  public static double timeToTargetHeight(double a, double b, double c) {
     double sqrt = Math.sqrt(b * b - 4 * a * c);
     double t1 = (-b + sqrt) / (2 * a);
     double t2 = (-b - sqrt) / (2 * a);
     if (t1 > 0 && t2 > 0) {
-      return useLargerRoot ? Math.max(t1, t2) : Math.min(t1, t2);
+      return Math.max(t1, t2); // returns the larger root, which is the one on the way down
     }
     return t1 > 0 ? t1 : t2;
-  }
-
-  /** Returns the first (smaller) positive time when the ball reaches the target height. */
-  public static double quadraticEquation(double a, double b, double c) {
-    return timeToTargetHeight(a, b, c, false);
   }
 }
