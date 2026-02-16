@@ -417,7 +417,7 @@ public class RobotContainer {
             .x()
             .onTrue(
                 AutoBuilder.pathfindToPose(
-                        new Pose2d(1, Constants.BLUE_HUB.getY(), new Rotation2d()),
+                        new Pose2d(1, Constants.BLUE_HUB.getY() + 1, new Rotation2d()),
                         new PathConstraints(4, 12, Math.toRadians(700), Math.toRadians(1000)))
                     .andThen(
                         Commands.parallel(

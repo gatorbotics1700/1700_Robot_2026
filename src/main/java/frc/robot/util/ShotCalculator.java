@@ -18,10 +18,10 @@ import org.littletonrobotics.junction.Logger;
 public class ShotCalculator {
   public static double SHOT_DEADBAND = 0.1;
   public static double MIN_SHOT_HEIGHT = 2;
-  public static double MAX_SHOT_HEIGHT = 300;
+  public static double MAX_SHOT_HEIGHT = 10;
   public static double MIN_SHOT_SPEED = 0;
   public static double MAX_SHOT_SPEED = 25;
-  public static Rotation2d MIN_HOOD_ANGLE = new Rotation2d(0);
+  public static Rotation2d MIN_HOOD_ANGLE = new Rotation2d(Math.toRadians(45));
   public static Rotation2d MAX_HOOD_ANGLE = new Rotation2d(Math.toRadians(90));
   public static double lastError = 20;
   public static int loopCount = 0;
@@ -105,7 +105,6 @@ public class ShotCalculator {
       Translation3d fieldToShooter,
       Translation3d target) {
 
-    double smallestError = 200;
     double highestArc = 0;
 
     Rotation2d testHoodAngle = MIN_HOOD_ANGLE;
@@ -151,13 +150,11 @@ public class ShotCalculator {
                 testShotSpeed * Math.sin(testHoodAngle.getRadians()),
                 apexTime);
 
-        double vertexRange =
-            vertexRange(testShotSpeed * Math.sin(testHoodAngle.getRadians()), apexTime);
+        double vertexRange = vertexRange(effectiveRadialVelo, tangentialVelo, apexTime);
 
-        if (
-        /*vertexHeight >= MIN_SHOT_HEIGHT
-        && vertexHeight <= MAX_SHOT_HEIGHT
-        &&*/ vertexRange < compRange
+        if (vertexHeight >= MIN_SHOT_HEIGHT
+            && vertexHeight <= MAX_SHOT_HEIGHT
+            && vertexRange < compRange
             && shotSpeed <= MAX_SHOT_SPEED
             && Math.abs(error) <= SHOT_DEADBAND
             && vertexHeight > highestArc) {
@@ -165,6 +162,7 @@ public class ShotCalculator {
           bestHoodAngle = testHoodAngle;
           bestShotSpeed = testShotSpeed;
           highestArc = vertexHeight;
+          System.out.println(bestHoodAngle.getDegrees() + ", " + highestArc);
         }
 
         testHoodAngle = testHoodAngle.plus(angleIncrement);
@@ -241,17 +239,21 @@ public class ShotCalculator {
     return startingHeight + vz * vertexT - 0.5 * 9.8 * vertexT * vertexT;
   }
 
-  public static double vertexRange(double vHorizontal, double vertexT) {
-    return vHorizontal * vertexT;
+  public static double vertexRange(
+      double effectiveRadialVelo, double tangentialVelo, double vertexT) {
+    double horizontalSpeed =
+        Math.sqrt(effectiveRadialVelo * effectiveRadialVelo + tangentialVelo * tangentialVelo);
+    return horizontalSpeed * vertexT;
   }
 
   public static double timeToTargetHeight(double a, double b, double c) {
     double sqrt = Math.sqrt(b * b - 4 * a * c);
-    double t1 = (-b + sqrt) / (2 * a);
-    double t2 = (-b - sqrt) / (2 * a);
-    if (t1 > 0 && t2 > 0) {
-      return Math.max(t1, t2); // returns the larger root, which is the one on the way down
-    }
-    return t1 > 0 ? t1 : t2;
+    return (-b - sqrt) / (2 * a);
+    // double t1 = (-b + sqrt) / (2 * a);
+    // double t2 = (-b - sqrt) / (2 * a);
+    // if (t1 > 0 && t2 > 0) {
+    //   return Math.max(t1, t2); // returns the larger root, which is the one on the way down
+    // }
+    // return t1 > 0 ? t1 : t2;
   }
 }

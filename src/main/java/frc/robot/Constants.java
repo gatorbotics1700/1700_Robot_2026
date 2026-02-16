@@ -88,6 +88,7 @@ public final class Constants {
   public static final Translation3d BLUE_HUB =
       new Translation3d(
           4.625594, 4.034663,
-          1.60); // TODO: the z value is currently an estimate of the height we want the ball in the
+          1.80); // z value is 2 centimeters below the very top of the hub (to make sure we aren't
+  // trying to phase through walls)
   // hub
 }

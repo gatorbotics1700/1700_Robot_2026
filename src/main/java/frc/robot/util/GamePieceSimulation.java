@@ -88,7 +88,7 @@ public class GamePieceSimulation {
 
     System.out.println(
         "LAUNCHING BALL AT " + shotSpeed + " MPS WITH DRIVETRAIN SPEED " + chassisSpeeds);
-    Rotation2d turretAngle = turretAngleRobotRelative; // .plus(drivetrainHeading);
+    Rotation2d turretAngle = turretAngleRobotRelative.plus(drivetrainHeading);
 
     // Turret angle is "where we aim" (toward target); on many bots the barrel exits the opposite
     // side, so launch direction = turretAngle + 180° to match compFieldToTarget.
