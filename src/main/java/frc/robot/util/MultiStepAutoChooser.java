@@ -1,18 +1,18 @@
 package frc.robot.util;
 
-import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.mech.ClimberSubsystem;
+import frc.robot.subsystems.mech.IntakeSubsystem;
+import java.util.Optional;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
-/**
- * Multi-step auto chooser that allows drivers to select alliance, starting position, and path
- * segments step-by-step. The chooser automatically builds the auto command from standardized path
- * names.
- */
 public class MultiStepAutoChooser {
   private final LoggedDashboardChooser<String> allianceChooser;
   private final LoggedDashboardChooser<String> startPosChooser;
+  private final DynamicAutoBuilder dynamicAutoBuilder;
 
   // First destination choosers (location type + side)
   private final LoggedDashboardChooser<String> firstDestinationTypeChooser;
@@ -28,9 +28,10 @@ public class MultiStepAutoChooser {
 
   private final LoggedDashboardChooser<Boolean> shouldClimbChooser;
 
-  public MultiStepAutoChooser() {
-    // TODO: is it possible to have elastic give some angry error message if a certain combo isn't a
-    // real auto?
+  public MultiStepAutoChooser(
+      IntakeSubsystem intakeSubsystem, Drive drive, ClimberSubsystem climberSubsystem) {
+    // Create the dynamic auto builder
+    this.dynamicAutoBuilder = new DynamicAutoBuilder(intakeSubsystem, drive, climberSubsystem);
 
     // Initialize choosers
     allianceChooser = new LoggedDashboardChooser<>("Auto/Alliance");
@@ -71,9 +72,9 @@ public class MultiStepAutoChooser {
     firstDestinationTypeChooser.addDefaultOption("None", "None");
     firstDestinationTypeChooser.addOption("Depot", "Depot");
     firstDestinationTypeChooser.addOption("Outpost", "Outpost");
-    firstDestinationTypeChooser.addOption("Fuel Pile Near", "Fuel Pile Near");
-    firstDestinationTypeChooser.addOption("Fuel Pile Far", "Fuel Pile Far");
-    firstDestinationTypeChooser.addOption("Fuel Pile Middle", "Fuel Pile Middle");
+    firstDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
+    // firstDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
+    // firstDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
 
     // Populate first destination side chooser
     firstDestinationSideChooser.addDefaultOption("None", "None");
@@ -85,9 +86,9 @@ public class MultiStepAutoChooser {
     secondDestinationTypeChooser.addDefaultOption("None", "None");
     secondDestinationTypeChooser.addOption("Depot", "Depot");
     secondDestinationTypeChooser.addOption("Outpost", "Outpost");
-    secondDestinationTypeChooser.addOption("Fuel Pile Near", "Fuel Pile Near");
-    secondDestinationTypeChooser.addOption("Fuel Pile Far", "Fuel Pile Far");
-    secondDestinationTypeChooser.addOption("Fuel Pile Middle", "Fuel Pile Middle");
+    secondDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
+    // secondDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
+    // secondDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
 
     // Populate second destination side chooser
     secondDestinationSideChooser.addDefaultOption("None", "None");
@@ -99,9 +100,9 @@ public class MultiStepAutoChooser {
     thirdDestinationTypeChooser.addDefaultOption("None", "None");
     thirdDestinationTypeChooser.addOption("Depot", "Depot");
     thirdDestinationTypeChooser.addOption("Outpost", "Outpost");
-    thirdDestinationTypeChooser.addOption("Fuel Pile Near", "Fuel Pile Near");
-    thirdDestinationTypeChooser.addOption("Fuel Pile Far", "Fuel Pile Far");
-    thirdDestinationTypeChooser.addOption("Fuel Pile Middle", "Fuel Pile Middle");
+    thirdDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
+    // thirdDestinationTypeChooser.addOption("Fuel Pile Far", "Fuel Pile Far");
+    // thirdDestinationTypeChooser.addOption("Fuel Pile Middle", "Fuel Pile Middle");
 
     // Populate third destination side chooser
     thirdDestinationSideChooser.addDefaultOption("None", "None");
@@ -113,7 +114,6 @@ public class MultiStepAutoChooser {
     shouldClimbChooser.addDefaultOption("No", false);
     shouldClimbChooser.addOption("Yes", true);
 
-    // Force initialization by reading each chooser once
     // This ensures they publish to NetworkTables
     allianceChooser.get();
     startPosChooser.get();
@@ -161,15 +161,15 @@ public class MultiStepAutoChooser {
       }
       // Extract distance: "Fuel Pile Near" -> "N", "Fuel Pile Far" -> "F", "Fuel Pile Middle" ->
       // "M"
-      String distance = "";
-      if (type.contains("Near")) {
-        distance = "N";
-      } else if (type.contains("Far")) {
-        distance = "F";
-      } else if (type.contains("Middle")) {
-        distance = "M";
-      }
-
+      /*String distance = "";
+            if (type.contains("Near")) {
+              distance = "N";
+            } else if (type.contains("Far")) {
+              distance = "F";
+            } else if (type.contains("Middle")) {
+              distance = "M";
+            }
+      */
       // Map side to letter
       String sideLetter = "";
       switch (side) {
@@ -184,19 +184,14 @@ public class MultiStepAutoChooser {
           break;
       }
 
-      if (!distance.isEmpty() && !sideLetter.isEmpty()) {
-        return "Fuel Pile " + sideLetter + distance;
+      if (!sideLetter.isEmpty()) {
+        return "Fuel Pile " + sideLetter;
       }
     }
 
     return "None";
   }
 
-  /**
-   * Builds the auto filename from the current selections. Format: {Alliance (initial)}
-   * {StartPos}-{Dest1} -{Dest2}-{Dest3}-{Tower}.auto Example: R Center-DC-Fuel Pile CM.auto or B
-   * LF-Fuel Pile-CF-Outpost-Tower.auto
-   */
   // TODO: make sure this follows the right naming conventions we ultimately decide on
   private String buildAutoFileName(
       String alliance, String startPos, String dest1, String dest2, String dest3, boolean climb) {
@@ -245,16 +240,8 @@ public class MultiStepAutoChooser {
     return fileName.toString();
   }
 
-  /**
-   * Updates chooser options based on current selections. Should be called periodically. Note: Since
-   * LoggedDashboardChooser doesn't support dynamic option clearing, all options are populated
-   * upfront. This method is kept for potential future enhancements.
-   *
-   * <p>Reading the choosers here ensures they stay published to NetworkTables.
-   */
   public void updateChooserOptions() {
-    // Read choosers to ensure they stay published to NetworkTables
-    // This is necessary for LoggedDashboardChooser to maintain NetworkTables entries
+
     allianceChooser.get();
     startPosChooser.get();
     firstDestinationTypeChooser.get();
@@ -266,19 +253,11 @@ public class MultiStepAutoChooser {
     shouldClimbChooser.get();
   }
 
-  /**
-   * Gets the currently selected auto file name for display. Returns the auto filename based on
-   * current selections. This method reads chooser values fresh each time it's called.
-   */
   public String getSelectedPathName() {
     String autoFileName = buildAutoFileNameFromChoosers();
     return autoFileName != null ? autoFileName : "None";
   }
 
-  /**
-   * Builds the auto filename from the current chooser selections. This is a helper method to avoid
-   * code duplication.
-   */
   private String buildAutoFileNameFromChoosers() {
     String alliance = allianceChooser.get();
     String startPos = startPosChooser.get();
@@ -298,50 +277,60 @@ public class MultiStepAutoChooser {
   }
 
   /**
-   * Gets the autonomous command based on the current selections.
-   *
    * @return The command to run in autonomous, or Commands.none() if no valid selection
    */
   public Command getAutonomousCommand() {
+    // Update chooser options first
+    updateChooserOptions();
+
+    // Get all selections
+    String alliance = allianceChooser.get();
+    String startPos = startPosChooser.get();
+
+    String firstDestination =
+        combineDestination(firstDestinationTypeChooser.get(), firstDestinationSideChooser.get());
+    String secondDestination =
+        combineDestination(secondDestinationTypeChooser.get(), secondDestinationSideChooser.get());
+    String thirdDestination =
+        combineDestination(thirdDestinationTypeChooser.get(), thirdDestinationSideChooser.get());
+
+    Boolean shouldClimb = shouldClimbChooser.get();
+    boolean climb = shouldClimb != null && shouldClimb;
+
+    // Use DynamicAutoBuilder to chain paths together
+    return dynamicAutoBuilder.buildAuto(
+        alliance, startPos, firstDestination, secondDestination, thirdDestination, climb);
+  }
+
+  /**
+   * Returns the starting pose for the currently selected auto by loading the first path and reading
+   * its start pose. Use this to set odometry at auto start (e.g. in sim). Empty if no paths or path
+   * file missing.
+   */
+  public Optional<Pose2d> getAutoStartPose() {
+    updateChooserOptions();
+    String alliance = allianceChooser.get();
+    String startPos = startPosChooser.get();
+    String firstDestination =
+        combineDestination(firstDestinationTypeChooser.get(), firstDestinationSideChooser.get());
+    String secondDestination =
+        combineDestination(secondDestinationTypeChooser.get(), secondDestinationSideChooser.get());
+    String thirdDestination =
+        combineDestination(thirdDestinationTypeChooser.get(), thirdDestinationSideChooser.get());
+    Boolean shouldClimb = shouldClimbChooser.get();
+    boolean climb = shouldClimb != null && shouldClimb;
+
+    Optional<String> firstPathName =
+        dynamicAutoBuilder.getFirstPathName(
+            alliance, startPos, firstDestination, secondDestination, thirdDestination, climb);
+    if (firstPathName.isEmpty()) {
+      return Optional.empty();
+    }
     try {
-      // Update chooser options first
-      updateChooserOptions();
-
-      // Build auto filename from selections
-      String autoFileName = buildAutoFileNameFromChoosers();
-
-      if (autoFileName == null) {
-        System.out.println("Selected Auto: None (missing alliance or start position)");
-        return Commands.none();
-      }
-
-      // Print selected auto file name to console
-      System.out.println("Selected Auto: " + autoFileName);
-      System.out.flush();
-
-      // Load the auto file using AutoBuilder
-      try {
-        Command autoCommand = AutoBuilder.buildAuto(autoFileName);
-        if (autoCommand != null) {
-          return autoCommand;
-        } else {
-          System.err.println(
-              "MultiStepAutoChooser: Auto file not found or could not be loaded: " + autoFileName);
-          return Commands.none();
-        }
-      } catch (Exception e) {
-        System.err.println(
-            "MultiStepAutoChooser: Error loading auto file "
-                + autoFileName
-                + ": "
-                + e.getMessage());
-        e.printStackTrace();
-        return Commands.none();
-      }
+      PathPlannerPath path = PathPlannerPath.fromPathFile(firstPathName.get());
+      return path.getStartingHolonomicPose();
     } catch (Exception e) {
-      System.err.println("MultiStepAutoChooser: Error building auto command: " + e.getMessage());
-      e.printStackTrace();
-      return Commands.none();
+      return Optional.empty();
     }
   }
 }

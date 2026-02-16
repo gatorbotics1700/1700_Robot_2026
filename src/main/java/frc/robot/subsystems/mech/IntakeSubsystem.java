@@ -1,17 +1,14 @@
 package frc.robot.subsystems.mech;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.generated.TunerConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
 
@@ -35,30 +32,33 @@ public class IntakeSubsystem extends SubsystemBase {
       new Rotation2d(Math.toRadians(0)); // ticks, TODO: change
   public final double DEADBAND = 2;
   private double intakeSpeed;
+  private double intakeVoltage;
 
   public IntakeSubsystem() {
-    intakeMotor = new TalonFX(Constants.INTAKE_DEPLOY_MOTOR_CAN_ID, TunerConstants.mechCANBus);
-    deployMotor = new TalonFX(Constants.INTAKE_MOTOR_CAN_ID, TunerConstants.mechCANBus);
+    intakeMotor = new TalonFX(Constants.INTAKE_MOTOR_CAN_ID, ""); // TunerConstants.mechCANBus);
+    deployMotor =
+        new TalonFX(Constants.INTAKE_DEPLOY_MOTOR_CAN_ID, ""); // TunerConstants.mechCANBus);
     // TODO check if we really want it inverted because I kinda think we want clockwise to be
     // negative...
-    intakeMotor // TODO see if we actually need to invert
-        .getConfigurator()
-        .apply(
-            new TalonFXConfiguration()
-                .withMotorOutput(
-                    new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive)));
-    deployMotor // TODO see if we actually need to invert
-        .getConfigurator()
-        .apply(
-            new TalonFXConfiguration()
-                .withMotorOutput(
-                    new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive)));
+    // intakeMotor // TODO see if we actually need to invert
+    //     .getConfigurator()
+    //     .apply(
+    //         new TalonFXConfiguration()
+    //             .withMotorOutput(
+    //                 new MotorOutputConfigs()
+    //                     .withInverted(InvertedValue.CounterClockwise_Positive)));
+    // deployMotor // TODO see if we actually need to invert
+    //     .getConfigurator()
+    //     .apply(
+    //         new TalonFXConfiguration()
+    //             .withMotorOutput(
+    //                 new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive)));
     // some motion magic stuff for the deploy motor
 
     talonFXConfigs = new TalonFXConfiguration();
 
-    talonFXConfigs.withMotorOutput(
-        new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
+    // talonFXConfigs.withMotorOutput(
+    //     new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
 
     // TODO: make tuneable constants
     Slot0Configs slot0Configs = talonFXConfigs.Slot0;
@@ -94,8 +94,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    deployMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
-    intakeMotor.setControl(dutyCycleOut.withOutput(intakeSpeed));
+    // deployMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
+    // intakeMotor.setVoltage(intakeVoltage);
   }
 
   public void setDesiredangle(
@@ -105,6 +105,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void setIntakeSpeed(double intakeSpeed) {
     this.intakeSpeed = intakeSpeed;
+  }
+
+  public void setIntakeVoltage(double intakeVoltage) {
+    intakeMotor.setVoltage(intakeVoltage);
   }
 
   public void setDeploySpeed(double speed) {
