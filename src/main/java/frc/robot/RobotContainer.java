@@ -34,7 +34,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
-import frc.robot.commands.mech.ClimbCommands;
 import frc.robot.commands.mech.IntakeCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -48,6 +47,10 @@ import frc.robot.subsystems.mech.HoodSubsystem;
 import frc.robot.subsystems.mech.HopperFloorSubsystem;
 import frc.robot.subsystems.mech.IntakeSubsystem;
 import frc.robot.subsystems.mech.ShooterSubsystem;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.VisionIOPhotonVision;
+import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.util.CommandSimMacXboxController;
 import frc.robot.util.GamePieceSimulation;
 import frc.robot.util.MultiStepAutoChooser;
@@ -61,7 +64,7 @@ import org.littletonrobotics.junction.Logger;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  // private final Vision vision;
+  private final Vision vision;
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
   private final HoodSubsystem hoodSubsystem = new HoodSubsystem();
@@ -95,13 +98,13 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight),
                 (pose) -> {});
-        // vision =
-        //     new Vision(
-        //         drive,
-        //         new VisionIOPhotonVision(
-        //             VisionConstants.CAMERA_0_NAME, VisionConstants.ROBOT_TO_CAMERA_0),
-        //         new VisionIOPhotonVision(
-        //             VisionConstants.CAMERA_1_NAME, VisionConstants.ROBOT_TO_CAMERA_1));
+        vision =
+            new Vision(
+                drive,
+                new VisionIOPhotonVision(
+                    VisionConstants.CAMERA_0_NAME, VisionConstants.ROBOT_TO_CAMERA_0),
+                new VisionIOPhotonVision(
+                    VisionConstants.CAMERA_1_NAME, VisionConstants.ROBOT_TO_CAMERA_1));
         break;
 
       case SIM:
@@ -114,17 +117,17 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight),
                 (pose) -> {});
-        // vision =
-        //     new Vision(
-        //         drive,
-        //         new VisionIOPhotonVisionSim(
-        //             VisionConstants.CAMERA_0_NAME,
-        //             VisionConstants.ROBOT_TO_CAMERA_0,
-        //             drive::getPose),
-        //         new VisionIOPhotonVisionSim(
-        //             VisionConstants.CAMERA_1_NAME,
-        //             VisionConstants.ROBOT_TO_CAMERA_1,
-        //             drive::getPose));
+        vision =
+            new Vision(
+                drive,
+                new VisionIOPhotonVisionSim(
+                    VisionConstants.CAMERA_0_NAME,
+                    VisionConstants.ROBOT_TO_CAMERA_0,
+                    drive::getPose),
+                new VisionIOPhotonVisionSim(
+                    VisionConstants.CAMERA_1_NAME,
+                    VisionConstants.ROBOT_TO_CAMERA_1,
+                    drive::getPose));
         DriverStation.silenceJoystickConnectionWarning(true);
         break;
 
@@ -138,7 +141,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 (pose) -> {});
-        // vision = new Vision(drive);
+        vision = new Vision(drive);
 
         break;
     }
@@ -184,17 +187,17 @@ public class RobotContainer {
 
     // CLIMB COMMAND
 
-    NamedCommands.registerCommand(
-        "Climb Command",
-        new InstantCommand(
-            () -> {
-              try {
-                CommandScheduler.getInstance()
-                    .schedule(ClimbCommands.Climb(drive, climberSubsystem));
-              } catch (Exception e) {
-                e.printStackTrace();
-              }
-            }));
+    // NamedCommands.registerCommand(
+    //     "Climb Command",
+    //     new InstantCommand(
+    //         () -> {
+    //           try {
+    //             CommandScheduler.getInstance()
+    //                 .schedule(ClimbCommands.Climb(drive, climberSubsystem));
+    //           } catch (Exception e) {
+    //             e.printStackTrace();
+    //           }
+    //         }));
 
     // mech buttons
     // new Trigger(controller_two::getXButtonPressed)
@@ -540,6 +543,103 @@ public class RobotContainer {
 
       }
     }
+
+    // // drive over bump
+    // controller
+    //     .a()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               try {
+    //                 CommandScheduler.getInstance()
+    //                     .schedule(DriveOverBumpCommand.driveOverBump(drive));
+    //               } catch (Exception e) {
+    //                 e.printStackTrace();
+    //               }
+    //             }));
+
+    // // Reset gyro to 0° when B button is pressed
+    // controller
+    //     .b()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //                 () -> {
+    //                   if (DriverStation.getAlliance().isPresent()
+    //                       && DriverStation.getAlliance().get() == DriverStation.Alliance.Red) {
+    //                     drive.setPose(
+    //                         new Pose2d(
+    //                             drive.getPose().getTranslation(),
+    //                             new Rotation2d(Math.toRadians(0))));
+    //                   } else {
+    //                     drive.setPose(
+    //                         new Pose2d(
+    //                             drive.getPose().getTranslation(),
+    //                             new Rotation2d(Math.toRadians(0))));
+    //                   }
+    //                 },
+    //                 drive)
+    //             .ignoringDisable(true));
+
+    // // drive under trench
+    // controller
+    //     .x()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () -> {
+    //               try {
+    //                 CommandScheduler.getInstance()
+    //                     .schedule(DriveUnderTrenchCommand.driveUnderTrench(drive));
+    //               } catch (Exception e) {
+    //                 e.printStackTrace();
+    //               }
+    //             }));
+
+    controller
+        .rightBumper()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  drive.setSlowDrive();
+                },
+                drive));
+
+    // controller_two
+    //     .a()
+    //     .onTrue(
+    //         new ShooterCommand(shooterSubsystem, Constants.FLYWHEEL_SHOOTING_VOLTAGE)
+    //             .alongWith(new WaitCommand(3.0))
+    //             .andThen(
+    //                 new HopperFloorCommand(
+    //                     transitionSubsystem, Constants.KICKER_SHOOTING_VOLTAGE, 0)));
+    // controller_two
+    //   .b()
+    //     .onTrue(
+    //         new TransitionCommand(transitionSubsystem, 0, 0)
+    //             .alongWith(new ShooterCommand(shooterSubsystem, 0)));
+
+    // mech buttons
+    // controller_two
+    //     .x()
+    //     .onTrue(new HoodCommand(hoodSubsystem, false, 15));
+    // controller_two
+    //     .y()
+    //     .onTrue(new HoodCommand(hoodSubsystem, false, 0));
+
+    // Schedule a new DriveToFuel command on each press (fresh pose from vision each time)
+    controller_two
+        .a()
+        .onTrue(
+            new InstantCommand(
+                () ->
+                    CommandScheduler.getInstance()
+                        .schedule(IntakeCommands.DriveToFuel(drive, vision))));
+    controller_two
+        .x()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  drive.setPose(new Pose2d(3, 4, new Rotation2d()));
+                }));
   }
 
   public Command getAutonomousCommand() {
@@ -631,8 +731,6 @@ public class RobotContainer {
     // Log if commands are running
     Logger.recordOutput("Commands/DriveCommandActive", driveCmd != null);
 
-    // shotParameters =
-    //     ShotCalculator.calculateShot(
-    //         drive.getPose(), drive.getChassisSpeeds(), Constants.BLUE_HUB, 10);
+    Logger.recordOutput("Odometry/Fuel", vision.getFuelPose(drive.getPose()));
   }
 }
