@@ -17,7 +17,6 @@ public class ShootingCommand extends Command {
   private Supplier<Pose2d> drivetrainPose;
   private Supplier<ChassisSpeeds> drivetrainVelocity;
   private Translation3d target;
-  private double flywheelSpeed;
   private final HopperFloorSubsystem hopperFloorSubsystem;
   private final HoodSubsystem hoodSubsystem;
 
@@ -32,14 +31,12 @@ public class ShootingCommand extends Command {
       HoodSubsystem hoodSubsystem,
       /*  TurretSubsystem turretSubsystem,*/
       HopperFloorSubsystem hopperFloorSubsystem,
-      double flywheelSpeed,
       Supplier<Pose2d> drivetrainPose,
       Supplier<ChassisSpeeds> drivetrainVelocity,
       Translation3d target) {
 
     this.shooterSubsystem = shooterSubsystem;
     this.hopperFloorSubsystem = hopperFloorSubsystem;
-    this.flywheelSpeed = flywheelSpeed;
     this.drivetrainPose = drivetrainPose;
     this.drivetrainVelocity = drivetrainVelocity;
     this.target = target;
@@ -49,25 +46,38 @@ public class ShootingCommand extends Command {
   }
 
   @Override
-  public void initialize() {
-    // only want to run hopper if we're actively trying to shoot
-    if (flywheelSpeed != 0) {
-      hopperFloorSubsystem.setHopperFloorVelocity(HopperFloorSubsystem.HOPPER_FLOOR_SPEED);
-    }
-  }
+  public void initialize() {}
 
   @Override
   public void execute() {
     // calculate angles and get the hood and turret to track
     ShotParameters params =
         ShotCalculator.calculateShot(drivetrainPose.get(), drivetrainVelocity.get(), target);
+
+    // only want to run hopper if we're actively trying to shoot
+    // TODO figure out if this is the logic we actually want
+    if (params.shotSpeed != 0) {
+      hopperFloorSubsystem.setHopperFloorVelocity(HopperFloorSubsystem.HOPPER_FLOOR_SPEED);
+      shooterSubsystem.setFlywheelVelocity(
+          ShooterSubsystem.calculateFlywheelSpeed(params.shotSpeed));
+      if (Math.abs(
+              shooterSubsystem.getFlywheelVelocity()
+                  - ShooterSubsystem.calculateFlywheelSpeed(params.shotSpeed))
+          < shooterSubsystem.FLYWHEEL_SPEED_DEADBAND) {
+        shooterSubsystem.setDesiredTransitionVoltage(ShooterSubsystem.TRANSITION_VOLTAGE);
+      }
+    } else {
+      hopperFloorSubsystem.setHopperFloorVelocity(0);
+    }
+
     hoodSubsystem.setDesiredAngle(
         new Rotation2d(Math.PI / 2)
             .minus(params.hoodAngle)); // this requires the hood's zero to be parallel to the ground
-    // since angle calculations for the shot are ground-rleative
 
-    // set the flywheel desired speed
-    shooterSubsystem.setFlywheelVelocity(flywheelSpeed);
+    // turretSubsystem.setDesiredAngle(params.turretAngle);
+    // TODO add drivetrain angle things here instead of the turret angle for testing on sting
+
+    // since angle calculations for the shot are ground-rleative
 
     // if we're actually trying to shoot, and the flywheel is up to speed, kick the balls into the
     // shooter!
@@ -76,18 +86,17 @@ public class ShootingCommand extends Command {
     // TODO: actually shooting should be based on robotPose in the alliance zone, so it doesnt have
     // to be a button
     // TODO: add funnel command (separate command) & instant command to stop running the flywheel
-    if (flywheelSpeed != 0
-        && Math.abs(shooterSubsystem.getFlywheelVelocity() - flywheelSpeed)
-            < shooterSubsystem.FLYWHEEL_SPEED_DEADBAND) { // TODO add a deadband probably
-      // shooterSubsystem.setDesiredTransitionSpeed(ShooterSubsystem.TRANSITION_SPEED);
-    } else {
-      // shooterSubsystem.setDesiredTransitionSpeed(0);
-    }
+
   }
 
   // TODO figure out if we want a way to end this command
   @Override
   public boolean isFinished() {
+    if (true) {
+      shooterSubsystem.setFlywheelVelocity(0);
+      hopperFloorSubsystem.setHopperFloorVelocity(0);
+      shooterSubsystem.setDesiredTransitionVoltage(0);
+    }
     return false;
   }
 }

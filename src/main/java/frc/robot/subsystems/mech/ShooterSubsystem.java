@@ -12,7 +12,7 @@ import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
 
 public class ShooterSubsystem extends SubsystemBase {
-  public static final double TRANSITION_SPEED = 0;
+  public static final double TRANSITION_VOLTAGE = 0;
   public static final double FLYWHEEL_SPEED_DEADBAND = 0.1;
   public static final double FLYWHEEL_GEAR_RATIO = 30.0 / 14.0;
   private final TalonFX flywheelMotor;
@@ -22,6 +22,7 @@ public class ShooterSubsystem extends SubsystemBase {
   private static MotionMagicVelocityVoltage m_request;
   private static TalonFXConfiguration flywheelTalonFXConfigs;
   private static Slot0Configs flywheelSlot0Configs;
+  private static final double FLYWHEEL_RADIUS = 0.0508;
 
   public ShooterSubsystem() {
     // TODO put mech canbus id for real robot
@@ -116,5 +117,9 @@ public class ShooterSubsystem extends SubsystemBase {
     // due to
     // energy dissipation/slip. this model assumes that the ball's exit speed matches the wheel's
     // surface speed
+  }
+
+  public static double calculateFlywheelSpeed(double shotSpeed) {
+    return shotSpeed / FLYWHEEL_RADIUS;
   }
 }
