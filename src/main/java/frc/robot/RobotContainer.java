@@ -14,26 +14,28 @@
 // TODO: add mech commands into auto stuff
 package frc.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 // import frc.robot.commands.AutoDriveCommand;
 // import frc.robot.commands.TeleopDriveCommand;
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.ClimbCommands;
-import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
+import frc.robot.commands.mech.ClimbCommands;
+import frc.robot.commands.mech.IntakeCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -328,6 +330,7 @@ public class RobotContainer {
   }
 
   public void configureCodriverButtonBindings() {
+    controller_two = new CommandXboxController(3);
     if (DriverStation.isJoystickConnected(3)) {
       if (Constants.currentMode == Constants.Mode.SIM
           && System.getProperty("os.name").contains("Mac")) {
@@ -431,55 +434,111 @@ public class RobotContainer {
                                               params.turretAngle,
                                               params.hoodAngle);
                                         })))));
-      } // else {
-      //   controller_two
-      //       .a()
-      //       .onTrue(
-      //           new ShootingCommand(
-      //               shooterSubsystem,
-      //               hoodSubsystem,
-      //               transitionSubsystem,
-      //               0,
-      //               robotPose,
-      //               chassisSpeeds,
-      //               Constants.BLUE_HUB));
-      // }
+      } else {
+        controller_two
+            .b()
+            .onTrue(
+                new InstantCommand(
+                        () -> {
+                          shooterSubsystem.setFlywheelVoltage(10);
+                        })
+                    /* .alongWith(new WaitCommand(3))*/
+                    .alongWith(
+                        new InstantCommand(
+                            () -> {
+                              shooterSubsystem.setTransitionVoltage(10);
+                            })));
 
-      controller_two
-          .a()
-          .onTrue(
-              new InstantCommand(
-                  () -> {
-                    // hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(20.0)));
-                    intakeSubsystem.setIntakeVoltage(0);
-                  }));
+        // TODO INTAKE TESTING BUTTONS - uncomment for use
 
-      controller_two
-          .b()
-          .onTrue(
-              new InstantCommand(
-                  () -> {
-                    // hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(30.0)));
-                    intakeSubsystem.setIntakeVoltage(4);
-                  }));
+        controller_two
+            .x()
+            .onTrue(
+                new InstantCommand(
+                    () -> {
+                      intakeSubsystem.setIntakeVoltage(0);
+                    }));
 
-      controller_two
-          .x()
-          .onTrue(
-              new InstantCommand(
-                  () -> {
-                    // hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0.0)));
-                    intakeSubsystem.setIntakeVoltage(14);
-                  }));
+        controller_two
+            .y()
+            .onTrue(
+                new InstantCommand(
+                    () -> {
+                      intakeSubsystem.setIntakeVoltage(10);
+                    }));
 
-      controller_two
-          .y()
-          .onTrue(
-              new InstantCommand(
-                  () -> {
-                    // hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(10)));
-                    intakeSubsystem.setIntakeVoltage(16);
-                  }));
+        // TODO TURRET TESTING BUTTONS - uncomment for use
+
+        // controller_two
+        //     .x()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () -> {
+        //               turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(400)));
+        //             }));
+
+        // controller_two
+        //     .y()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () -> {
+        //               turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(-300)));
+        //             }));
+
+        controller_two
+            .y()
+            .onTrue(
+                new InstantCommand(
+                    () -> {
+                      intakeSubsystem.setIntakeVoltage(10);
+                    }));
+
+        // controller_two
+        //     .x()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () -> {
+        //               hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(20)));
+        //             }));
+
+        // TODO HOOD TESTING BUTTONS - uncomment for use
+
+        // controller_two
+        //     .x()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () -> {
+        //               hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(10.0)));
+        //             }));
+
+        // controller_two
+        //     .y()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () -> {
+        //               hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(20.0)));
+        //             }));
+
+        // commented this out because it's using a shot parameters thing we were calculating in
+        // periodic and idk if we still want that
+        // controller_two
+        //     .x()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () -> {
+        //               hoodSubsystem.setDesiredAngle(
+        //                   new Rotation2d(Math.PI / 2).minus(shotParameters.hoodAngle));
+        //             }));
+
+        // controller_two
+        //     .y()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () -> {
+        //               hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(10)));
+        //             }));
+
+      }
     }
   }
 
