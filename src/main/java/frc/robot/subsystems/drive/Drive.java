@@ -30,6 +30,7 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -53,6 +54,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -142,6 +144,11 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
   private static final Translation2d RED_TARGET_POINT = new Translation2d(13, 4.026);
   private static final Translation2d BLUE_TARGET_POINT = new Translation2d(4.5, 4.026);
+
+  private static final double TRANSLATION_kP = 2.5;
+  private static final double ROTATION_kP = 0.02;
+  private final double TRANSLATION_MIN_SPEED = 0.15;
+    private final double ROTATION_MIN_SPEED = 0.25;
 
   public Drive(
       GyroIO gyroIO,
@@ -473,4 +480,47 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
           return desiredAngle;
         };
   }
+
+  public void driveToPose(Pose2d desiredPose) {
+        Pose2d currentPose = getPose();
+        double xError = desiredPose.getX() - currentPose.getX();
+        double yError = desiredPose.getY() - currentPose.getY();
+        double rotationError = desiredPose.getRotation().getDegrees() - currentPose.getRotation().getDegrees();
+        rotationError = MathUtil.inputModulus(rotationError, -180, 180); // sets the value between -180 and 180
+
+        if (Math.abs(xError) < VisionConstants.DISTANCE_DEADBAND_METERS) { // Stop if within deadband
+            xError = 0.0;
+            // System.out.println("AT X DEADBAND");
+        }
+
+        if (Math.abs(yError) < VisionConstants.DISTANCE_DEADBAND_METERS) {
+            yError = 0.0;
+            // System.out.println("AT Y DEADBAND");
+        }
+        
+        if (Math.abs(rotationError) < VisionConstants.ROTATION_DEADBAND_DEGREES) {
+            rotationError = 0.0;
+             System.out.println("AT ROTATION DEADBAND");
+        }
+
+        boolean atDesiredPose = xError == 0.0 && yError == 0.0 && rotationError == 0.0;
+
+        if (atDesiredPose) { // stop
+            stop();
+            System.out.println("At desired pose, stopping.");
+            return;
+        }
+
+        double xSpeed = Math.max(Math.abs(xError * TRANSLATION_kP), TRANSLATION_MIN_SPEED) * Math.signum(xError);
+        double ySpeed = Math.max(Math.abs(yError * TRANSLATION_kP), TRANSLATION_MIN_SPEED) * Math.signum(yError);
+        double rotationSpeed = Math.max(Math.abs(rotationError * ROTATION_kP), ROTATION_MIN_SPEED) * Math.signum(rotationError);
+        if(xSpeed >= 1.8){
+            xSpeed = 1.8;
+        }
+        if(ySpeed >= 1.8){
+            ySpeed = 1.8;
+        }
+       System.out.println("rotationspeed:"+rotationSpeed);
+        runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotationSpeed, currentPose.getRotation()));
+    }
 }
