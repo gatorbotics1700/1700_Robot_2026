@@ -9,6 +9,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -20,6 +21,8 @@ public class TurretSubsystem extends SubsystemBase {
 
   private final int TURRET_GEARBOX_RATIO = 9;
   private final int GEAR_REVS_PER_TURRET_REV = 6;
+  private Encoder boreEncoder = new Encoder(0, 1); // TODO real port values
+  private double turretAngleDegrees;
 
   private Rotation2d desiredAngle;
 
@@ -62,11 +65,17 @@ public class TurretSubsystem extends SubsystemBase {
     turretMotor.getConfigurator().apply(talonFXConfigs);
 
     m_request = new MotionMagicExpoVoltage(0);
+
+    turretAngleDegrees = 0;
   }
 
   @Override
   public void periodic() {
     turretMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
+    turretAngleDegrees =
+        (boreEncoder.getDistance() % Constants.KRAKEN_TICKS_PER_REV)
+            / Constants.KRAKEN_TICKS_PER_REV
+            * 360;
     // Logger.recordOutput("turret/output" + turretMotor.get());
     System.out.println(desiredAngle.getDegrees());
   }
@@ -82,7 +91,8 @@ public class TurretSubsystem extends SubsystemBase {
     //   //     new Rotation2d(
     //   //         MathUtil.angleModulus(
     //   //             desiredAngle
-    //   //                 .getRadians())); // TODO check this - trying to wrap the angle so it stays
+    //   //                 .getRadians())); // TODO check this - trying to wrap the angle so it
+    // stays
     //   // within -180 and 180
     //   int one_eighties =
     //       (int)

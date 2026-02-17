@@ -1,7 +1,5 @@
 package frc.robot.subsystems.mech;
 
-import org.littletonrobotics.junction.Logger;
-
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -13,13 +11,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import org.littletonrobotics.junction.Logger;
 
 public class IntakeSubsystem extends SubsystemBase {
 
   public final TalonFX intakeMotor; // spins the rollers
   public final TalonFX deployMotor; // deploys the entire intake
 
-  public final DigitalInput limitSwitch;
+  private final DigitalInput limitSwitch;
 
   private final TalonFXConfiguration deployTalonFXConfigs;
   private static MotionMagicExpoVoltage m_request;
@@ -89,7 +88,9 @@ public class IntakeSubsystem extends SubsystemBase {
     setDeployPositionToZero();
   }
 
-  /** Sets the deploy motor's encoder so the current position is 0. Call when intake is at deploy. */
+  /**
+   * Sets the deploy motor's encoder so the current position is 0. Call when intake is at deploy.
+   */
   public void setDeployPositionToZero() {
     deployMotor.setPosition(0);
   }
@@ -99,7 +100,7 @@ public class IntakeSubsystem extends SubsystemBase {
     // TODO uncomment out this code when ready to test without voltage instant commands
     Logger.recordOutput("Intake/Deploy Limit Switch", limitSwitch.get());
     Logger.recordOutput("Intake/Current Deploy Angle", currentAngle());
-    if (!limitSwitch.get()) {
+    if (!limitSwitch.get()) { //TODO: check this before testing
       deployMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
     } else {
       deployMotor.setControl(m_request.withPosition(degreesToRevs(currentAngle().getDegrees())));

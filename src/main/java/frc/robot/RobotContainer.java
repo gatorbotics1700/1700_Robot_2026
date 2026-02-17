@@ -35,6 +35,7 @@ import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
 import frc.robot.commands.mech.ClimbCommands;
+import frc.robot.commands.mech.HoodRetractToLimitCommand;
 import frc.robot.commands.mech.IntakeCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -461,7 +462,7 @@ public class RobotContainer {
         //             () -> {
         //               intakeSubsystem.setDesiredAngle(intakeSubsystem.EXTENDED_POSITION);
         //             }));
-        
+
         // TODO: SHOOTER TESTING BUTTONS - uncomment for use
 
         // controller_two
@@ -513,6 +514,10 @@ public class RobotContainer {
         //             () -> {
         //               hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0.0)));
         //             }));
+
+        controller_two
+          .y()
+          .onTrue(new HoodRetractToLimitCommand(hoodSubsystem));
 
         // commented this out because it's using a shot parameters thing we were calculating in
         // periodic and idk if we still want that
