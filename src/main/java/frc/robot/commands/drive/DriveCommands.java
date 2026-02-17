@@ -299,6 +299,10 @@ public class DriveCommands {
                     })));
   }
 
+  /**
+   * Field relative drive command that automatically uses joystickDriveAtAngle when a desired angle
+   * is set, otherwise uses regular joystickDrive.
+   */
   public static Command joystickDriveWithAutoRotation(
       Drive drive,
       DoubleSupplier xSupplier,

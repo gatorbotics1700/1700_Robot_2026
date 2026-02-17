@@ -255,9 +255,7 @@ public class RobotContainer {
                   Math.abs(controller.getLeftY()) > 0.1
                       || Math.abs(controller.getLeftX()) > 0.1
                       || Math.abs(controller.getRightX()) > 0.1);
-      var alliance = DriverStation.getAlliance();
-      boolean isRed = alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
-      if (isRed) {
+      if (RobotConfigLoader.getSerialNumber().equals(RobotConfigLoader.MISSISSIPPI_SERIAL)) {
         driverControl
             .whileTrue(
                 DriveCommands.joystickDriveWithAutoRotation(
@@ -269,7 +267,7 @@ public class RobotContainer {
       } else {
         driverControl
             .whileTrue(
-                DriveCommands.joystickDriveWithAutoRotation(
+                DriveCommands.joystickDrive(
                     drive,
                     () -> modifyJoystickAxis(controller.getLeftY()), // Changed to raw values
                     () -> modifyJoystickAxis(controller.getLeftX()), // Changed to raw values
@@ -619,7 +617,9 @@ public class RobotContainer {
   }
 
   public void teleopInit() {
-    // drive.enableTargetPointFacing();
+    if(RobotConfigLoader.getSerialNumber().equals(RobotConfigLoader.MISSISSIPPI_SERIAL)){
+    drive.enableTargetPointFacing();
+    }
     configureButtonBindings();
   }
 
