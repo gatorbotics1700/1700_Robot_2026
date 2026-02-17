@@ -1,69 +1,121 @@
 package frc.robot.subsystems.mech;
 
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.generated.TunerConstants;
+import org.littletonrobotics.junction.Logger;
 
 public class HoodSubsystem extends SubsystemBase {
   public static final Rotation2d RETRACTED_POSITION =
-      new Rotation2d(Math.toRadians(20)); // TODO find a real number for this
-  public final TalonFX hoodMotor;
-  // some motion magic stuff here
-  private Rotation2d desiredAngle;
+      new Rotation2d(Math.toRadians(0)); // TODO: find a real number
+  public static final Rotation2d MAX_EXTENSION =
+      new Rotation2d(Math.toRadians(0)); // TODO: find a real number
+
+  private Rotation2d desiredAngle = RETRACTED_POSITION;
   private final double POSITION_DEADBAND_DEGREES = 1; // TODO: tune
-  private final int HOOD_GEAR_RATIO = 3; // TODO find the real value
-  private static double currentPositionTicks;
-  private static DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
+
+  // PROTOTYPE GEAR RATIOS
+  private static final double HOOD_SHAFT_REVS_PER_MECH_REV = 155.0 / 15.0;
+  private static final double HOOD_GEARBOX_RATIO = 9.0;
+  private double desiredVelocity;
+
+  // REAL HOOD GEAR RATIOS
+  private static final double REAL_HOOD_GEAR_RATIO = 2.25;
+
+  private final TalonFX hoodMotor =
+      new TalonFX(
+          Constants.HOOD_MOTOR_CAN_ID,
+          ""); // TunerConstants.mechCANBus); // TODO put back mechCANBus on real robot
+  private final DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
+  private TalonFXConfiguration talonFXConfigs;
+  private static MotionMagicExpoVoltage m_request;
 
   public HoodSubsystem() {
-    hoodMotor = new TalonFX(Constants.HOOD_MOTOR_CAN_ID, TunerConstants.mechCANBus);
-    hoodMotor
-        .getConfigurator()
-        .apply(
-            new TalonFXConfiguration()
-                .withMotorOutput(
-                    new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive)));
-    hoodMotor.setNeutralMode(NeutralModeValue.Brake);
-    // some motion magic stuff
+    // MOTION MAGIC PID/FEEDFORWARD CONFIGS // TODO: must tune everything!!
+    talonFXConfigs = new TalonFXConfiguration();
+
+    talonFXConfigs.withMotorOutput(
+        new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
+
+    // TODO: make tuneable constants
+    Slot0Configs slot0Configs = talonFXConfigs.Slot0;
+
+    slot0Configs.kG =
+        0.2128; // Add 0.2128 V output to overcome gravity (tuned in early feedforward testing)
+    slot0Configs.kS =
+        0.25; // Add 0.01 V output to overcome static friction (just a guesstimate, but this might
+    // just be 0
+    slot0Configs.kV = 0.16; // A velocity target of 1 rps results in 0.12 V output
+    slot0Configs.kA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
+
+    slot0Configs.kP = 4.8; // A position error of 2.5 rotations results in 12V output
+    slot0Configs.kI = 0; // no output for integrated error
+    slot0Configs.kD = 0.1; // a velocity error of 1 rps results in 0.1 V output
+
+    // MOTION MAGIC EXPO
+    MotionMagicConfigs motionMagicConfigs = talonFXConfigs.MotionMagic;
+
+    motionMagicConfigs.MotionMagicCruiseVelocity = 0; // unlimited cruise velocity
+    motionMagicConfigs.MotionMagicExpo_kV = 0.16; // kV is around 0.12 V/rps
+    motionMagicConfigs.MotionMagicExpo_kA = 0.1; // Use a slower kA of 0.1 V/(rps/s)
+
+    hoodMotor.getConfigurator().apply(talonFXConfigs);
+
+    m_request = new MotionMagicExpoVoltage(0);
   }
 
   @Override
   public void periodic() {
-    // I used a fake pid as a placeholeder, but we should turn to position using motion magic
-    double angleError = currentAngle().getDegrees() - desiredAngle.getDegrees();
-    if (Math.abs(angleError) > POSITION_DEADBAND_DEGREES) {
-      setHoodSpeed(
-          0.2 * angleError); // TODO check if this should be -angleError or if I have it backwards
-    }
+    setHoodVelocity(desiredAngle);
+
+    Logger.recordOutput("hood desired angle", desiredAngle.getDegrees());
+    Logger.recordOutput("hood motor output", hoodMotor.get());
+    Logger.recordOutput("hood current angle", getCurrentAngle().getDegrees());
+    Logger.recordOutput("hood current velocity", hoodMotor.getVelocity().getValueAsDouble());
   }
 
-  public void setDesiredAngle(
-      Rotation2d desiredAngle) { // this is for once we start testing targetting
+  public void setDesiredAngle(Rotation2d desiredAngle) {
+    // TODO maybe wrap angle like % 360
+    if (desiredAngle.getDegrees() < 0) {
+      desiredAngle = new Rotation2d(0);
+    }
+    if (desiredAngle.getDegrees() > 40) {
+      desiredAngle = new Rotation2d(Math.PI / 6);
+    }
     this.desiredAngle = desiredAngle;
   }
 
-  public void setHoodSpeed(double speed) {
-    hoodMotor.setControl(dutyCycleOut.withOutput(speed));
-    System.out.println("SETTING HOOD SPEED: " + speed);
+  public void setHoodVelocity(Rotation2d desiredAngle) {
+    hoodMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
   }
 
-  public Rotation2d currentAngle() {
-    double motorPositionTicks = hoodMotor.getPosition().getValueAsDouble();
+  public double degreesToRevs(double hoodAngleDegrees) {
+    return hoodAngleDegrees
+        / 360.0
+        * REAL_HOOD_GEAR_RATIO; // * HOOD_SHAFT_REVS_PER_MECH_REV * HOOD_GEARBOX_RATIO;
+    // TODO change back for prototype testing
+  }
+
+  public Rotation2d getCurrentAngle() {
+    double motorPositionRevs = hoodMotor.getPosition().getValueAsDouble();
     double hoodAngleDegrees =
-        motorPositionTicks
-            / Constants.KRAKEN_TICKS_PER_REV
-            * HOOD_GEAR_RATIO
-            % 360; // TODO check if we multiply or divide by the gear ratio
+        motorPositionRevs / REAL_HOOD_GEAR_RATIO; // motorPositionRevs / HOOD_GEARBOX_RATIO /
+    // HOOD_SHAFT_REVS_PER_MECH_REV * 360 % 360; // TODO change back for prototype testing
     return new Rotation2d(
         Math.toRadians(
             hoodAngleDegrees)); // TODO: figure out how to use the fromDegrees method because it
     // seems nicer :/
+  }
+
+  public void setHoodVoltage(double voltage) {
+    hoodMotor.setVoltage(voltage);
   }
 }

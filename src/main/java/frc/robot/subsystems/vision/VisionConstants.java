@@ -51,9 +51,9 @@ public class VisionConstants {
       RobotConfigLoader.getDouble("photonvision.robot_to_camera_1.y_meters");
   public static final double ROBOT_TO_CAMERA_1_Z_METERS =
       RobotConfigLoader.getDouble("photonvision.robot_to_camera_1.z_meters");
-  public static final double CAMERA_1_ROLL_DEGREES =
+  public static final double ROBOT_TO_CAMERA_1_ROLL_DEGREES =
       RobotConfigLoader.getDouble("photonvision.robot_to_camera_1.roll_degrees");
-  public static final double CAMERA_1_PITCH_DEGREES =
+  public static final double ROBOT_TO_CAMERA_1_PITCH_DEGREES =
       RobotConfigLoader.getDouble("photonvision.robot_to_camera_1.pitch_degrees");
   public static final double ROBOT_TO_CAMERA_1_YAW_DEGREES =
       RobotConfigLoader.getDouble("photonvision.robot_to_camera_1.yaw_degrees");
@@ -61,8 +61,6 @@ public class VisionConstants {
   public static Transform3d ROBOT_TO_CAMERA_1 = createRobotToCamera1Transform();
 
   public static Transform3d[] ROBOT_TO_CAMERA_TRANSFORMS_ARRAY = createCameraTransformsArray();
-
-  public static double[] UNANGLED_CAMERA_SPACE_PITCH_ARRAY = createUnangledCameraSpacePitchArray();
 
   // Basic filtering thresholds
   public static double MAX_AMBIGUITY = RobotConfigLoader.getDouble("photonvision.max_ambiguity");
@@ -110,8 +108,8 @@ public class VisionConstants {
         ROBOT_TO_CAMERA_1_X_METERS,
         ROBOT_TO_CAMERA_1_Y_METERS,
         ROBOT_TO_CAMERA_1_Z_METERS,
-        CAMERA_1_ROLL_DEGREES,
-        CAMERA_1_PITCH_DEGREES,
+        ROBOT_TO_CAMERA_1_ROLL_DEGREES,
+        ROBOT_TO_CAMERA_1_PITCH_DEGREES,
         ROBOT_TO_CAMERA_1_YAW_DEGREES);
   }
 
@@ -132,13 +130,6 @@ public class VisionConstants {
 
   public static Transform3d[] createCameraTransformsArray() {
     Transform3d[] array = {ROBOT_TO_CAMERA_0, ROBOT_TO_CAMERA_1};
-    return array;
-  }
-
-  public static double[] createUnangledCameraSpacePitchArray() {
-    double[] array = {
-      Math.toRadians(CAMERA_0_PITCH_DEGREES), Math.toRadians(CAMERA_1_PITCH_DEGREES)
-    };
     return array;
   }
 

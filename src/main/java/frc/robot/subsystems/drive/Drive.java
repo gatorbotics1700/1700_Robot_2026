@@ -46,7 +46,6 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -54,7 +53,6 @@ import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.util.Calculations;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -140,8 +138,6 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
   private Pose2d targetPose = new Pose2d();
 
   private Supplier<Rotation2d> desiredAngleSupplier = null;
-  private boolean shouldFaceTargetPoint = false;
-  private Translation2d targetPoint = null;
   private boolean slowDrive;
 
   private static final Translation2d RED_TARGET_POINT = new Translation2d(13, 4.026);
@@ -351,7 +347,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
   /** Returns the measured chassis speeds of the robot. */
   @AutoLogOutput(key = "SwerveChassisSpeeds/Measured")
-  private ChassisSpeeds getChassisSpeeds() {
+  public ChassisSpeeds getChassisSpeeds() {
     return kinematics.toChassisSpeeds(getModuleStates());
   }
 
@@ -466,57 +462,15 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     return targetPose;
   }
 
-  public void enableTargetPointFacing() {
-    Translation2d allianceTargetPoint = getAllianceTargetPoint();
-    if (allianceTargetPoint != null) {
-      this.targetPoint = allianceTargetPoint;
-      this.shouldFaceTargetPoint = true;
-      updateDesiredAngleSupplier();
-    }
+  public Rotation2d angleToPoint(double deltaX, double deltaY) {
+    return new Rotation2d(Math.atan2(deltaY, deltaX));
   }
 
-  private Translation2d getAllianceTargetPoint() {
-    if (DriverStation.getAlliance().isPresent()) {
-      return DriverStation.getAlliance().get() == Alliance.Red
-          ? RED_TARGET_POINT
-          : BLUE_TARGET_POINT;
-    }
-    return null;
-  }
-
-  public void disableTargetPointFacing() {
-    desiredAngleSupplier = null;
-  }
-
-  private void updateDesiredAngleSupplier() {
-    if (targetPoint == null || !shouldFaceTargetPoint) {
-      desiredAngleSupplier = null;
-      return;
-    }
+  public void setDesiredAngleSupplier(Rotation2d desiredAngle) {
 
     desiredAngleSupplier =
         () -> {
-          if (targetPoint == null || !shouldFaceTargetPoint) {
-            return null;
-          }
-          Pose2d currentPose = getPose();
-          double deltaX = targetPoint.getX() - currentPose.getX();
-          double deltaY = targetPoint.getY() - currentPose.getY();
-          return Calculations.angleToPoint(deltaX, deltaY);
+          return desiredAngle;
         };
-  }
-
-  public void clearTargetPoint() {
-    targetPoint = null;
-    shouldFaceTargetPoint = false;
-    desiredAngleSupplier = null;
-  }
-
-  public Translation2d getTargetPoint() {
-    return targetPoint;
-  }
-
-  public boolean isShouldFaceTargetPoint() {
-    return shouldFaceTargetPoint;
   }
 }

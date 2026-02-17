@@ -105,7 +105,7 @@ public class Robot extends LoggedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
-    SmartDashboard.putData(robotContainer.getDriveSubsystem());
+    // SmartDashboard.putData(robotContainer.getDriveSubsystem());
     SmartDashboard.putData(CommandScheduler.getInstance());
   }
 
@@ -144,6 +144,14 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     autonomousCommand = robotContainer.getAutonomousCommand();
 
+    // Set odometry (and sim pose) to the auto start position from the first path
+    robotContainer
+        .getAutoStartPose()
+        .ifPresent(
+            startPose -> {
+              robotContainer.getDriveSubsystem().setPose(startPose);
+            });
+
     // schedule the autonomous command (example)
     if (autonomousCommand != null) {
       CommandScheduler.getInstance().schedule(autonomousCommand);
@@ -159,6 +167,9 @@ public class Robot extends LoggedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
+    robotContainer.configureDriverButtonBindings();
+    robotContainer.configureCodriverButtonBindings();
+
     CommandScheduler.getInstance().cancelAll();
     Elastic.selectTab("Teleoperated");
     robotContainer.teleopInit();
@@ -168,6 +179,7 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
+
     // container.stopElevator();
   }
 
@@ -182,6 +194,8 @@ public class Robot extends LoggedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+    robotContainer.configureDriverButtonBindings();
+    robotContainer.configureCodriverButtonBindings();
   }
 
   /** This function is called periodically during test mode. */
