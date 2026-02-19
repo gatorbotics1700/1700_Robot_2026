@@ -98,8 +98,6 @@ public class ShootingCommand extends Command {
         hopperFloorSubsystem.setHopperFloorVelocity(0);
       }
 
-
-
       // turretSubsystem.setDesiredAngle(params.turretAngle);
       // TODO add drivetrain angle things here instead of the turret angle for testing on sting
 
