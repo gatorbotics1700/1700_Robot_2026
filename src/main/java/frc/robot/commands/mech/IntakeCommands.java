@@ -10,44 +10,33 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.mech.IntakeSubsystem;
 import frc.robot.subsystems.vision.Vision;
-import org.littletonrobotics.junction.Logger;
 
 public class IntakeCommands {
 
   private static final double INTAKING_VOLTAGE =
-      9; // TODO get a real number (I just picked my favorite)
+      10; // TODO get a real number (I just picked my favorite)
 
   private IntakeCommands() {}
 
   public static Command RetractIntake(IntakeSubsystem intakeSubsystem) {
-    return new InstantCommand(
-        () -> {
-          Logger.recordOutput("Auto/Intake/Command", "RETRACT");
-          Logger.recordOutput("Auto/Intake/TargetAngle", intakeSubsystem.RETRACTED_POSITION);
-          intakeSubsystem.setDesiredAngle(intakeSubsystem.RETRACTED_POSITION);
-        });
+    return new DeployIntakeCommand(true, intakeSubsystem);
   }
 
   public static Command DeployIntake(IntakeSubsystem intakeSubsystem) {
-    return new InstantCommand(
-        () -> {
-          Logger.recordOutput("Auto/Intake/Command", "DEPLOY");
-          Logger.recordOutput("Auto/Intake/TargetAngle", intakeSubsystem.EXTENDED_POSITION);
-          intakeSubsystem.setDesiredAngle(intakeSubsystem.EXTENDED_POSITION);
-        });
+    return new DeployIntakeCommand(false, intakeSubsystem);
   }
 
   public static Command RunIntake(IntakeSubsystem intakeSubsystem) {
     return new InstantCommand(
         () -> {
-          intakeSubsystem.setDesiredIntakeVoltage(INTAKING_VOLTAGE);
+          intakeSubsystem.setIntakeVoltage(INTAKING_VOLTAGE);
         });
   }
 
   public static Command StopIntake(IntakeSubsystem intakeSubsystem) {
     return new InstantCommand(
         () -> {
-          intakeSubsystem.setDesiredIntakeVoltage(0);
+          intakeSubsystem.setIntakeVoltage(0);
         });
   }
 

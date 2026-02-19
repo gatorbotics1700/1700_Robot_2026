@@ -61,7 +61,9 @@ public class IntakeSubsystem extends SubsystemBase {
     deployTalonFXConfigs = new TalonFXConfiguration();
 
     deployTalonFXConfigs.withMotorOutput(
-        new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
+        new MotorOutputConfigs()
+            .withInverted(
+                InvertedValue.CounterClockwise_Positive)); // TODO check if we want to invert
 
     // TODO: TUNE ALL OF THESE
     Slot0Configs slot0Configs = deployTalonFXConfigs.Slot0;
@@ -107,14 +109,14 @@ public class IntakeSubsystem extends SubsystemBase {
     // TODO uncomment out this code when ready to test without voltage instant commands
     Logger.recordOutput("Intake/Deploy Limit Switch", limitSwitch.get());
     Logger.recordOutput("Intake/Current Deploy Angle", currentAngle());
-    if (!limitSwitch.get()) { // TODO: check this before testing
-      deployMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
-    } else {
-      deployMotor.setControl(m_request.withPosition(degreesToRevs(currentAngle().getDegrees())));
-    }
-    if (hallEffect.get()) { // TODO: check closed vs open before testing
-      setDeployPositionToZero();
-    }
+    // if (!limitSwitch.get()) { // TODO: check this before testing
+    //   deployMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
+    // } else {
+    //   deployMotor.setControl(m_request.withPosition(degreesToRevs(currentAngle().getDegrees())));
+    // }
+    // if (hallEffect.get()) { // TODO: check closed vs open before testing
+    //   setDeployPositionToZero();
+    // }
     // intakeMotor.setVoltage(desiredVoltage);
   }
 

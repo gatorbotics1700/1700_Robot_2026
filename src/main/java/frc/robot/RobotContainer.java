@@ -17,7 +17,6 @@ package frc.robot;
 // import frc.robot.commands.AutoDriveCommand;
 // import frc.robot.commands.TeleopDriveCommand;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -34,9 +33,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
-import frc.robot.commands.mech.ClimbCommands;
-import frc.robot.commands.mech.HoodRetractCommand;
 import frc.robot.commands.mech.HoodHomingCommand;
+import frc.robot.commands.mech.HoodRetractCommand;
 import frc.robot.commands.mech.IntakeCommands;
 import frc.robot.commands.mech.ShootingCommand;
 import frc.robot.generated.TunerConstants;
@@ -54,7 +52,6 @@ import frc.robot.subsystems.mech.ShooterSubsystem;
 import frc.robot.subsystems.mech.TurretSubsystem;
 import frc.robot.util.CommandSimMacXboxController;
 import frc.robot.util.GamePieceSimulation;
-import frc.robot.util.MultiStepAutoChooser;
 import frc.robot.util.RobotConfigLoader;
 import frc.robot.util.ShotCalculator;
 import frc.robot.util.ShotParameters;
@@ -66,11 +63,11 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   // private final Vision vision;
-  private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+  public final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
   private final HoodSubsystem hoodSubsystem = new HoodSubsystem();
   private final HopperFloorSubsystem transitionSubsystem = new HopperFloorSubsystem();
-  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final GamePieceSimulation gamePieceSimulation = new GamePieceSimulation();
   private ShotParameters shotParameters;
   private final TurretSubsystem turretSubsystem;
@@ -80,7 +77,7 @@ public class RobotContainer {
   private CommandXboxController controller_two = null; // port 3
 
   // Dashboard inputs
-  private final MultiStepAutoChooser multiStepAutoChooser;
+  // private final MultiStepAutoChooser multiStepAutoChooser;
   private Supplier<Pose2d> robotPose;
   private Supplier<ChassisSpeeds> chassisSpeeds;
 
@@ -160,45 +157,45 @@ public class RobotContainer {
     // hoodSubsystem = new HoodSubsystem();
 
     // Named Commands
-    NamedCommands.registerCommand(
-        "Shooter Command",
-        new InstantCommand(
-            () -> {
-              CommandScheduler.getInstance().schedule(Commands.none());
-            }));
+    // NamedCommands.registerCommand(
+    //     "Shooter Command",
+    //     new InstantCommand(
+    //         () -> {
+    //           CommandScheduler.getInstance().schedule(Commands.none());
+    //         }));
 
-    // intake commands
+    // // intake commands
 
-    NamedCommands.registerCommand(
-        "Intake Command",
-        new InstantCommand(
-            () -> {
-              CommandScheduler.getInstance()
-                  .schedule(
-                      IntakeCommands.DeployIntake(intakeSubsystem)
-                          .andThen(IntakeCommands.RunIntake(intakeSubsystem)));
-            }));
+    // NamedCommands.registerCommand(
+    //     "Intake Command",
+    //     new InstantCommand(
+    //         () -> {
+    //           CommandScheduler.getInstance()
+    //               .schedule(
+    //                   IntakeCommands.DeployIntake(intakeSubsystem)
+    //                       .andThen(IntakeCommands.RunIntake(intakeSubsystem)));
+    //         }));
 
-    NamedCommands.registerCommand(
-        "Stop Kicker Command",
-        new InstantCommand(
-            () -> {
-              CommandScheduler.getInstance().schedule(Commands.none());
-            }));
+    // NamedCommands.registerCommand(
+    //     "Stop Kicker Command",
+    //     new InstantCommand(
+    //         () -> {
+    //           CommandScheduler.getInstance().schedule(Commands.none());
+    //         }));
 
-    // CLIMB COMMAND
+    // // CLIMB COMMAND
 
-    NamedCommands.registerCommand(
-        "Climb Command",
-        new InstantCommand(
-            () -> {
-              try {
-                CommandScheduler.getInstance()
-                    .schedule(ClimbCommands.Climb(drive, climberSubsystem));
-              } catch (Exception e) {
-                e.printStackTrace();
-              }
-            }));
+    // NamedCommands.registerCommand(
+    //     "Climb Command",
+    //     new InstantCommand(
+    //         () -> {
+    //           try {
+    //             CommandScheduler.getInstance()
+    //                 .schedule(ClimbCommands.Climb(drive, climberSubsystem));
+    //           } catch (Exception e) {
+    //             e.printStackTrace();
+    //           }
+    //         }));
 
     // mech buttons
     // new Trigger(controller_two::getXButtonPressed)
@@ -208,7 +205,7 @@ public class RobotContainer {
     // 0));
 
     // Set up auto routines with multi-step chooser
-    multiStepAutoChooser = new MultiStepAutoChooser(intakeSubsystem, drive, climberSubsystem);
+    // multiStepAutoChooser = new MultiStepAutoChooser(intakeSubsystem, drive, climberSubsystem);
 
     // Set up SysId routines
     // autoChooser.addOption(
@@ -349,7 +346,6 @@ public class RobotContainer {
   }
 
   public void configureCodriverButtonBindings() {
-    controller_two = new CommandXboxController(3);
     if (DriverStation.isJoystickConnected(3)) {
       if (Constants.currentMode == Constants.Mode.SIM
           && System.getProperty("os.name").contains("Mac")) {
@@ -578,7 +574,8 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     try {
-      return multiStepAutoChooser.getAutonomousCommand();
+      // return multiStepAutoChooser.getAutonomousCommand();
+      return Commands.none();
     } catch (Exception ioe) {
       System.out.println("bad io error");
       return Commands.none();
@@ -587,7 +584,8 @@ public class RobotContainer {
 
   /** Start pose of the currently selected auto (from first path). Empty if no paths. */
   public Optional<Pose2d> getAutoStartPose() {
-    return multiStepAutoChooser.getAutoStartPose();
+    return null;
+    // return multiStepAutoChooser.getAutoStartPose();
   }
 
   public Drive getDriveSubsystem() {
@@ -628,12 +626,15 @@ public class RobotContainer {
   }
 
   public void configureButtonBindings() {
+    CommandScheduler.getInstance().getActiveButtonLoop().clear();
     configureDriverButtonBindings();
     configureCodriverButtonBindings();
   }
 
   public void teleopInit() {
-    if (RobotConfigLoader.getSerialNumber().equals(RobotConfigLoader.NILE_SERIAL)) {
+    // TODO: currently the comp bot has no turret function, change back
+    if (RobotConfigLoader.getSerialNumber().equals(RobotConfigLoader.NILE_SERIAL)
+        || RobotConfigLoader.getSerialNumber().equals(RobotConfigLoader.HUANG_HE_SERIAL)) {
       drive.enableTargetPointFacing();
     }
     configureButtonBindings();
@@ -645,10 +646,10 @@ public class RobotContainer {
     }
 
     // Update multi-step auto chooser options (reads choosers to keep them active)
-    multiStepAutoChooser.updateChooserOptions();
+    // multiStepAutoChooser.updateChooserOptions();
 
     // Print path name to console me thinks
-    String selectedPathName = multiStepAutoChooser.getSelectedPathName();
+    // String selectedPathName = multiStepAutoChooser.getSelectedPathName();
     System.out.flush(); // Ensure output appears immediately
 
     // Logger.recordOutput("Buttons/Controller2/A",
@@ -678,17 +679,34 @@ public class RobotContainer {
   }
 
   public Command MechStop() {
-    return new HoodRetractCommand(hoodSubsystem)
-        .alongWith(
-            IntakeCommands.StopIntake(intakeSubsystem)
-                .andThen(IntakeCommands.RetractIntake(intakeSubsystem)))
-        .alongWith(
-            new InstantCommand(
-                () -> {
-                  turretSubsystem.setDesiredAngle(turretSubsystem.currentAngle());
-                  shooterSubsystem.setFlywheelVelocity(0);
-                  transitionSubsystem.setHopperFloorVelocity(0);
-                  shooterSubsystem.setDesiredTransitionVoltage(0);
-                }));
+    return /*new HoodRetractCommand(hoodSubsystem)
+           .alongWith(
+               IntakeCommands.StopIntake(intakeSubsystem)
+                   .andThen(IntakeCommands.RetractIntake(intakeSubsystem)))
+           .alongWith(*/ new InstantCommand(
+            () -> {
+              turretSubsystem.setDesiredAngle(turretSubsystem.currentAngle());
+              shooterSubsystem.setFlywheelVelocity(0);
+              shooterSubsystem.setTransitionVoltage(0);
+              transitionSubsystem.setHopperFloorVelocity(0);
+              shooterSubsystem.setDesiredTransitionVoltage(0);
+            }
+            // )
+            )
+        .alongWith(IntakeCommands.StopIntake(intakeSubsystem));
+  }
+
+  public Command RunMechWheels() {
+    return new InstantCommand(
+            () -> {
+              shooterSubsystem.setFlywheelVoltage(6);
+              shooterSubsystem.setTransitionVoltage(12);
+              // transitionSubsystem.setHopperFloorVelocity(transitionSubsystem.HOPPER_FLOOR_SPEED);
+            })
+        .alongWith(IntakeCommands.RunIntake(intakeSubsystem));
+  }
+
+  public Command HomeMechanisms() { // TODO: add any other homing commands with alongWith
+    return new HoodHomingCommand(hoodSubsystem);
   }
 }

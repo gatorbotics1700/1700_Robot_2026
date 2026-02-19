@@ -9,7 +9,7 @@ import java.util.Properties;
 /** Simple config loader that reads properties files based on roboRIO serial number. */
 public final class RobotConfigLoader {
   private static final String SHENANDOAH_SERIAL = "03223852";
-  private static final String HUANG_HE_SERIAL = "032D20FA";
+  public static final String HUANG_HE_SERIAL = "032D20FA";
   public static final String MISSISSIPPI_SERIAL = "032D2198";
   public static final String NILE_SERIAL = "025AE040";
   private static final String EXPERIMENTAL_SERIAL = "032BE421";
@@ -144,7 +144,7 @@ public final class RobotConfigLoader {
       case SHENANDOAH_SERIAL -> "configFiles/config_hulk.properties";
       case NILE_SERIAL -> "configFiles/config_sting.properties";
       case EXPERIMENTAL_SERIAL -> "configFiles/config_experimental.properties";
-      case HUANG_HE_SERIAL -> "configFiles/config_comp.properties";
+      case HUANG_HE_SERIAL -> "configFiles/config_alecto.properties";
       default -> {
         System.err.println(
             "RobotConfigLoader: Unknown serial '"
