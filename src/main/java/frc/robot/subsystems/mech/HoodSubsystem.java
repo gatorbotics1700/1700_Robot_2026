@@ -12,13 +12,21 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.generated.TunerConstants;
+import frc.robot.util.RobotConfigLoader;
 import org.littletonrobotics.junction.Logger;
 
 public class HoodSubsystem extends SubsystemBase {
+
   public static final Rotation2d RETRACTED_POSITION =
-      new Rotation2d(Math.toRadians(77)); // TODO: check number
+      new Rotation2d(
+          Math.toRadians(
+              RobotConfigLoader.getInt("mech.hood_retracted_degrees"))); // TODO: check number //77
   public static final Rotation2d MAX_EXTENSION =
-      new Rotation2d(Math.toRadians(57)); // TODO: check number
+      new Rotation2d(
+          Math.toRadians(
+              RobotConfigLoader.getInt(
+                  "mech.hood_max_extension_degrees"))); // TODO: check number //57
 
   private final DigitalInput limitSwitch;
   private boolean wasLimitSwitchPressed = false;
@@ -32,19 +40,14 @@ public class HoodSubsystem extends SubsystemBase {
   private Rotation2d desiredAngle = RETRACTED_POSITION;
   private final double POSITION_DEADBAND_DEGREES = 1; // TODO: tune
 
-  // PROTOTYPE GEAR RATIOS
-  // private static final double HOOD_SHAFT_REVS_PER_MECH_REV = 155.0 / 15.0;
-  private static final double HOOD_GEARBOX_RATIO = 9.0;
-  private double desiredVelocity;
-
-  // REAL HOOD GEAR RATIOS
-  private static final double REAL_HOOD_GEAR_RATIO = 2.25;
-  private static final double HOOD_SHAFT_REVS_PER_MECH_REV = 164.0 / 10.0;
+  // GEAR RATIOS
+  private static final double HOOD_SHAFT_REVS_PER_MECH_REV = RobotConfigLoader.getDouble("mech.hood_shaft_revs_per_mech_rev");
+  private static final double HOOD_GEAR_RATIO = RobotConfigLoader.getDouble("mech.hood_gear_ratio");
 
   private final TalonFX hoodMotor =
       new TalonFX(
           Constants.HOOD_MOTOR_CAN_ID,
-          ""); // TunerConstants.mechCANBus); // TODO put back mechCANBus on real robot
+          TunerConstants.mechCANBus); // TODO put back mechCANBus on real robot
   private final DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
   private TalonFXConfiguration talonFXConfigs;
   private static MotionMagicExpoVoltage m_request;
@@ -82,8 +85,7 @@ public class HoodSubsystem extends SubsystemBase {
 
     m_request = new MotionMagicExpoVoltage(0);
 
-    limitSwitch = new DigitalInput(2); // TODO: change to actual value
-
+    limitSwitch = new DigitalInput(0); // TODO: change to actual value
     setHoodPositionToRetracted();
   }
 
@@ -101,6 +103,8 @@ public class HoodSubsystem extends SubsystemBase {
     Logger.recordOutput("hood desired angle", desiredAngle.getDegrees());
     Logger.recordOutput("hood motor output", hoodMotor.get());
     Logger.recordOutput("hood current angle", getCurrentAngle().getDegrees());
+    System.out.println("HOOD ANGLE: " + getCurrentAngle().getDegrees());
+    System.out.println("DESIRED HOOD ANGLE: " + desiredAngle.getDegrees());
     Logger.recordOutput("hood current velocity", hoodMotor.getVelocity().getValueAsDouble());
     Logger.recordOutput("hood retract limit switch", isRetractedLimitSwitchPressed());
   }
@@ -128,20 +132,18 @@ public class HoodSubsystem extends SubsystemBase {
   public double degreesToRevs(double hoodAngleDegrees) {
     return hoodAngleDegrees
         / 360.0
-        * REAL_HOOD_GEAR_RATIO
-        * HOOD_SHAFT_REVS_PER_MECH_REV; // * HOOD_SHAFT_REVS_PER_MECH_REV * HOOD_GEARBOX_RATIO;
-    // TODO change back for prototype testing
+        * HOOD_SHAFT_REVS_PER_MECH_REV
+        * HOOD_GEAR_RATIO;
   }
 
   public Rotation2d getCurrentAngle() {
     double motorPositionRevs = hoodMotor.getPosition().getValueAsDouble();
     double hoodAngleDegrees =
         motorPositionRevs
-            / REAL_HOOD_GEAR_RATIO
+            / HOOD_GEAR_RATIO
             / HOOD_SHAFT_REVS_PER_MECH_REV
             * 360
-            % 360; // motorPositionRevs / HOOD_GEARBOX_RATIO /
-    // HOOD_SHAFT_REVS_PER_MECH_REV * 360 % 360; // TODO change back for prototype testing
+            % 360; 
     return new Rotation2d(
         Math.toRadians(
             hoodAngleDegrees)); // TODO: figure out how to use the fromDegrees method because it

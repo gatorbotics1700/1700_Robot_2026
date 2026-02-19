@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import org.littletonrobotics.junction.Logger;
+import frc.robot.generated.TunerConstants;
 
 public class TurretSubsystem extends SubsystemBase {
   public final TalonFX turretMotor;
@@ -40,7 +41,7 @@ public class TurretSubsystem extends SubsystemBase {
     turretMotor =
         new TalonFX(
             Constants.TURRET_MOTOR_CAN_ID,
-            ""); // TunerConstants.mechCANBus); // TODO change back to mechCANBus for robot
+            TunerConstants.mechCANBus); // TODO change back to mechCANBus for robot
     turretMotor.setNeutralMode(NeutralModeValue.Brake);
 
     desiredAngle = new Rotation2d(0);
