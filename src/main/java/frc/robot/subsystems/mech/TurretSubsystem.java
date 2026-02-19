@@ -14,8 +14,8 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import org.littletonrobotics.junction.Logger;
 import frc.robot.generated.TunerConstants;
+import org.littletonrobotics.junction.Logger;
 
 public class TurretSubsystem extends SubsystemBase {
   public final TalonFX turretMotor;

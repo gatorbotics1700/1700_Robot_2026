@@ -133,14 +133,6 @@ public class IntakeSubsystem extends SubsystemBase {
     this.desiredAngle = desiredAngle;
   }
 
-  public void retractDeployMotor() {
-    deployMotor.setControl(m_request.withPosition(degreesToRevs(RETRACTED_ANGLE_DEGREES)));
-  }
-
-  public void extendDeployMotor() {
-    deployMotor.setControl(m_request.withPosition(degreesToRevs(EXTENDED_ANGLE_DEGREES)));
-  }
-
   public void setDesiredIntakeVoltage(double desiredIntakeVoltage) {
     this.desiredVoltage = desiredIntakeVoltage;
   }
