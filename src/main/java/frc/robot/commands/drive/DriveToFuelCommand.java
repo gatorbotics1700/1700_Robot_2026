@@ -3,6 +3,7 @@ package frc.robot.commands.drive;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.Calculations;
@@ -38,7 +39,12 @@ public class DriveToFuelCommand extends Command {
   @Override
   public void execute() {
     Pose2d currentPose = drive.getPose();
-    Pose2d newFuelPose = vision.getFuelPose(currentPose);
+    Pose2d newFuelPose;
+    if(Constants.currentMode==Constants.Mode.SIM){
+      newFuelPose=vision.tempGetFuelPoseInSim(currentPose);
+    }else{
+    newFuelPose = vision.getFuelPose(currentPose);
+  }
     if (newFuelPose != null) {
       desiredPose = newFuelPose;
       double xError = drive.calculateDistanceError(currentPose.getX(), desiredPose.getX());
