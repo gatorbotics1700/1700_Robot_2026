@@ -272,63 +272,84 @@ public class RobotContainer {
       }
 
       // drive over bump
-      controller
-          .a()
-          .onTrue(
-              Commands.runOnce(
-                  () -> {
-                    try {
-                      CommandScheduler.getInstance()
-                          .schedule(DriveOverBumpCommand.driveOverBump(drive));
-                    } catch (Exception e) {
-                      e.printStackTrace();
-                    }
-                  }));
+      // controller
+      //     .a()
+      //     .onTrue(
+      //         Commands.runOnce(
+      //             () -> {
+      //               try {
+      //                 CommandScheduler.getInstance()
+      //                     .schedule(DriveOverBumpCommand.driveOverBump(drive));
+      //               } catch (Exception e) {
+      //                 e.printStackTrace();
+      //               }
+      //             }));
 
-      // Reset gyro to 0° when B button is pressed
-      controller
-          .b()
-          .onTrue(
-              Commands.runOnce(
-                      () -> {
-                        if (DriverStation.getAlliance().isPresent()
-                            && DriverStation.getAlliance().get() == DriverStation.Alliance.Red) {
-                          drive.setPose(
-                              new Pose2d(
-                                  drive.getPose().getTranslation(),
-                                  new Rotation2d(Math.toRadians(0))));
-                        } else {
-                          drive.setPose(
-                              new Pose2d(
-                                  drive.getPose().getTranslation(),
-                                  new Rotation2d(Math.toRadians(0))));
-                        }
-                      },
-                      drive)
-                  .ignoringDisable(true));
+      // // Reset gyro to 0° when B button is pressed
+      // controller
+      //     .b()
+      //     .onTrue(
+      //         Commands.runOnce(
+      //                 () -> {
+      //                   if (DriverStation.getAlliance().isPresent()
+      //                       && DriverStation.getAlliance().get() == DriverStation.Alliance.Red) {
+      //                     drive.setPose(
+      //                         new Pose2d(
+      //                             drive.getPose().getTranslation(),
+      //                             new Rotation2d(Math.toRadians(0))));
+      //                   } else {
+      //                     drive.setPose(
+      //                         new Pose2d(
+      //                             drive.getPose().getTranslation(),
+      //                             new Rotation2d(Math.toRadians(0))));
+      //                   }
+      //                 },
+      //                 drive)
+      //             .ignoringDisable(true));
 
-      // drive under trench
-      controller
-          .x()
-          .onTrue(
-              Commands.runOnce(
-                  () -> {
-                    try {
-                      CommandScheduler.getInstance()
-                          .schedule(DriveUnderTrenchCommand.driveUnderTrench(drive));
-                    } catch (Exception e) {
-                      e.printStackTrace();
-                    }
-                  }));
+      // // drive under trench
+      // controller
+      //     .x()
+      //     .onTrue(
+      //         Commands.runOnce(
+      //             () -> {
+      //               try {
+      //                 CommandScheduler.getInstance()
+      //                     .schedule(DriveUnderTrenchCommand.driveUnderTrench(drive));
+      //               } catch (Exception e) {
+      //                 e.printStackTrace();
+      //               }
+      //             }));
 
+      // controller
+      //     .rightBumper()
+      //     .onTrue(
+      //         Commands.runOnce(
+      //             () -> {
+      //               drive.setSlowDrive();
+      //             },
+      //             drive));
       controller
-          .rightBumper()
-          .onTrue(
-              Commands.runOnce(
-                  () -> {
-                    drive.setSlowDrive();
-                  },
-                  drive));
+        .a()
+        .onTrue(
+            new InstantCommand(
+                () ->
+                    CommandScheduler.getInstance()
+                        .schedule(IntakeCommands.DriveToFuel(drive, vision))));
+    controller
+        .x()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  drive.setPose(new Pose2d(3, 4, new Rotation2d()));
+                }));
+    controller
+        .y()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  vision.toggleSimHasTarget();;
+                }));
     }
   }
 

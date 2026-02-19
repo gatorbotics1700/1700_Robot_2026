@@ -46,6 +46,7 @@ public class DriveToFuelCommand extends Command {
     newFuelPose = vision.getFuelPose(currentPose);
   }
     if (newFuelPose != null) {
+      //TODO think about the case where theres a ball in the blind spot but you still see another target uh oh
       desiredPose = newFuelPose;
       double xError = drive.calculateDistanceError(currentPose.getX(), desiredPose.getX());
       double yError = drive.calculateDistanceError(currentPose.getY(), desiredPose.getY());
