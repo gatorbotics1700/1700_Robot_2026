@@ -26,7 +26,7 @@ public class TurretSubsystem extends SubsystemBase {
   private final int TURRET_GEARBOX_RATIO = 9;
   private final int GEAR_REVS_PER_TURRET_REV = 10;
   private final int ENCODER_REVS_PER_TURRET_REV = 10;
-  private Encoder boreEncoder = new Encoder(7, 1); // TODO real port values
+  private Encoder boreEncoder = new Encoder(7, 3); // TODO real port values
   private final DigitalInput hallEffect = new DigitalInput(5); // TODO real port values
   private final double TURRET_ENCODER_OFFSET = 0.0; // TODO: Find actual offset
   private final double TURRET_HOMING_ANGLE =
