@@ -57,7 +57,7 @@ public class DriveToFuelCommand extends Command {
       boolean atDesiredPose = xError == 0.0 && yError == 0.0;
       if (atDesiredPose) {
         if (Constants.currentMode == Constants.Mode.SIM) {
-          vision.deleteClosestFuel(currentPose);
+          vision.deleteClosestSimulatedTarget(currentPose);
         }
         desiredPose = null;
       }

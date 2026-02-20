@@ -183,7 +183,7 @@ public class Vision extends SubsystemBase {
     // if (!hasTargetInSim) {
     //   return null;
     // }
-    int closestFuelIndex = getClosestFuelIndex(robotPose);
+    int closestFuelIndex = getValidFuelIndexSim(robotPose);
     Pose2d closestFuelPose = null;
     if (closestFuelIndex != -1) {
       closestFuelPose = new Pose2d(simulatedTargets.get(closestFuelIndex), new Rotation2d());
@@ -203,13 +203,13 @@ public class Vision extends SubsystemBase {
                 .rotateBy(
                     new Rotation2d(
                         Math.toRadians(
-                            90)))); // TODO: make the 90 a constant based on where the intake is
+                            180)))); // TODO: make the 90 a constant based on where the intake is
     // which is 180
     // System.out.println("fuelPose before rotation stuff again: " + fuelPose);
     return closestFuelPose;
   }
 
-  private int getClosestFuelIndex(Pose2d robotPose) {
+  private int getValidFuelIndexSim(Pose2d robotPose) {
     double minDistInMeters = 16;
     int closestFuelIndex = -1;
     for (int t = 0; t < simulatedTargets.size(); t++) {
@@ -217,7 +217,7 @@ public class Vision extends SubsystemBase {
       Pose2d targetPose = new Pose2d(target, new Rotation2d());
       // Logger.recordOutput("Odometry/simuatedTarget" + t, targetPose);
       double robotToTargetDist = Calculations.distanceToPoseInMeters(robotPose, targetPose);
-      if (robotToTargetDist < minDistInMeters) {
+      if (canSeeSimulatedTarget(robotPose, target) && robotToTargetDist < minDistInMeters) {
         minDistInMeters = robotToTargetDist;
         closestFuelIndex = t;
       }
@@ -225,8 +225,8 @@ public class Vision extends SubsystemBase {
     return closestFuelIndex;
   }
 
-  public void deleteClosestFuel(Pose2d robotPose) {
-    simulatedTargets.remove(getClosestFuelIndex(robotPose));
+  public void deleteClosestSimulatedTarget(Pose2d robotPose) {
+    simulatedTargets.remove(getValidFuelIndexSim(robotPose));
   }
 
   public void resetSimulatedTargets() {
@@ -236,6 +236,29 @@ public class Vision extends SubsystemBase {
     simulatedTargets.add(new Translation2d(7.331, 0.896));
     simulatedTargets.add(new Translation2d(9.614, 5.085));
     simulatedTargets.add(new Translation2d(9.501, 6.622));
+  }
+
+  public boolean canSeeSimulatedTarget(Pose2d robotPose, Translation2d fuelPosition) {
+    final double SIMULATED_CAMERA_FOV_DEGREES = 70;
+    robotPose =
+        robotPose.rotateBy(new Rotation2d(Math.toRadians(180)));
+    Rotation2d leftSlope =
+        robotPose.getRotation().rotateBy(new Rotation2d(Math.toRadians(SIMULATED_CAMERA_FOV_DEGREES / 2)));
+    Rotation2d rightSlope =
+        robotPose.getRotation().rotateBy(new Rotation2d(Math.toRadians(-SIMULATED_CAMERA_FOV_DEGREES / 2)));
+    Rotation2d toTargetSlope=Calculations.angleToPoint(fuelPosition.getX()-robotPose.getX(),fuelPosition.getY()-robotPose.getY());
+    if (leftSlope.getDegrees() < SIMULATED_CAMERA_FOV_DEGREES) {
+      if (toTargetSlope.getDegrees() < leftSlope.getDegrees()
+          || toTargetSlope.getDegrees() > rightSlope.getDegrees()) {
+        return true;
+      }
+    } else {
+      if (toTargetSlope.getDegrees() < leftSlope.getDegrees()
+          && toTargetSlope.getDegrees() > rightSlope.getDegrees()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override
