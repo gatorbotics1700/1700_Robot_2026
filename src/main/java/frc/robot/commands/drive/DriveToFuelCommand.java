@@ -72,6 +72,9 @@ public class DriveToFuelCommand extends Command {
     Logger.recordOutput("Odometry/Desired Pose in Intake", desiredPose);
     Logger.recordOutput("Odometry/Current Pose in Intake", currentPose);
     System.out.println("this is the desired pose here u go: " + desiredPose);
+    System.out.println(
+        "this is the seconds since we saw a target last: "
+            + (System.currentTimeMillis() - validTargetSeenTime));
     if (desiredPose != null) {
       drive.driveToPose(desiredPose);
       validTargetSeenTime = System.currentTimeMillis();

@@ -240,13 +240,18 @@ public class Vision extends SubsystemBase {
 
   public boolean canSeeSimulatedTarget(Pose2d robotPose, Translation2d fuelPosition) {
     final double SIMULATED_CAMERA_FOV_DEGREES = 70;
-    robotPose =
-        robotPose.rotateBy(new Rotation2d(Math.toRadians(180)));
+    robotPose = robotPose.rotateBy(new Rotation2d(Math.toRadians(180)));
     Rotation2d leftSlope =
-        robotPose.getRotation().rotateBy(new Rotation2d(Math.toRadians(SIMULATED_CAMERA_FOV_DEGREES / 2)));
+        robotPose
+            .getRotation()
+            .rotateBy(new Rotation2d(Math.toRadians(SIMULATED_CAMERA_FOV_DEGREES / 2)));
     Rotation2d rightSlope =
-        robotPose.getRotation().rotateBy(new Rotation2d(Math.toRadians(-SIMULATED_CAMERA_FOV_DEGREES / 2)));
-    Rotation2d toTargetSlope=Calculations.angleToPoint(fuelPosition.getX()-robotPose.getX(),fuelPosition.getY()-robotPose.getY());
+        robotPose
+            .getRotation()
+            .rotateBy(new Rotation2d(Math.toRadians(-SIMULATED_CAMERA_FOV_DEGREES / 2)));
+    Rotation2d toTargetSlope =
+        Calculations.angleToPoint(
+            fuelPosition.getX() - robotPose.getX(), fuelPosition.getY() - robotPose.getY());
     if (leftSlope.getDegrees() < SIMULATED_CAMERA_FOV_DEGREES) {
       if (toTargetSlope.getDegrees() < leftSlope.getDegrees()
           || toTargetSlope.getDegrees() > rightSlope.getDegrees()) {

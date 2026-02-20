@@ -349,6 +349,13 @@ public class RobotContainer {
                     vision.toggleSimHasTarget();
                     ;
                   }));
+      controller
+        .b()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  drive.setPose(new Pose2d(6, 4, new Rotation2d()));
+                }));
     }
   }
 
@@ -648,26 +655,11 @@ public class RobotContainer {
 
     // Schedule a new DriveToFuel command on each press (fresh pose from vision each time)
     controller_two
-        .a()
-        .onTrue(
-            new InstantCommand(
-                () ->
-                    CommandScheduler.getInstance()
-                        .schedule(IntakeCommands.DriveToFuel(drive, vision))));
-    controller_two
         .x()
         .onTrue(
             new InstantCommand(
                 () -> {
                   drive.setPose(new Pose2d(3, 4, new Rotation2d()));
-                }));
-    controller_two
-        .y()
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  vision.toggleSimHasTarget();
-                  ;
                 }));
   }
 
