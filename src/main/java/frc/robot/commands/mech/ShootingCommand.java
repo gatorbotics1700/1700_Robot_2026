@@ -84,7 +84,7 @@ public class ShootingCommand extends Command {
             3.734, 0, 0.813); // TODO: get rid of this when we want to use actual field coords
     ShotParameters params =
         ShotCalculator.calculateShot(drivetrainPose.get(), drivetrainVelocity.get(), target);
-    System.out.println("PARAMS SHOT SPEED: " + params.shotSpeed);
+    // System.out.println("PARAMS SHOT SPEED: " + params.shotSpeed);
 
     Logger.recordOutput("ShootingCommand/validShot", params.shotSpeed != 0);
     Logger.recordOutput("ShootingCommand/shouldShoot", shooterSubsystem.getShouldShoot());

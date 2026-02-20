@@ -103,8 +103,7 @@ public final class Constants {
   // the turret plate)
   public static final Translation3d BLUE_HUB =
       new Translation3d(
-          4.625594, 4.034663,
-          1.80); // z value is 2 centimeters below the very top of the hub (to make sure we aren't
+          4.625594, 4.034663, 1.83); // z value is the very top of the hub (to make sure we aren't
   // trying to phase through walls)
   // hub
   public static final Translation3d RED_HUB = new Translation3d(11.915394, 4.034663, 1.80);

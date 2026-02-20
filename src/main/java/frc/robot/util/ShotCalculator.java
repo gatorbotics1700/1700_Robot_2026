@@ -17,10 +17,10 @@ import org.littletonrobotics.junction.Logger;
 @AutoLog
 public class ShotCalculator {
   public static double SHOT_DEADBAND = 0.05;
-  public static double MIN_SHOT_HEIGHT = 1; // 2;
-  public static double MAX_SHOT_HEIGHT = 2; // 10;
+  public static double MIN_SHOT_HEIGHT = 2; // 1 for MSLL
+  public static double MAX_SHOT_HEIGHT = 5; // 10; // 2 meters for MSLL
   public static double MIN_SHOT_SPEED = 0;
-  public static double MAX_SHOT_SPEED = 25;
+  public static double MAX_SHOT_SPEED = 5;
   public static Rotation2d MIN_HOOD_ANGLE =
       new Rotation2d(Math.toRadians(RobotConfigLoader.getInt("mech.hood_max_extension_degrees")));
   public static Rotation2d MAX_HOOD_ANGLE =

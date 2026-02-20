@@ -10,11 +10,10 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
-
 import org.littletonrobotics.junction.Logger;
 
 public class ShooterSubsystem extends SubsystemBase {
-  public static final double TRANSITION_VOLTAGE = 0;
+  public static final double TRANSITION_VOLTAGE = 10;
   public static final double FLYWHEEL_SPEED_DEADBAND = 0.1;
   public static final double FLYWHEEL_GEAR_RATIO = 30.0 / 14.0;
   private final TalonFX leftFlywheelMotor;
@@ -36,8 +35,7 @@ public class ShooterSubsystem extends SubsystemBase {
         new TalonFX(Constants.LEFT_FLYWHEEL_MOTOR_CAN_ID, TunerConstants.mechCANBus);
     rightFlywheelMotor =
         new TalonFX(Constants.RIGHT_FLYWHEEL_MOTOR_CAN_ID, TunerConstants.mechCANBus);
-    transitionMotor =
-        new TalonFX(Constants.TRANSITION_MOTOR_CAN_ID, TunerConstants.mechCANBus);
+    transitionMotor = new TalonFX(Constants.TRANSITION_MOTOR_CAN_ID, TunerConstants.mechCANBus);
 
     setShooterVoltages(0, 0);
 
@@ -100,13 +98,13 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public void periodic() {
+    // TODO: make these lines only run if the shooter command is running
     // leftFlywheelMotor.setControl(m_request.withVelocity(desiredFlywheelVelocity));
     // rightFlywheelMotor.setControl(m_request.withVelocity(desiredFlywheelVelocity));
 
     // transitionMotor.setVoltage(desiredTransitionVoltage);
 
-    Logger.recordOutput(
-        "flywheel current velocity", leftFlywheelMotor.getVelocity().getValueAsDouble());
+    Logger.recordOutput("flywheel current velocity", getFlywheelVelocity());
 
     if (transitionMotor.getMotorVoltage().getValueAsDouble() != 0) {
       Logger.recordOutput("Kicker", true);
@@ -114,7 +112,7 @@ public class ShooterSubsystem extends SubsystemBase {
       Logger.recordOutput("Kicker", false);
     }
 
-    System.out.println("SHOULD SHOOT: " + true);
+    // System.out.println("SHOULD SHOOT: " + shouldShoot);
   }
 
   public void setFlywheelVelocity(double desiredFlywheelVelocity) {
@@ -122,9 +120,9 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public double getFlywheelVelocity() {
-    return leftFlywheelMotor
+    return rightFlywheelMotor
         .getRotorVelocity()
-        .getValueAsDouble(); // TODO figure out if this is the right method
+        .getValueAsDouble(); // TODO figure out if we want getRotorVelocity() or getVelocity()
   }
 
   public void setDesiredTransitionVoltage(double desiredTransitionVoltage) {
@@ -161,7 +159,7 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public static double calculateFlywheelSpeed(double shotSpeed) {
-    System.out.println("FLYWHEEL SPEED: " + shotSpeed / FLYWHEEL_RADIUS);
+    // System.out.println("FLYWHEEL SPEED: " + shotSpeed / FLYWHEEL_RADIUS);
     return shotSpeed / FLYWHEEL_RADIUS;
   }
 

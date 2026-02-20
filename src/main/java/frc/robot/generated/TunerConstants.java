@@ -95,7 +95,7 @@ public class TunerConstants {
   static {
     String driveBusName = driveCANBus.getName();
     String mechBusName =
-        RobotConfigLoader.getString("tuner.mech_canbus_name") == "null"
+        RobotConfigLoader.getString("tuner.mech_canbus_name").equals("null")
             ? ""
             : RobotConfigLoader.getString("tuner.mech_canbus_name");
 

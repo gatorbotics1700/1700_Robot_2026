@@ -21,10 +21,17 @@ public class HoodRetractCommand extends Command {
   @Override
   public void execute() {}
 
-  // TODO figure out if this should be an instant command because I don't know enough about command
-  // based
   @Override
   public boolean isFinished() {
-    return true;
+    if (Math.abs(
+            hoodSubsystem.getCurrentAngle().getDegrees()
+                - hoodSubsystem.getDesiredAngle().getDegrees())
+        <= hoodSubsystem.HOOD_POSITION_DEADBAND_DEGREES) {
+      return true;
+    } else if (hoodSubsystem.isRetractedLimitSwitchPressed()) {
+      hoodSubsystem.setHoodPositionToRetracted();
+      return true;
+    }
+    return false;
   }
 }

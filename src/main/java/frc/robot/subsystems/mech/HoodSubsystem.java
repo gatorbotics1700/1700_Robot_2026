@@ -35,10 +35,10 @@ public class HoodSubsystem extends SubsystemBase {
   private boolean retractingToLimitSwitch = false;
 
   /** Voltage applied when running toward retract limit (tune sign for your mechanism). */
-  public static final double RETRACT_TO_LIMIT_VOLTAGE = -4.0;
+  public static final double RETRACT_TO_LIMIT_VOLTAGE = -0.5;
 
   private Rotation2d desiredAngle = RETRACTED_POSITION;
-  private final double POSITION_DEADBAND_DEGREES = 1; // TODO: tune
+  public final double HOOD_POSITION_DEADBAND_DEGREES = 1; // TODO: tune
 
   // GEAR RATIOS
   private static final double HOOD_SHAFT_REVS_PER_MECH_REV =
@@ -46,9 +46,7 @@ public class HoodSubsystem extends SubsystemBase {
   private static final double HOOD_GEAR_RATIO = RobotConfigLoader.getDouble("mech.hood_gear_ratio");
 
   private final TalonFX hoodMotor =
-      new TalonFX(
-          Constants.HOOD_MOTOR_CAN_ID,
-          TunerConstants.mechCANBus);
+      new TalonFX(Constants.HOOD_MOTOR_CAN_ID, TunerConstants.mechCANBus);
   private final DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
   private TalonFXConfiguration talonFXConfigs;
   private static MotionMagicExpoVoltage m_request;
@@ -91,7 +89,7 @@ public class HoodSubsystem extends SubsystemBase {
 
     m_request = new MotionMagicExpoVoltage(0);
 
-    limitSwitch = new DigitalInput(0); // TODO: change to actual value
+    limitSwitch = new DigitalInput(9); // TODO: change to actual value
     setHoodPositionToRetracted();
   }
 
@@ -102,15 +100,17 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     if (isRetractedLimitSwitchPressed() && !wasLimitSwitchPressed) {
-      setHoodPositionToRetracted();
+      if (retractingToLimitSwitch) {
+        setHoodPositionToRetracted();
+      }
+      setHoodVelocity(getCurrentAngle());
     }
     wasLimitSwitchPressed = isRetractedLimitSwitchPressed();
-
     Logger.recordOutput("hood desired angle", desiredAngle.getDegrees());
     Logger.recordOutput("hood motor output", hoodMotor.get());
     Logger.recordOutput("hood current angle", getCurrentAngle().getDegrees());
-    System.out.println("HOOD ANGLE: " + getCurrentAngle().getDegrees());
-    System.out.println("DESIRED HOOD ANGLE: " + desiredAngle.getDegrees());
+    // System.out.println("HOOD ANGLE: " + getCurrentAngle().getDegrees());
+    // System.out.println("DESIRED HOOD ANGLE: " + desiredAngle.getDegrees());
     Logger.recordOutput("hood current velocity", hoodMotor.getVelocity().getValueAsDouble());
     Logger.recordOutput("hood retract limit switch", isRetractedLimitSwitchPressed());
   }
@@ -127,6 +127,10 @@ public class HoodSubsystem extends SubsystemBase {
       desiredAngle = MAX_EXTENSION;
     }
     this.desiredAngle = desiredAngle;
+  }
+
+  public Rotation2d getDesiredAngle() {
+    return desiredAngle;
   }
 
   public void setHoodVelocity(Rotation2d desiredAngle) {
@@ -152,7 +156,7 @@ public class HoodSubsystem extends SubsystemBase {
   }
 
   public boolean isRetractedLimitSwitchPressed() {
-    return !limitSwitch.get(); // TODO: check this before testing
+    return limitSwitch.get();
   }
 
   public void setHoodPositionToRetracted() {

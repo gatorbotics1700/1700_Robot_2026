@@ -101,12 +101,12 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackRight),
                 (pose) -> {});
         vision =
-        new Vision(
-        drive,
-        new VisionIOPhotonVision(
-        VisionConstants.CAMERA_0_NAME, VisionConstants.ROBOT_TO_CAMERA_0),
-        new VisionIOPhotonVision(
-        VisionConstants.CAMERA_1_NAME, VisionConstants.ROBOT_TO_CAMERA_1));
+            new Vision(
+                drive,
+                new VisionIOPhotonVision(
+                    VisionConstants.CAMERA_0_NAME, VisionConstants.ROBOT_TO_CAMERA_0),
+                new VisionIOPhotonVision(
+                    VisionConstants.CAMERA_1_NAME, VisionConstants.ROBOT_TO_CAMERA_1));
         break;
 
       case SIM:
@@ -120,16 +120,16 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackRight),
                 (pose) -> {});
         vision =
-        new Vision(
-        drive,
-        new VisionIOPhotonVisionSim(
-        VisionConstants.CAMERA_0_NAME,
-        VisionConstants.ROBOT_TO_CAMERA_0,
-        drive::getPose),
-        new VisionIOPhotonVisionSim(
-        VisionConstants.CAMERA_1_NAME,
-        VisionConstants.ROBOT_TO_CAMERA_1,
-        drive::getPose));
+            new Vision(
+                drive,
+                new VisionIOPhotonVisionSim(
+                    VisionConstants.CAMERA_0_NAME,
+                    VisionConstants.ROBOT_TO_CAMERA_0,
+                    drive::getPose),
+                new VisionIOPhotonVisionSim(
+                    VisionConstants.CAMERA_1_NAME,
+                    VisionConstants.ROBOT_TO_CAMERA_1,
+                    drive::getPose));
         DriverStation.silenceJoystickConnectionWarning(true);
         break;
 
@@ -143,7 +143,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 (pose) -> {});
-         vision = new Vision(drive);
+        vision = new Vision(drive);
 
         break;
     }
@@ -500,19 +500,19 @@ public class RobotContainer {
             .onTrue(
                 new InstantCommand(
                     () -> {
-                      shooterSubsystem.toggleShouldShoot();
+                      shooterSubsystem.setShouldShoot(true);
                     }));
 
-        controller_two
-            .a()
-            .onTrue(
-                new ShootingCommand(
-                    shooterSubsystem,
-                    hoodSubsystem,
-                    turretSubsystem,
-                    transitionSubsystem,
-                    robotPose,
-                    chassisSpeeds));
+        // controller_two
+        //     .a()
+        //     .onTrue(
+        //         new ShootingCommand(
+        //             shooterSubsystem,
+        //             hoodSubsystem,
+        //             turretSubsystem,
+        //             transitionSubsystem,
+        //             robotPose,
+        //             chassisSpeeds));
 
         // TODO TURRET TESTING BUTTONS - uncomment for use
 
@@ -551,6 +551,8 @@ public class RobotContainer {
         // }));
 
         controller_two.y().onTrue(new HoodHomingCommand(hoodSubsystem));
+        controller_two.a().onTrue(RunShooterWheels());
+        controller_two.b().onTrue(MechStop());
 
         // commented this out because it's using a shot parameters thing we were
         // calculating in
@@ -698,6 +700,14 @@ public class RobotContainer {
             // )
             )
         .alongWith(IntakeCommands.StopIntake(intakeSubsystem));
+  }
+
+  public Command RunShooterWheels() {
+    return new InstantCommand(
+        () -> {
+          shooterSubsystem.setFlywheelVoltage(6);
+          shooterSubsystem.setTransitionVoltage(12);
+        });
   }
 
   public Command RunMechWheels() {
