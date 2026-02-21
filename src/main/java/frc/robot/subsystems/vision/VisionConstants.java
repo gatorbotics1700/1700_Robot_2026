@@ -138,4 +138,7 @@ public class VisionConstants {
       createCameraStdDevFactors() { // can add more constants if we have more cameras
     return new double[] {CAMERA_0_STD_DEV_FACTOR, CAMERA_1_STD_DEV_FACTOR};
   }
+
+  public static final double DISTANCE_DEADBAND_METERS = 0.03;
+  public static final double ROTATION_DEADBAND_DEGREES = 10;
 }
