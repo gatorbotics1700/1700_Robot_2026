@@ -16,6 +16,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public static final double TRANSITION_VOLTAGE = 10;
   public static final double FLYWHEEL_SPEED_DEADBAND = 0.1;
   public static final double FLYWHEEL_GEAR_RATIO = 30.0 / 14.0;
+  private static final double FLYWHEEL_SLIP = 0.7; // TODO TUNE!!!
   private final TalonFX leftFlywheelMotor;
   private final TalonFX rightFlywheelMotor;
   private final TalonFX transitionMotor;
@@ -37,7 +38,7 @@ public class ShooterSubsystem extends SubsystemBase {
         new TalonFX(Constants.RIGHT_FLYWHEEL_MOTOR_CAN_ID, TunerConstants.mechCANBus);
     transitionMotor = new TalonFX(Constants.TRANSITION_MOTOR_CAN_ID, TunerConstants.mechCANBus);
 
-    setShooterVoltages(0, 0);
+    // setShooterVoltages(0, 0);
 
     desiredFlywheelVelocity = 0.0;
 
@@ -98,21 +99,24 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public void periodic() {
-    // TODO: make these lines only run if the shooter command is running
-    // leftFlywheelMotor.setControl(m_request.withVelocity(desiredFlywheelVelocity));
-    // rightFlywheelMotor.setControl(m_request.withVelocity(desiredFlywheelVelocity));
+    Logger.recordOutput("Mech/Shooter/Flywheel Velocity", getFlywheelVelocity());
+    Logger.recordOutput("Mech/Shooter/Desired Flywheel Velocity", desiredFlywheelVelocity);
 
-    // transitionMotor.setVoltage(desiredTransitionVoltage);
+    Logger.recordOutput(
+        "Mech/Shooter/Transition Voltage", transitionMotor.getMotorVoltage().getValueAsDouble());
+    Logger.recordOutput("Mech/Shooter/Desired Transition Voltage", desiredTransitionVoltage);
+    Logger.recordOutput(
+        "Mech/Shooter/Kicker", (transitionMotor.getMotorVoltage().getValueAsDouble() != 0));
 
-    Logger.recordOutput("flywheel current velocity", getFlywheelVelocity());
+    Logger.recordOutput("Mech/Shooter/Should Be Shooting", shouldShoot);
 
-    if (transitionMotor.getMotorVoltage().getValueAsDouble() != 0) {
-      Logger.recordOutput("Kicker", true);
-    } else {
-      Logger.recordOutput("Kicker", false);
-    }
+    // TODO: decide if we want to only make these lines run if the shooter command is running. I
+    // (Elise) think we can run these lines and just set the desiredFlyWheelVelocity to zero when we
+    // don't want to shoot, but if you have a compelling reason feel free to change it!
+    leftFlywheelMotor.setControl(m_request.withVelocity(desiredFlywheelVelocity));
+    rightFlywheelMotor.setControl(m_request.withVelocity(desiredFlywheelVelocity));
 
-    // System.out.println("SHOULD SHOOT: " + shouldShoot);
+    transitionMotor.setVoltage(desiredTransitionVoltage);
   }
 
   public void setFlywheelVelocity(double desiredFlywheelVelocity) {
@@ -129,46 +133,43 @@ public class ShooterSubsystem extends SubsystemBase {
     this.desiredTransitionVoltage = desiredTransitionVoltage;
   }
 
-  public void setShooterVoltages(double flywheelVoltage, double transitionVoltage) {
-    leftFlywheelMotor.setVoltage(flywheelVoltage);
-    rightFlywheelMotor.setVoltage(flywheelVoltage);
-    Logger.recordOutput(
-        "flywheelMotor velocity", leftFlywheelMotor.getVelocity().getValueAsDouble());
-    transitionMotor.setVoltage(transitionVoltage);
-  }
+  // TODO decide if we need this—I (Elise) think we should stick to the motion magic velo control!
+  // public void setShooterVoltages(double flywheelVoltage, double transitionVoltage) {
+  //   leftFlywheelMotor.setVoltage(flywheelVoltage);
+  //   rightFlywheelMotor.setVoltage(flywheelVoltage);
+  //   Logger.recordOutput(
+  //       "flywheelMotor velocity", leftFlywheelMotor.getVelocity().getValueAsDouble());
+  //   transitionMotor.setVoltage(transitionVoltage);
+  // }
 
-  public void setFlywheelVoltage(double voltage) {
-    leftFlywheelMotor.setVoltage(voltage);
-    rightFlywheelMotor.setVoltage(voltage);
-  }
+  // public void setFlywheelVoltage(double voltage) {
+  //   leftFlywheelMotor.setVoltage(voltage);
+  //   rightFlywheelMotor.setVoltage(voltage);
+  // }
 
   public void setTransitionVoltage(double voltage) {
     transitionMotor.setVoltage(voltage);
   }
 
   public double getExitVelocity() {
-    return 0.7
+    return FLYWHEEL_SLIP
         * getFlywheelVelocity()
         * 2
         * Math.PI
         * Constants
-            .FLYWHEEL_RADIUS_METERS; // 0.7 is a tentative estimate to account for loss of energy
+            .FLYWHEEL_RADIUS_METERS; // 0.7 for the slip is a tentative estimate to account for loss
+    // of energy
     // due to
     // energy dissipation/slip. this model assumes that the ball's exit speed matches the wheel's
     // surface speed
   }
 
   public static double calculateFlywheelSpeed(double shotSpeed) {
-    // System.out.println("FLYWHEEL SPEED: " + shotSpeed / FLYWHEEL_RADIUS);
-    return shotSpeed / FLYWHEEL_RADIUS;
+    return shotSpeed / FLYWHEEL_SLIP / 2 / Math.PI / Constants.FLYWHEEL_RADIUS_METERS;
   }
 
   public boolean getShouldShoot() {
     return shouldShoot;
-  }
-
-  public void toggleShouldShoot() {
-    shouldShoot = !shouldShoot;
   }
 
   public void setShouldShoot(boolean shouldShoot) {

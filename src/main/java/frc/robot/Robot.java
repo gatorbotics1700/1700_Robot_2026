@@ -174,7 +174,8 @@ public class Robot extends LoggedRobot {
     robotContainer.configureCodriverButtonBindings();
 
     CommandScheduler.getInstance().cancelAll();
-    robotContainer.shooterSubsystem.setShooterVoltages(0, 0);
+    // robotContainer.shooterSubsystem.setShooterVoltages(0, 0);
+    robotContainer.shooterSubsystem.setFlywheelVelocity(0);
     IntakeCommands.StopIntake(robotContainer.intakeSubsystem);
     Elastic.selectTab("Teleoperated");
     robotContainer.teleopInit();

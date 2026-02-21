@@ -4,6 +4,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -24,6 +25,37 @@ public class IntakeCommands {
 
   public static Command DeployIntake(IntakeSubsystem intakeSubsystem) {
     return new DeployIntakeCommand(false, intakeSubsystem);
+  }
+
+  private static class HomeIntakeDeploy extends Command {
+    private final IntakeSubsystem intakeSubsystem;
+
+    HomeIntakeDeploy(IntakeSubsystem intakeSubsystem) {
+      this.intakeSubsystem = intakeSubsystem;
+      addRequirements(intakeSubsystem);
+    }
+
+    @Override
+    public void initialize() {
+      intakeSubsystem.setDeployVoltage(IntakeSubsystem.HOMING_VOLTAGE);
+    }
+
+    @Override
+    public void execute() {}
+
+    @Override
+    public boolean isFinished() {
+      return intakeSubsystem.hallEffectTriggered();
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+      intakeSubsystem.zeroIntakeDeploy();
+      ;
+      intakeSubsystem.setDesiredAngle(
+          IntakeSubsystem.RETRACTED_POSITION.plus(new Rotation2d(Math.toRadians((2)))));
+      ;
+    }
   }
 
   public static Command RunIntake(IntakeSubsystem intakeSubsystem) {

@@ -17,12 +17,12 @@ import frc.robot.util.RobotConfigLoader;
 import org.littletonrobotics.junction.Logger;
 
 public class HoodSubsystem extends SubsystemBase {
-
+  // retracted position is the max hood angle, because we measure from vertical
   public static final Rotation2d RETRACTED_POSITION =
       new Rotation2d(
           Math.toRadians(
               RobotConfigLoader.getInt("mech.hood_retracted_degrees"))); // TODO: check number //77
-  public static final Rotation2d MAX_EXTENSION =
+  public static final Rotation2d MIN_ANGLE =
       new Rotation2d(
           Math.toRadians(
               RobotConfigLoader.getInt(
@@ -31,11 +31,14 @@ public class HoodSubsystem extends SubsystemBase {
   private final DigitalInput limitSwitch;
   private boolean wasLimitSwitchPressed = false;
 
-  /** When true, periodic does not run position control; use for retract-to-limit command. */
-  private boolean retractingToLimitSwitch = false;
+  // when false, run voltage control
+  private boolean positionControl = true;
 
   /** Voltage applied when running toward retract limit (tune sign for your mechanism). */
-  public static final double RETRACT_TO_LIMIT_VOLTAGE = -0.5;
+  // public static final double RETRACT_TO_LIMIT_VOLTAGE = -0.5;
+  public static final double FAST_HOMING_VOLTAGE = -1; // TODO tune
+
+  public static final double SLOW_HOMING_VOLTAGE = -0.5; // TODO tune
 
   private Rotation2d desiredAngle = RETRACTED_POSITION;
   public final double HOOD_POSITION_DEADBAND_DEGREES = 1; // TODO: tune
@@ -90,41 +93,30 @@ public class HoodSubsystem extends SubsystemBase {
     m_request = new MotionMagicExpoVoltage(0);
 
     limitSwitch = new DigitalInput(9); // TODO: change to actual value
-    setHoodPositionToRetracted();
   }
 
   @Override
   public void periodic() {
-    if (!retractingToLimitSwitch) {
-      setHoodVelocity(desiredAngle);
+    if (positionControl) {
+      setHoodPosition(desiredAngle);
     }
 
-    if (isRetractedLimitSwitchPressed() && !wasLimitSwitchPressed) {
-      if (retractingToLimitSwitch) {
-        setHoodPositionToRetracted();
-      }
-      setHoodVelocity(getCurrentAngle());
-    }
-    wasLimitSwitchPressed = isRetractedLimitSwitchPressed();
-    Logger.recordOutput("hood desired angle", desiredAngle.getDegrees());
-    Logger.recordOutput("hood motor output", hoodMotor.get());
-    Logger.recordOutput("hood current angle", getCurrentAngle().getDegrees());
-    // System.out.println("HOOD ANGLE: " + getCurrentAngle().getDegrees());
-    // System.out.println("DESIRED HOOD ANGLE: " + desiredAngle.getDegrees());
-    Logger.recordOutput("hood current velocity", hoodMotor.getVelocity().getValueAsDouble());
-    Logger.recordOutput("hood retract limit switch", isRetractedLimitSwitchPressed());
+    Logger.recordOutput("Mech/Hood/Desired Angle", desiredAngle.getDegrees());
+    Logger.recordOutput("Mech/Hood/Current Angle", getCurrentAngle().getDegrees());
+    Logger.recordOutput("Mech/Hood/Motor Output", hoodMotor.get());
+    Logger.recordOutput("Mech/Hood/Current velocity", hoodMotor.getVelocity().getValueAsDouble());
+    Logger.recordOutput("Mech/Hood/Limit switch", isRetractedLimitSwitchPressed());
+    Logger.recordOutput(
+        "Mech/Climber/Control Mode", positionControl ? "position control" : "voltage control");
   }
 
   public void setDesiredAngle(Rotation2d desiredAngle) {
-    // TODO maybe wrap angle like % 360
-    // TODO: check this logic -- don't really know whats going on
+    positionControl = true;
     if (desiredAngle.getDegrees() > RETRACTED_POSITION.getDegrees()) {
-      // the min is
-      // negative?
       desiredAngle = RETRACTED_POSITION;
     }
-    if (desiredAngle.getDegrees() < MAX_EXTENSION.getDegrees()) {
-      desiredAngle = MAX_EXTENSION;
+    if (desiredAngle.getDegrees() < MIN_ANGLE.getDegrees()) {
+      desiredAngle = MIN_ANGLE;
     }
     this.desiredAngle = desiredAngle;
   }
@@ -133,7 +125,7 @@ public class HoodSubsystem extends SubsystemBase {
     return desiredAngle;
   }
 
-  public void setHoodVelocity(Rotation2d desiredAngle) {
+  public void setHoodPosition(Rotation2d desiredAngle) {
     hoodMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
   }
 
@@ -152,6 +144,7 @@ public class HoodSubsystem extends SubsystemBase {
   }
 
   public void setHoodVoltage(double voltage) {
+    positionControl = false;
     hoodMotor.setVoltage(voltage);
   }
 
@@ -159,14 +152,12 @@ public class HoodSubsystem extends SubsystemBase {
     return limitSwitch.get();
   }
 
-  public void setHoodPositionToRetracted() {
-    hoodMotor.setPosition(degreesToRevs(RETRACTED_POSITION.getDegrees()));
-  }
-
-  public void setRetractingToLimitSwitch(boolean retracting) {
-    this.retractingToLimitSwitch = retracting;
-    if (!retracting) {
-      setHoodVoltage(0);
-    }
+  public void zeroHood() {
+    double motorPositionRevs = hoodMotor.getPosition().getValueAsDouble();
+    double offset = degreesToRevs(RETRACTED_POSITION.getDegrees());
+    // if we assume the limit switch triggers at the retracted position, then we are calling this
+    // method when the current position is the retracted position. therefore we want zero to be
+    // wherever we are right now minus the retracted position
+    hoodMotor.setPosition((motorPositionRevs - offset) % 1); // TODO logic check this math
   }
 }

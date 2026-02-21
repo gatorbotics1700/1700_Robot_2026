@@ -86,8 +86,10 @@ public class ShootingCommand extends Command {
         ShotCalculator.calculateShot(drivetrainPose.get(), drivetrainVelocity.get(), target);
     // System.out.println("PARAMS SHOT SPEED: " + params.shotSpeed);
 
-    Logger.recordOutput("ShootingCommand/validShot", params.shotSpeed != 0);
-    Logger.recordOutput("ShootingCommand/shouldShoot", shooterSubsystem.getShouldShoot());
+    Logger.recordOutput("Mech/ShotCalculator/validShot", params.shotSpeed != 0);
+    Logger.recordOutput("Mech/ShotCalculator/shotSpeed", params.shotSpeed);
+    Logger.recordOutput("Mech/ShotCalculator/hoodAngle", params.hoodAngle);
+    Logger.recordOutput("Mech/ShotCalculator/turretAngle", params.turretAngle);
 
     // if should be shooting
     // set flywheel speed to the last non-zero flywheel speed
@@ -105,10 +107,11 @@ public class ShootingCommand extends Command {
     if (shooterSubsystem.getShouldShoot()) { // if we want to shoot
       System.out.println("WE WANT TO SHOOT");
       if (params.shotSpeed != 0) { // and if we have a valid shot
+        double desiredFlywheelSpeed = ShooterSubsystem.calculateFlywheelSpeed(params.shotSpeed);
         System.out.println("VALID SHOT VALID SHOT");
-        shooterSubsystem.setFlywheelVelocity(lastVelocity); // set velocity to our desired velocity
+        shooterSubsystem.setFlywheelVelocity(desiredFlywheelSpeed); // set velocity to our desired velocity
         hopperFloorSubsystem.setHopperFloorVelocity(HopperFloorSubsystem.HOPPER_FLOOR_SPEED);
-        if (Math.abs(shooterSubsystem.getFlywheelVelocity() - lastVelocity)
+        if (Math.abs(shooterSubsystem.getFlywheelVelocity() - desiredFlywheelSpeed)
             < ShooterSubsystem
                 .FLYWHEEL_SPEED_DEADBAND) { // once flywheel is running close to our desired
           // velocity
@@ -120,10 +123,13 @@ public class ShootingCommand extends Command {
         hopperFloorSubsystem.setHopperFloorVelocity(0);
         shooterSubsystem.setDesiredTransitionVoltage(0);
       }
+      // this requires the hood's zero to be vertical TODO: Check this!!
+      hoodSubsystem.setDesiredAngle(params.hoodAngle); 
+      turretSubsystem.setDesiredAngle(params.turretAngle);
     } else {
       System.out.println("WE DONT WANT TO SHOOT");
       shooterSubsystem.setFlywheelVelocity(0);
-      shooterSubsystem.setFlywheelVoltage(0);
+      // shooterSubsystem.setFlywheelVoltage(0);
       shooterSubsystem.setDesiredTransitionVoltage(0);
       hopperFloorSubsystem.setHopperFloorVelocity(0);
     }
@@ -167,10 +173,7 @@ public class ShootingCommand extends Command {
     //   hopperFloorSubsystem.setHopperFloorVelocity(0);
     //   shooterSubsystem.setDesiredTransitionVoltage(0);
     // }
-    hoodSubsystem.setDesiredAngle(
-        params.hoodAngle); // this requires the hood's zero to be vertical TODO: Check this!!
-
-    turretSubsystem.setDesiredAngle(params.turretAngle);
+   
   }
 
   // TODO figure out if we want a way to end this command
@@ -181,6 +184,7 @@ public class ShootingCommand extends Command {
 
   @Override
   public void end(boolean interrupted) {
+    shooterSubsystem.setFlywheelVelocity(0);
     hopperFloorSubsystem.setHopperFloorVelocity(0);
     shooterSubsystem.setDesiredTransitionVoltage(0);
   }

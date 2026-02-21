@@ -27,6 +27,34 @@ public class ClimbCommands {
     return new ClimberCommand(climberSubsystem, 0.0);
   }
 
+  private static class HomeClimber extends Command {
+    private final ClimberSubsystem climberSubsystem;
+
+    HomeClimber(ClimberSubsystem climberSubsystem) {
+      this.climberSubsystem = climberSubsystem;
+      addRequirements(climberSubsystem);
+    }
+
+    @Override
+    public void initialize() {
+      climberSubsystem.setClimberVoltage(ClimberSubsystem.HOMING_VOLTAGE);
+    }
+
+    @Override
+    public void execute() {}
+
+    @Override
+    public boolean isFinished() {
+      return climberSubsystem.limitSwitchPressed();
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+      climberSubsystem.zeroClimber();
+      climberSubsystem.setDesiredPositionInches(ClimberSubsystem.RETRACTED_HEIGHT_INCHES + 0.25);
+    }
+  }
+
   // teleop version - uses pose and logic
   public static Command DriveToTower(Drive drive) {
     return new DriveToTowerCommand(drive, null);

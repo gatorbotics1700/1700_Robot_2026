@@ -705,7 +705,8 @@ public class RobotContainer {
   public Command RunShooterWheels() {
     return new InstantCommand(
         () -> {
-          shooterSubsystem.setFlywheelVoltage(6);
+          // shooterSubsystem.setFlywheelVoltage(6);
+          shooterSubsystem.setFlywheelVelocity(ShooterSubsystem.calculateFlywheelSpeed(5));
           shooterSubsystem.setTransitionVoltage(12);
         });
   }
@@ -713,9 +714,11 @@ public class RobotContainer {
   public Command RunMechWheels() {
     return new InstantCommand(
             () -> {
-              shooterSubsystem.setFlywheelVoltage(6);
+              // shooterSubsystem.setFlywheelVoltage(6);
+              shooterSubsystem.setFlywheelVelocity(ShooterSubsystem.calculateFlywheelSpeed(5));
               shooterSubsystem.setTransitionVoltage(12);
               // transitionSubsystem.setHopperFloorVelocity(transitionSubsystem.HOPPER_FLOOR_SPEED);
+              // //TODO uncomment???
             })
         .alongWith(IntakeCommands.RunIntake(intakeSubsystem));
   }

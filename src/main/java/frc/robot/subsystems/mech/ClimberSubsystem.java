@@ -8,16 +8,24 @@ import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
+import org.littletonrobotics.junction.Logger;
 
 public class ClimberSubsystem extends SubsystemBase {
 
   private static final int CLIMBER_GEAR_RATIO = 81; // TODO get a real number
   private static final double WINCH_INCHES_PER_REV = (3 / 4) * Math.PI; // TODO get a real number
+  // TODO decide if we want to measure climber extension from the floor or from stage 0 of the arm
+  public static final double MAX_EXTENSION_INCHES = 30; // TODO get a real number
+  public static final double RETRACTED_HEIGHT_INCHES = 20; // TODO get a real number
+  public static final double HOMING_VOLTAGE = 10; // TODO get a real number
+  private boolean positionControl = true; // if false use voltage control
 
   public final TalonFX motor;
+  private final DigitalInput limitSwitch;
 
   private static TalonFXConfiguration talonFXConfigs;
   private static MotionMagicExpoVoltage m_request;
@@ -25,12 +33,12 @@ public class ClimberSubsystem extends SubsystemBase {
   private double desiredPositionInches;
 
   public ClimberSubsystem() {
+    limitSwitch = new DigitalInput(3); // TODO: change to actual value
     motor = new TalonFX(Constants.CLIMBER_MOTOR_CAN_ID, TunerConstants.mechCANBus);
     motor.setNeutralMode(NeutralModeValue.Brake);
-    // motion magic stuff
+
     // MOTION MAGIC PID/FEEDFORWARD CONFIGS // TODO: must tune everything!!
     talonFXConfigs = new TalonFXConfiguration();
-
     talonFXConfigs.withMotorOutput(
         new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
 
@@ -62,11 +70,32 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   public void periodic() {
-    motor.setControl(m_request.withPosition(inchesToRevs(desiredPositionInches)));
+    Logger.recordOutput("Mech/Climber/desiredPositionInches", desiredPositionInches);
+    Logger.recordOutput("Mech/Climber/currentPositionInches", currentPositionInches());
+    Logger.recordOutput("Mech/Climber/Motor Output", motor.get());
+    Logger.recordOutput(
+        "Mech/Climber/Control Mode", positionControl ? "position control" : "voltage control");
+    if (!limitSwitchPressed() && positionControl) {
+      motor.setControl(m_request.withPosition(inchesToRevs(desiredPositionInches)));
+    } else {
+      setClimberVoltage(0); // TODO figure out if this actually works?
+    }
   }
 
   public void setDesiredPositionInches(double desiredPositionInches) {
-    this.desiredPositionInches = desiredPositionInches;
+    positionControl = true;
+    if (desiredPositionInches < RETRACTED_HEIGHT_INCHES) {
+      this.desiredPositionInches = RETRACTED_HEIGHT_INCHES;
+    } else if (desiredPositionInches > MAX_EXTENSION_INCHES) {
+      this.desiredPositionInches = MAX_EXTENSION_INCHES;
+    } else {
+      this.desiredPositionInches = desiredPositionInches;
+    }
+  }
+
+  public boolean limitSwitchPressed() {
+    return limitSwitch
+        .get(); // TODO confirm that normally closed limit switch is true when pressed?
   }
 
   public double currentPositionInches() {
@@ -75,5 +104,22 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public double inchesToRevs(double positionInches) {
     return positionInches / WINCH_INCHES_PER_REV * CLIMBER_GEAR_RATIO;
+  }
+
+  public void zeroClimber() {
+    // TODO if we decide we want to measure current position from the floor we will need to change
+    // this so current position doesn't become zero, but whatever the retracted height is off the
+    // floor
+    double motorPositionRevs = motor.getPosition().getValueAsDouble();
+    double offset = inchesToRevs(RETRACTED_HEIGHT_INCHES);
+    // if we assume the limit switch triggers at the retracted position, then we are calling this
+    // method when the current position is the retracted position. therefore we want zero to be
+    // wherever we are right now minus the retracted position
+    motor.setPosition((motorPositionRevs - offset) % 1);
+  }
+
+  public void setClimberVoltage(double voltage) {
+    positionControl = false;
+    motor.setVoltage(0); // TODO figure out if this actually works?
   }
 }

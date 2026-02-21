@@ -29,7 +29,7 @@ public class HoodRetractCommand extends Command {
         <= hoodSubsystem.HOOD_POSITION_DEADBAND_DEGREES) {
       return true;
     } else if (hoodSubsystem.isRetractedLimitSwitchPressed()) {
-      hoodSubsystem.setHoodPositionToRetracted();
+      hoodSubsystem.setDesiredAngle(HoodSubsystem.RETRACTED_POSITION);
       return true;
     }
     return false;

@@ -10,6 +10,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
+import org.littletonrobotics.junction.Logger;
 
 public class HopperFloorSubsystem extends SubsystemBase {
   public static final double HOPPER_FLOOR_SPEED = 0.5;
@@ -55,6 +56,8 @@ public class HopperFloorSubsystem extends SubsystemBase {
   }
 
   public void periodic() {
+    Logger.recordOutput("Mech/Hopper Floor/Desired Velocity", hopperVelocity);
+    Logger.recordOutput("Mech/Hopper Floor/Motor Output", hopperMotor.get());
     hopperMotor.setControl(m_velocity.withVelocity(hopperVelocity));
   }
 

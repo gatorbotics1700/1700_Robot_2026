@@ -4,13 +4,15 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.mech.HoodSubsystem;
 
-//TODO: make this start fast, then once it hits the limit switch, go up and then down again slowly to accurately home it
-
 /**
- * Runs the hood toward retract until the retracted limit switch is pressed, then zeros position.
+ * Runs the hood fast toward retract until the retracted limit switch is pressed, then backs off and
+ * slowly runs into the limit switch and then zeros position.
  */
 public class HoodHomingCommand extends Command {
   private final HoodSubsystem hoodSubsystem;
+  private boolean stageOneComplete;
+  private boolean stageTwoComplete;
+  private boolean stageThreeComplete;
 
   public HoodHomingCommand(HoodSubsystem hoodSubsystem) {
     this.hoodSubsystem = hoodSubsystem;
@@ -18,26 +20,42 @@ public class HoodHomingCommand extends Command {
   }
 
   @Override
-  public void initialize() {
-    hoodSubsystem.setRetractingToLimitSwitch(true);
-  }
+  public void initialize() {}
 
   @Override
   public void execute() {
-    hoodSubsystem.setHoodVoltage(HoodSubsystem.RETRACT_TO_LIMIT_VOLTAGE);
+    if (!stageOneComplete) {
+      // Move fast towards limit switch and rough zero
+      hoodSubsystem.setHoodVoltage(HoodSubsystem.FAST_HOMING_VOLTAGE);
+      if (hoodSubsystem.isRetractedLimitSwitchPressed()) {
+        hoodSubsystem.zeroHood();
+        stageOneComplete = true;
+      }
+    } else if (!stageTwoComplete) {
+      // Back off
+      // TODO tune that angle
+      hoodSubsystem.setDesiredAngle(
+          HoodSubsystem.RETRACTED_POSITION.plus(new Rotation2d(Math.toRadians(5))));
+    } else {
+      // Move slowly towards limit switch and final zero
+      hoodSubsystem.setHoodVoltage(HoodSubsystem.SLOW_HOMING_VOLTAGE);
+      if (hoodSubsystem.isRetractedLimitSwitchPressed()) {
+        hoodSubsystem.zeroHood();
+        hoodSubsystem.setDesiredAngle(
+            HoodSubsystem.RETRACTED_POSITION.plus(new Rotation2d(Math.toRadians(1))));
+        stageThreeComplete = true;
+      }
+    }
   }
 
+  // TODO delete?
   @Override
   public void end(boolean interrupted) {
-    hoodSubsystem.setRetractingToLimitSwitch(false);
+    // hoodSubsystem.setRetractingToLimitSwitch(false);
   }
 
   @Override
   public boolean isFinished() {
-    if (hoodSubsystem.isRetractedLimitSwitchPressed()) {
-      hoodSubsystem.setDesiredAngle(
-          hoodSubsystem.getCurrentAngle().plus(new Rotation2d(Math.toRadians(2))));
-    }
-    return hoodSubsystem.isRetractedLimitSwitchPressed();
+    return stageThreeComplete;
   }
 }
