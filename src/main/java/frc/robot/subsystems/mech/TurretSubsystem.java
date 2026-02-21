@@ -13,8 +13,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.TurretConstants;
 import frc.robot.Constants.TunerConstants;
+import frc.robot.Constants.TurretConstants;
 import org.littletonrobotics.junction.Logger;
 
 public class TurretSubsystem extends SubsystemBase {
