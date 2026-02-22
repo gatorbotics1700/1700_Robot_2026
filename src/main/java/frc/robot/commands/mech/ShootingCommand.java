@@ -106,37 +106,37 @@ public class ShootingCommand extends Command {
               params.shotSpeed); // update our last velocity / set our desired velocity
     }
 
-    if (shooterSubsystem.getShouldShoot()) { // if we want to shoot
-      System.out.println("WE WANT TO SHOOT");
-      if (params.shotSpeed != 0) { // and if we have a valid shot
-        double desiredFlywheelSpeed = ShooterSubsystem.calculateFlywheelSpeed(params.shotSpeed);
-        System.out.println("VALID SHOT VALID SHOT");
-        shooterSubsystem.setDesiredFlywheelVelocity(
-            desiredFlywheelSpeed); // set velocity to our desired velocity
-        hopperFloorSubsystem.setDesiredHopperFloorVelocity(
-            HopperFloorConstants.HOPPER_FLOOR_VELOCITY);
-        if (Math.abs(shooterSubsystem.getFlywheelVelocity() - desiredFlywheelSpeed)
-            < ShooterConstants
-                .FLYWHEEL_SPEED_DEADBAND) { // once flywheel is running close to our desired
-          // velocity
-          System.out.println("SHOOTING SHOOTING SHOOTING");
-          shooterSubsystem.setDesiredTransitionVoltage(ShooterConstants.TRANSITION_VOLTAGE);
-        }
-      } else { // if we dont have a valid shot
-        System.out.println("INVALID SHOT INVALID SHOT");
-        hopperFloorSubsystem.setDesiredHopperFloorVelocity(0);
-        shooterSubsystem.setDesiredTransitionVoltage(0);
+    // if (shooterSubsystem.getShouldShoot()) { // if we want to shoot
+    System.out.println("WE WANT TO SHOOT");
+    if (params.shotSpeed != 0) { // and if we have a valid shot
+      double desiredFlywheelSpeed = ShooterSubsystem.calculateFlywheelSpeed(params.shotSpeed);
+      System.out.println("VALID SHOT VALID SHOT");
+      shooterSubsystem.setDesiredFlywheelVelocity(
+          desiredFlywheelSpeed); // set velocity to our desired velocity
+      hopperFloorSubsystem.setDesiredHopperFloorVelocity(
+          HopperFloorConstants.HOPPER_FLOOR_VELOCITY);
+      if (Math.abs(shooterSubsystem.getFlywheelVelocity() - desiredFlywheelSpeed)
+          < ShooterConstants
+              .FLYWHEEL_SPEED_DEADBAND) { // once flywheel is running close to our desired
+        // velocity
+        System.out.println("SHOOTING SHOOTING SHOOTING");
+        shooterSubsystem.setDesiredTransitionVoltage(ShooterConstants.TRANSITION_VOLTAGE);
       }
-      // this requires the hood's zero to be vertical TODO: Check this!!
-      hoodSubsystem.setDesiredAngle(params.hoodAngle);
-      turretSubsystem.setDesiredAngle(params.turretAngle);
-    } else {
-      System.out.println("WE DONT WANT TO SHOOT");
-      shooterSubsystem.setDesiredFlywheelVelocity(0);
-      // shooterSubsystem.setFlywheelVoltage(0);
-      shooterSubsystem.setDesiredTransitionVoltage(0);
+    } else { // if we dont have a valid shot
+      System.out.println("INVALID SHOT INVALID SHOT");
       hopperFloorSubsystem.setDesiredHopperFloorVelocity(0);
+      shooterSubsystem.setDesiredTransitionVoltage(0);
     }
+    // this requires the hood's zero to be vertical TODO: Check this!!
+    hoodSubsystem.setDesiredAngle(params.hoodAngle);
+    turretSubsystem.setDesiredAngle(params.turretAngle);
+    // } else {
+    //   System.out.println("WE DONT WANT TO SHOOT");
+    //   shooterSubsystem.setDesiredFlywheelVelocity(0);
+    //   // shooterSubsystem.setFlywheelVoltage(0);
+    //   shooterSubsystem.setDesiredTransitionVoltage(0);
+    //   hopperFloorSubsystem.setDesiredHopperFloorVelocity(0);
+    // }
 
     // if (shooterSubsystem.getShouldShoot()) {
     //   // calculate angles and get the hood and turret to track

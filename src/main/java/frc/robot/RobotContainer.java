@@ -498,24 +498,24 @@ public class RobotContainer {
         //                     () -> {
         //                       shooterSubsystem.setTransitionVoltage(10);
         //                     })));
+        // controller_two
+        //     .x()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () -> {
+        //               shooterSubsystem.setShouldShoot(true);
+        //             }));
+
         controller_two
             .x()
             .onTrue(
-                new InstantCommand(
-                    () -> {
-                      shooterSubsystem.setShouldShoot(true);
-                    }));
-
-        // controller_two
-        //     .a()
-        //     .onTrue(
-        //         new ShootingCommand(
-        //             shooterSubsystem,
-        //             hoodSubsystem,
-        //             turretSubsystem,
-        //             transitionSubsystem,
-        //             robotPose,
-        //             chassisSpeeds));
+                new ShootingCommand(
+                    shooterSubsystem,
+                    hoodSubsystem,
+                    turretSubsystem,
+                    transitionSubsystem,
+                    robotPose,
+                    chassisSpeeds));
 
         // TODO TURRET TESTING BUTTONS - uncomment for use
 
@@ -542,7 +542,7 @@ public class RobotContainer {
             .onTrue(
                 new InstantCommand(
                     () -> {
-                      hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(57.0)));
+                      hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(70.0)));
                     }));
 
         controller_two
@@ -553,7 +553,7 @@ public class RobotContainer {
                       hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(77.0)));
                     }));
         controller_two.y().onTrue(new HoodHomingCommand(hoodSubsystem));
-        controller_two.a().onTrue(RunShooterWheels());
+        controller_two.a().onTrue(RunMechWheels());
         controller_two.b().onTrue(MechStop());
 
         // commented this out because it's using a shot parameters thing we were
@@ -718,8 +718,8 @@ public class RobotContainer {
             () -> {
               // shooterSubsystem.setFlywheelVoltage(6);
               shooterSubsystem.setDesiredFlywheelVelocity(
-                  ShooterSubsystem.calculateFlywheelSpeed(5));
-              shooterSubsystem.setTransitionVoltage(12);
+                  ShooterSubsystem.calculateFlywheelSpeed(22));
+              shooterSubsystem.setDesiredTransitionVoltage(12);
               // transitionSubsystem.setHopperFloorVelocity(transitionSubsystem.HOPPER_FLOOR_SPEED);
               // //TODO uncomment???
             })

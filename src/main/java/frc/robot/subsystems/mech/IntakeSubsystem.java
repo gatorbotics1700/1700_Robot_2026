@@ -29,9 +29,9 @@ public class IntakeSubsystem extends SubsystemBase {
   private double desiredDeployVoltage;
 
   public IntakeSubsystem() {
-    intakeMotor =
+    intakeMotor = new TalonFX(IntakeConstants.INTAKE_MOTOR_CAN_ID, TunerConstants.mechCANBus);
+    deployMotor =
         new TalonFX(IntakeConstants.INTAKE_DEPLOY_MOTOR_CAN_ID, TunerConstants.mechCANBus);
-    deployMotor = new TalonFX(IntakeConstants.INTAKE_MOTOR_CAN_ID, TunerConstants.mechCANBus);
 
     desiredIntakeVoltage = 0;
     hallEffect =
