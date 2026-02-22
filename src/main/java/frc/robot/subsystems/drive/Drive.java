@@ -536,6 +536,8 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
   public boolean isShouldFaceTargetPoint() {
     return shouldFaceTargetPoint;
+  }
+
   public void driveToPose(Pose2d desiredPose) {
     Pose2d currentPose = getPose();
     double xError = calculateDistanceError(currentPose.getX(), desiredPose.getX());
