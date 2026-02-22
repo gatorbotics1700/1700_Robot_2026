@@ -40,9 +40,6 @@ public class ClimbCommands {
     }
 
     @Override
-    public void execute() {}
-
-    @Override
     public boolean isFinished() {
       return climberSubsystem.limitSwitchPressed();
     }
@@ -210,7 +207,7 @@ public class ClimbCommands {
 
     @Override
     public boolean isFinished() {
-      if (climberSubsystem.currentPositionInches() == 0) { // TODO probably add a deadband here?
+      if (climberSubsystem.getCurrentPositionInches() == 0) { // TODO: add a deadband here?
         return true;
       }
       return false;

@@ -16,8 +16,8 @@ import org.littletonrobotics.junction.Logger;
 
 public class IntakeSubsystem extends SubsystemBase {
 
-  public final TalonFX intakeMotor; // spins the rollers
-  public final TalonFX deployMotor; // deploys the entire intake
+  private final TalonFX intakeMotor; // spins the rollers
+  private final TalonFX deployMotor; // deploys the entire intake
 
   private final DigitalInput hallEffect;
 
@@ -38,7 +38,7 @@ public class IntakeSubsystem extends SubsystemBase {
         new DigitalInput(
             IntakeConstants.INTAKE_HALL_EFFECT_PORT); // TODO:change port during testing
 
-    intakeMotor // TODO see if we actually need to invert
+    intakeMotor
         .getConfigurator()
         .apply(
             new TalonFXConfiguration()
@@ -80,22 +80,11 @@ public class IntakeSubsystem extends SubsystemBase {
     m_request = new MotionMagicExpoVoltage(0);
 
     intakeMotor.setVoltage(0);
-
-    // Treat current position as 0 so "deploy position" is the zero reference
-    setDeployPositionToZero(); // TODO perhaps get rid of this once we have homing?
-  }
-
-  // TODO delete this once we have homing set up
-  /**
-   * Sets the deploy motor's encoder so the current position is 0. Call when intake is at deploy.
-   */
-  public void setDeployPositionToZero() {
-    deployMotor.setPosition(0);
   }
 
   @Override
   public void periodic() {
-    Logger.recordOutput("Mech/Intake/Current Deploy Angle", currentAngle());
+    Logger.recordOutput("Mech/Intake/Current Deploy Angle", getCurrentAngle());
     Logger.recordOutput("Mech/Intake/Desired Deploy Angle", desiredAngle);
     Logger.recordOutput(
         "Mech/Intake/Desired Deploy Voltage", desiredDeployVoltage); // only gets set for homing
@@ -138,7 +127,7 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeMotor.setVoltage(desiredIntakeVoltage);
   }
 
-  public Rotation2d currentAngle() {
+  public Rotation2d getCurrentAngle() {
     double motorPositionRevs = deployMotor.getPosition().getValueAsDouble();
     double deployAngleDegrees =
         motorPositionRevs
@@ -149,8 +138,7 @@ public class IntakeSubsystem extends SubsystemBase {
             % 360; // TODO check if we multiply or divide by the gear ratio
     return new Rotation2d(
         Math.toRadians(
-            deployAngleDegrees)); // TODO: figure out how to use the fromDegrees method because it
-    // seems nicer :/
+            deployAngleDegrees));
   }
 
   public double degreesToRevs(double deployAngleDegrees) {
@@ -162,12 +150,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void zeroIntakeDeploy() {
-    double motorPositionRevs = deployMotor.getPosition().getValueAsDouble();
-    double offset = degreesToRevs(IntakeConstants.RETRACTED_POSITION.getDegrees());
-    // if we assume the limit switch triggers at the retracted position, then we are calling this
-    // method when the current position is the retracted position. therefore we want zero to be
-    // wherever we are right now minus the retracted position
-    deployMotor.setPosition((motorPositionRevs - offset) % 1);
+    deployMotor.setPosition(IntakeConstants.RETRACTED_POSITION.getDegrees());
   }
 
   public boolean hallEffectTriggered() {

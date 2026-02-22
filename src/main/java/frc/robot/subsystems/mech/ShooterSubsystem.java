@@ -47,7 +47,6 @@ public class ShooterSubsystem extends SubsystemBase {
     leftFlywheelTalonFXConfigs.withMotorOutput(
         new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive));
 
-    // TODO: make tuneable constants
     leftFlywheelSlot0Configs = leftFlywheelTalonFXConfigs.Slot0;
 
     leftFlywheelSlot0Configs.kS = 0.25; // Add _ V output to overcome static friction
@@ -70,7 +69,6 @@ public class ShooterSubsystem extends SubsystemBase {
     rightFlywheelTalonFXConfigs.withMotorOutput(
         new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
 
-    // TODO: make tuneable constants
     rightFlywheelSlot0Configs = rightFlywheelTalonFXConfigs.Slot0;
 
     rightFlywheelSlot0Configs.kS = 0.25; // Add _ V output to overcome static friction
@@ -108,9 +106,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
     Logger.recordOutput("Mech/Shooter/Should Be Shooting", shouldShoot);
 
-    // TODO: decide if we want to only make these lines run if the shooter command is running. I
-    // (Elise) think we can run these lines and just set the desiredFlyWheelVelocity to zero when we
-    // don't want to shoot, but if you have a compelling reason feel free to change it!
     leftFlywheelMotor.setControl(m_request.withVelocity(desiredFlywheelVelocity));
     rightFlywheelMotor.setControl(m_request.withVelocity(desiredFlywheelVelocity));
 
@@ -124,29 +119,11 @@ public class ShooterSubsystem extends SubsystemBase {
   public double getFlywheelVelocity() {
     return rightFlywheelMotor
         .getRotorVelocity()
-        .getValueAsDouble(); // TODO figure out if we want getRotorVelocity() or getVelocity()
+        .getValueAsDouble();
   }
 
   public void setDesiredTransitionVoltage(double desiredTransitionVoltage) {
     this.desiredTransitionVoltage = desiredTransitionVoltage;
-  }
-
-  // TODO decide if we need this—I (Elise) think we should stick to the motion magic velo control!
-  // public void setShooterVoltages(double flywheelVoltage, double transitionVoltage) {
-  //   leftFlywheelMotor.setVoltage(flywheelVoltage);
-  //   rightFlywheelMotor.setVoltage(flywheelVoltage);
-  //   Logger.recordOutput(
-  //       "flywheelMotor velocity", leftFlywheelMotor.getVelocity().getValueAsDouble());
-  //   transitionMotor.setVoltage(transitionVoltage);
-  // }
-
-  // public void setFlywheelVoltage(double voltage) {
-  //   leftFlywheelMotor.setVoltage(voltage);
-  //   rightFlywheelMotor.setVoltage(voltage);
-  // }
-
-  public void setTransitionVoltage(double voltage) {
-    transitionMotor.setVoltage(voltage);
   }
 
   public double getExitVelocity() {

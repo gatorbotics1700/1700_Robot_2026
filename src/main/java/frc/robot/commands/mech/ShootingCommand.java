@@ -22,16 +22,12 @@ public class ShootingCommand extends Command {
   private final ShooterSubsystem shooterSubsystem;
   private Supplier<Pose2d> drivetrainPose;
   private Supplier<ChassisSpeeds> drivetrainVelocity;
-  private Translation3d target;
   private final HopperFloorSubsystem hopperFloorSubsystem;
   private final HoodSubsystem hoodSubsystem;
 
-  private final Translation3d targetRight = new Translation3d(10.0, 50.0, 0.0);
-  private final Translation3d targetLeft = new Translation3d(10.0, 10.0, 0.0);
-
   private final TurretSubsystem turretSubsystem;
 
-  private double lastVelocity = 0;
+  private double lastVelocity = 0; // TODO: we set this in periodic, but never use it -- why?
 
   // Current logic is that if the flywheel speed is 0 then we're just tracking and if the flywheel
   // speed is not zero then we're trying to shoot, but we may decide we want a separate command for
@@ -106,7 +102,7 @@ public class ShootingCommand extends Command {
               params.shotSpeed); // update our last velocity / set our desired velocity
     }
 
-    // TODO: get should shoot hasn't been working/setting properly -- we probably want the logic to
+    /*  TODO: get should shoot hasn't been working/setting properly -- we probably want the logic to
     // set better and automatically, but need to test further
     // reasoning for this boolean rather than scheduling the command and stopping it more frequently
     // -- we want this to be as automated as possible (so based on pose)
@@ -117,8 +113,8 @@ public class ShootingCommand extends Command {
     // shooting if we're in the neutral zone, but the command is still updating pose
     // and default to shooting in our zone, but then the toggle can change that behavior
     // i (phoenix) can't currently think of a better way to constantly be scheduling this command
-    // automatically, but if people have ideas that would be great!
-    if (shooterSubsystem.getShouldShoot()) { // if we want to shoot
+    // automatically, but if people have ideas that would be great! */
+    // if (shooterSubsystem.getShouldShoot()) { // if we want to shoot //TODO: commented out for testing -- likely don't leave it this way, but see above block comment
       System.out.println("WE WANT TO SHOOT");
       if (params.shotSpeed != 0) { // and if we have a valid shot
         double desiredFlywheelSpeed = ShooterSubsystem.calculateFlywheelSpeed(params.shotSpeed);
@@ -139,10 +135,9 @@ public class ShootingCommand extends Command {
         hopperFloorSubsystem.setDesiredHopperFloorVelocity(0);
         shooterSubsystem.setDesiredTransitionVoltage(0);
       }
-      // this requires the hood's zero to be vertical TODO: Check this!!
       hoodSubsystem.setDesiredAngle(params.hoodAngle);
       turretSubsystem.setDesiredAngle(params.turretAngle);
-    } /*else {
+    /* } /*else {
         System.out.println("WE DONT WANT TO SHOOT");
         shooterSubsystem.setDesiredFlywheelVelocity(0);
         // shooterSubsystem.setFlywheelVoltage(0);
@@ -151,16 +146,6 @@ public class ShootingCommand extends Command {
       } */
 
     // TODO add drivetrain angle things here instead of the turret angle for testing on sting
-
-    // if we're actually trying to shoot, and the flywheel is up to speed, kick the balls into
-    // the shooter!
-    // TODO: add a way to indicate whether we're actually shooting, if we are, run kicker, but
-    // otherwise always be running flywheel
-    // TODO: actually shooting should be based on robotPose in the alliance zone, so it doesnt
-    // have to be a button
-    // TODO: add funnel command (separate command) & instant command to stop running the
-    // flywheel
-
   }
 
   @Override

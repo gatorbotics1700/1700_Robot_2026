@@ -16,6 +16,7 @@ public class DriveToFuelCommand extends Command {
 
   private Pose2d desiredPose;
 
+  // TODO: any constants here should be moved to Constants.java
   private static final double BLIND_SPOT_DEADBAND = 0.5; // TODO change
   private static final double MAX_IDLE_MILLISECONDS =
       2000; // TODO change based off real world maybe?

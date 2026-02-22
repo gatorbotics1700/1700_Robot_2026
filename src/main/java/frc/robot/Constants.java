@@ -513,6 +513,8 @@ public final class Constants {
             Math.toRadians(
                 RobotConfigLoader.getInt("mech.hood_min_angle_degrees"))); // TODO: check number
 
+    public static final double HOOD_POSITION_DEADBAND_DEGREES = 1; // TODO: tune
+
     /** Voltage applied when running toward retract limit (tune sign for your mechanism). */
     public static final double FAST_HOMING_VOLTAGE = 1; // TODO tune
 
@@ -578,6 +580,13 @@ public final class Constants {
     public static final int TURRET_HALL_EFFECT_PORT = 5;
 
     public static final double TURRET_DEADBAND = 0.75;
+
+    public static final double TURRET_ENCODER_OFFSET = 0.0; // TODO: Find actual offset
+    public static final double TURRET_HOMING_ANGLE =
+        0.0; // TODO: this is the angle for "zeroing" the turret but it might not actually be zero
+    public static final double TURRET_RANGE_DEGREES = 360; // TODO set actual value
+    public static final double MIN_TURRET_ANGLE = -180; // TODO: set actual value for min and max
+    public static final double MAX_TURRET_ANGLE = MIN_TURRET_ANGLE + TURRET_RANGE_DEGREES;
   }
 
   public static final class FieldCoordinates {

@@ -18,7 +18,7 @@ import frc.robot.Constants.TurretConstants;
 import org.littletonrobotics.junction.Logger;
 
 public class TurretSubsystem extends SubsystemBase {
-  public final TalonFX turretMotor;
+  private final TalonFX turretMotor;
 
   private static TalonFXConfiguration talonFXConfigs;
   private static MotionMagicExpoVoltage m_request;
@@ -29,15 +29,9 @@ public class TurretSubsystem extends SubsystemBase {
   private Encoder boreEncoder =
       new Encoder(
           TurretConstants.TURRET_BORE_ENCODER_PORT1,
-          TurretConstants.TURRET_BORE_ENCODER_PORT2); // TODO real port values
+          TurretConstants.TURRET_BORE_ENCODER_PORT2);
   private final DigitalInput hallEffect =
-      new DigitalInput(TurretConstants.TURRET_HALL_EFFECT_PORT); // TODO real port values
-  private final double TURRET_ENCODER_OFFSET = 0.0; // TODO: Find actual offset
-  private final double TURRET_HOMING_ANGLE =
-      0.0; // TODO: this is the angle for "zeroing" the turret but it might not actually be zero
-  private final double TURRET_RANGE_DEGREES = 360; // TODO set actual value
-  private final double MIN_TURRET_ANGLE = -180; // TODO: set actual value for min and max
-  private final double MAX_TURRET_ANGLE = MIN_TURRET_ANGLE + TURRET_RANGE_DEGREES;
+      new DigitalInput(TurretConstants.TURRET_HALL_EFFECT_PORT);
 
   private Rotation2d desiredAngle;
 
@@ -94,8 +88,8 @@ public class TurretSubsystem extends SubsystemBase {
             Math.toRadians(
                 MathUtil.inputModulus(
                     desiredAngle.getDegrees(),
-                    MIN_TURRET_ANGLE,
-                    MAX_TURRET_ANGLE))); // TODO check this - trying to wrap the angle so it
+                    TurretConstants.MIN_TURRET_ANGLE,
+                    TurretConstants.MAX_TURRET_ANGLE))); // TODO check this - trying to wrap the angle so it
   }
 
   public Rotation2d getCurrentAngle() {
@@ -104,8 +98,7 @@ public class TurretSubsystem extends SubsystemBase {
         motorPositionRevs / TURRET_GEARBOX_RATIO / GEAR_REVS_PER_TURRET_REV * 360;
     return new Rotation2d(
         Math.toRadians(
-            turretAngleDegrees)); // TODO: figure out how to use the fromDegrees method because it
-    // seems nicer :/
+            turretAngleDegrees));
   }
 
   public double degreesToRevs(double turretAngleDegrees) {
@@ -121,7 +114,7 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   private double getCurrentToOffsetError() {
-    return boreEncoder.get() - TURRET_ENCODER_OFFSET;
+    return boreEncoder.get() - TurretConstants.TURRET_ENCODER_OFFSET;
   }
 
   public void homeTurret() {
@@ -130,6 +123,6 @@ public class TurretSubsystem extends SubsystemBase {
                 / ENCODER_REVS_PER_TURRET_REV
                 * TURRET_GEARBOX_RATIO
                 * GEAR_REVS_PER_TURRET_REV
-            + degreesToRevs(TURRET_HOMING_ANGLE));
+            + degreesToRevs(TurretConstants.TURRET_HOMING_ANGLE));
   }
 }

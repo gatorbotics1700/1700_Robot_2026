@@ -35,8 +35,7 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
-import frc.robot.commands.mech.HoodHomingCommand;
-import frc.robot.commands.mech.HoodRetractCommand;
+import frc.robot.commands.mech.HoodCommands;
 import frc.robot.commands.mech.IntakeCommands;
 import frc.robot.commands.mech.ShootingCommand;
 import frc.robot.subsystems.drive.Drive;
@@ -72,8 +71,8 @@ public class RobotContainer {
   private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
   private final HoodSubsystem hoodSubsystem = new HoodSubsystem();
   private final HopperFloorSubsystem transitionSubsystem = new HopperFloorSubsystem();
-  public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-  public final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final TurretSubsystem turretSubsystem = new TurretSubsystem();
 
   private final GamePieceSimulation gamePieceSimulation = new GamePieceSimulation();
@@ -234,7 +233,7 @@ public class RobotContainer {
                     try {
                       CommandScheduler.getInstance()
                           .schedule(
-                              new HoodRetractCommand(hoodSubsystem)
+                              HoodCommands.RetractHood(hoodSubsystem)
                                   .andThen(
                                       DriveOverBumpCommand.driveOverBump(drive, shooterSubsystem))
                                   .andThen(
@@ -281,7 +280,7 @@ public class RobotContainer {
                     try {
                       CommandScheduler.getInstance()
                           .schedule(
-                              new HoodRetractCommand(hoodSubsystem)
+                              HoodCommands.RetractHood(hoodSubsystem)
                                   .andThen(
                                       DriveUnderTrenchCommand.driveUnderTrench(
                                           drive, shooterSubsystem))
@@ -540,7 +539,12 @@ public class RobotContainer {
                   () -> {
                     hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(77.0)));
                   }));
-      controller_two.y().onTrue(new HoodHomingCommand(hoodSubsystem));
+      controller_two
+          .y()
+          .onTrue(
+              HoodCommands.HomeHood(
+                  hoodSubsystem)); // TODO: test and make sure this still works (calling it
+      // differently)
       controller_two.a().onTrue(RunMechWheels());
       controller_two.b().onTrue(MechStop());
     }
@@ -642,7 +646,7 @@ public class RobotContainer {
     // drive.getPose(), drive.getChassisSpeeds(), Constants.BLUE_HUB, 10);
   }
 
-  // TODO: this command doesn't work -- need to fix
+  // TODO: this command doesn't work -- need to fix (test this by commenting out the way we do this manually in Robot.java)
   public Command MechStop() {
     return /*
                IntakeCommands.StopIntake(intakeSubsystem)
@@ -682,6 +686,14 @@ public class RobotContainer {
   }
 
   public Command HomeMechanisms() { // TODO: add any other homing commands with alongWith
-    return new HoodHomingCommand(hoodSubsystem);
+    return HoodCommands.HomeHood(hoodSubsystem);
+  }
+
+  public IntakeSubsystem getIntakeSubsystem() {
+    return intakeSubsystem;
+  }
+
+  public ShooterSubsystem getShooterSubsystem() {
+    return shooterSubsystem;
   }
 }
