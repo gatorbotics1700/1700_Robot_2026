@@ -8,43 +8,42 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import frc.robot.Constants;
+import frc.robot.Constants.HoodConstants;
+import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.ShotCalculatorConditions;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
-// this is what we will use in constant tracking command!
-
 @AutoLog
 public class ShotCalculator {
-  public static double SHOT_DEADBAND = 0.1;
-  public static double MIN_SHOT_HEIGHT = 2;
-  public static double MAX_SHOT_HEIGHT = 10;
-  public static double MIN_SHOT_SPEED = 0;
-  public static double MAX_SHOT_SPEED = 25;
-  public static Rotation2d MIN_HOOD_ANGLE =
-      new Rotation2d(Math.toRadians(45)); // TODO get real number from build
-  public static Rotation2d MAX_HOOD_ANGLE =
-      new Rotation2d(Math.toRadians(90)); // TODO get real number from build
-  public static double lastError = 20;
-  public static int loopCount = 0;
-
-  public static double speedRange = MAX_SHOT_SPEED - MIN_SHOT_SPEED;
-  public static int speedIterations = (int) (speedRange / 0.5);
-  public static double speedIncrement = speedRange / (double) speedIterations;
-  public static double hoodAngleRange = MAX_HOOD_ANGLE.getDegrees() - MIN_HOOD_ANGLE.getDegrees();
-  public static int angleIterations = (int) (hoodAngleRange / 1);
-  public static Rotation2d angleIncrement =
-      new Rotation2d(Math.toRadians(hoodAngleRange / (double) angleIterations));
-
-  // for testing only
+  // for testing only, used for logging where the calculator expects the ball to hit the target's
+  // height ("land" on the target)
   public static Translation3d landingCoords = new Translation3d();
 
   public ShotCalculator() {}
 
+  // This is the method we use to get shot parameters, which returns a hood angle (from vertical),
+  // turret angle (robot relative), and a shotspeed (in mps of the ball, not flywheel rpm)
+  // It iterates through every combination of hood angles and shotspeeds and returns the combination
+  // that produces the highest arc within the height constraints that is within the error deadband
+  // If it finds no valid shot (ie. every hood and speed combination has too great an error and/or
+  // the arc height does not meet the constraints) it will return the retracted hood position,
+  // turret angle zero, and shotspeed zero
+
+  // if it's returning a shotspeed of zero try:
+  // moving the robot back
+  // making sure your position relative to the target is accurate
+  // your hood angle and arc constraints are right
+
+  // I am fairly certain the math itself works because it worked in sim, so if you are having issues
+  // with the parameters it is returning it is more likely to be an issue with the inputs than the
+  // function.
+
   public static ShotParameters calculateShot(
       Pose2d drivetrainPose, ChassisSpeeds chassisSpeeds, Translation3d target) {
     // calculate field relative shooter pose
-    Translation3d fieldToShooter = getFieldToShooter(drivetrainPose, Constants.BOT_TO_SHOOTER);
+    Translation3d fieldToShooter =
+        getFieldToShooter(drivetrainPose, ShooterConstants.BOT_TO_SHOOTER);
 
     Rotation2d uncompTurretToTargetAngle = getFieldRelativeYaw(fieldToShooter, target);
 
@@ -104,10 +103,19 @@ public class ShotCalculator {
       Translation3d fieldToShooter,
       Translation3d target) {
 
+    double speedRange = ShotCalculatorConditions.MAX_SHOT_SPEED - 0;
+    int speedIterations = (int) (speedRange / 0.5);
+    double speedIncrement = speedRange / (double) speedIterations;
+    double hoodAngleRange =
+        HoodConstants.RETRACTED_POSITION.getDegrees() - HoodConstants.MIN_ANGLE.getDegrees();
+    int angleIterations = (int) (hoodAngleRange / 1);
+    Rotation2d angleIncrement =
+        new Rotation2d(Math.toRadians(hoodAngleRange / (double) angleIterations));
+
     double highestArc = 0;
 
-    Rotation2d testHoodAngle = MIN_HOOD_ANGLE;
-    double testShotSpeed = MIN_SHOT_SPEED;
+    Rotation2d testHoodAngle = HoodConstants.MIN_ANGLE;
+    double testShotSpeed = 0;
     Rotation2d testTurretAngle = new Rotation2d();
 
     Rotation2d bestTurretAngle = new Rotation2d();
@@ -115,7 +123,7 @@ public class ShotCalculator {
     double bestShotSpeed = 0;
 
     for (int i = 0; i < speedIterations; i++) {
-      testHoodAngle = MIN_HOOD_ANGLE;
+      testHoodAngle = HoodConstants.MIN_ANGLE;
 
       for (int j = 0; j < angleIterations; j++) {
 
@@ -151,11 +159,11 @@ public class ShotCalculator {
 
         double vertexRange = vertexRange(effectiveRadialVelo, tangentialVelo, apexTime);
 
-        if (vertexHeight >= MIN_SHOT_HEIGHT
-            && vertexHeight <= MAX_SHOT_HEIGHT
+        if (vertexHeight >= ShotCalculatorConditions.MIN_SHOT_HEIGHT
+            && vertexHeight <= ShotCalculatorConditions.MAX_SHOT_HEIGHT
             && vertexRange < compRange
-            && testShotSpeed <= MAX_SHOT_SPEED
-            && Math.abs(error) <= SHOT_DEADBAND
+            && testShotSpeed <= ShotCalculatorConditions.MAX_SHOT_SPEED
+            && Math.abs(error) <= ShotCalculatorConditions.SHOT_DEADBAND
             && vertexHeight > highestArc) {
           bestTurretAngle = testTurretAngle;
           bestHoodAngle = testHoodAngle;
@@ -167,6 +175,12 @@ public class ShotCalculator {
         testHoodAngle = testHoodAngle.plus(angleIncrement);
       }
       testShotSpeed += speedIncrement;
+    }
+
+    if (bestShotSpeed == 0) {
+      System.out.println("NO VALID SHOT");
+    } else {
+      System.out.println("VALID SHOT CALCULATED");
     }
 
     return new ShotParameters(bestTurretAngle, bestHoodAngle, bestShotSpeed);
@@ -253,7 +267,7 @@ public class ShotCalculator {
   public static Translation2d calculateShooterVelo(
       ChassisSpeeds chassisSpeeds, Rotation2d drivetrainHeading) {
     double botToShooterRadius =
-        Constants.BOT_TO_SHOOTER
+        ShooterConstants.BOT_TO_SHOOTER
             .getX(); // NOTE: this only works because the shooter is centered in the y, otherwise we
     // would need to use pythag
     double omegaAdjust = chassisSpeeds.omegaRadiansPerSecond * botToShooterRadius;
