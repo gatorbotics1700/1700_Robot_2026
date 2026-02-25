@@ -161,7 +161,17 @@ public class RobotContainer {
         };
 
     // Set up auto routines with multi-step chooser
-    multiStepAutoChooser = new MultiStepAutoChooser(intakeSubsystem, drive, climberSubsystem);
+    multiStepAutoChooser =
+        new MultiStepAutoChooser(
+            intakeSubsystem,
+            drive,
+            climberSubsystem,
+            hoodSubsystem,
+            shooterSubsystem,
+            turretSubsystem,
+            transitionSubsystem,
+            robotPose,
+            chassisSpeeds);
 
     // Set up SysId routines
     // autoChooser.addOption(

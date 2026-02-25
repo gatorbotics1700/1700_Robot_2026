@@ -2,16 +2,29 @@ package frc.robot.util;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants.FieldCoordinates;
 import frc.robot.commands.mech.ClimbCommands;
+import frc.robot.commands.mech.HoodHomingCommand;
+import frc.robot.commands.mech.HoodRetractCommand;
 import frc.robot.commands.mech.IntakeCommands;
+import frc.robot.commands.mech.ShootingCommand;
+import frc.robot.commands.mech.TurretHomingCommand;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.mech.ClimberSubsystem;
+import frc.robot.subsystems.mech.HoodSubsystem;
+import frc.robot.subsystems.mech.HopperFloorSubsystem;
 import frc.robot.subsystems.mech.IntakeSubsystem;
+import frc.robot.subsystems.mech.ShooterSubsystem;
+import frc.robot.subsystems.mech.TurretSubsystem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class DynamicAutoBuilder {
 
@@ -24,12 +37,32 @@ public class DynamicAutoBuilder {
   private final IntakeSubsystem intakeSubsystem;
   private final Drive drive;
   private final ClimberSubsystem climberSubsystem;
+  private final HoodSubsystem hoodSubsystem;
+  private final ShooterSubsystem shooterSubsystem;
+  private final TurretSubsystem turretSubsystem;
+  private final HopperFloorSubsystem hopperFloorSubsystem;
+  private final Supplier<Pose2d> robotPose;
+  private final Supplier<ChassisSpeeds> chassisSpeeds;
 
   public DynamicAutoBuilder(
-      IntakeSubsystem intakeSubsystem, Drive drive, ClimberSubsystem climberSubsystem) {
+      IntakeSubsystem intakeSubsystem,
+      Drive drive,
+      ClimberSubsystem climberSubsystem,
+      HoodSubsystem hoodSubsystem,
+      ShooterSubsystem shooterSubsystem,
+      TurretSubsystem turretSubsystem,
+      HopperFloorSubsystem hopperFloorSubsystem,
+      Supplier<Pose2d> robotPose,
+      Supplier<ChassisSpeeds> chassisSpeeds) {
     this.intakeSubsystem = intakeSubsystem;
     this.drive = drive;
     this.climberSubsystem = climberSubsystem;
+    this.hoodSubsystem = hoodSubsystem;
+    this.shooterSubsystem = shooterSubsystem;
+    this.turretSubsystem = turretSubsystem;
+    this.hopperFloorSubsystem = hopperFloorSubsystem;
+    this.robotPose = robotPose;
+    this.chassisSpeeds = chassisSpeeds;
   }
 
   private String convertFromLocation(String location) {
@@ -52,23 +85,64 @@ public class DynamicAutoBuilder {
     return alliance + " " + convertedFrom + " to " + to;
   }
 
+  /** Returns true if the robot is in the alliance zone (not past bump/trench). */
+  private boolean isInAllianceZone() {
+    double x = robotPose.get().getX();
+    // Robot is in alliance zone if NOT between the bump/trench boundaries
+    return x < FieldCoordinates.BLUE_BUMP_AND_TRENCH_X
+        || x >= FieldCoordinates.RED_BUMP_AND_TRENCH_X;
+  }
+
+  /** Creates shooting command that shoots only when in alliance zone. */
+  private Command createShootingWithZoneCheck() {
+    return Commands.run(() -> shooterSubsystem.setShouldShoot(isInAllianceZone()))
+        .alongWith(
+            new ShootingCommand(
+                shooterSubsystem,
+                hoodSubsystem,
+                turretSubsystem,
+                hopperFloorSubsystem,
+                robotPose,
+                chassisSpeeds));
+  }
+
+  /**
+   * Creates homing command for turret and hood at auto start. Skips in sim since sensors don't
+   * work.
+   */
+  private Command createHomingCommand() {
+    if (RobotBase.isSimulation()) {
+      System.out.println("  Skipping homing commands in simulation");
+      return Commands.none();
+    }
+    return new TurretHomingCommand(turretSubsystem).alongWith(new HoodHomingCommand(hoodSubsystem));
+  }
+
+  /**
+   * Gets action for destination. For fuel pile, adds hood retract while in trench. Intake and
+   * shooting are handled globally in buildAuto, not per-destination.
+   */
   private Command getActionForDestination(String destination) {
     if (destination == null || destination.equals("None")) {
       return Commands.none();
     }
 
-    if (destination.startsWith("D") || destination.startsWith("Fuel Pile")) {
-      return IntakeCommands.DeployIntake(intakeSubsystem)
-          .andThen(IntakeCommands.RunIntake(intakeSubsystem));
+    // Going to fuel pile: need to retract hood while in the trench area (skip in sim)
+    if (destination.startsWith("Fuel Pile") && RobotBase.isReal()) {
+      // Keep hood retracted while NOT in alliance zone (i.e., while in the trench area)
+      return new HoodRetractCommand(hoodSubsystem).onlyWhile(() -> !isInAllianceZone());
     }
 
+    // Other destinations don't need special per-destination actions
+    // (intake and shooting are handled globally)
     return Commands.none();
   }
 
   private Command loadPathCommand(String alliance, String from, String to) {
     String pathName = buildPathName(alliance, from, to);
     if (pathName == null) {
-      return null;
+      System.out.println("  Could not build path name for: " + alliance + " " + from + " to " + to);
+      return Commands.none();
     }
 
     try {
@@ -76,7 +150,7 @@ public class DynamicAutoBuilder {
       System.out.println("  Loaded path: " + pathName);
       return AutoBuilder.followPath(path);
     } catch (Exception e) {
-      System.out.println("  Path not available: " + pathName + " - skipping");
+      System.out.println("  Path not available: " + pathName + " - " + e.getMessage());
       return Commands.none();
     }
   }
@@ -142,31 +216,55 @@ public class DynamicAutoBuilder {
     List<Command> commandSequence = new ArrayList<>();
     String currentLocation = startPos;
 
-    // Only add paths in sequence - if a destination is None, skip it and all subsequent
-    // destinations
-    // Actions (intake/shooting) run IN PARALLEL with driving using deadlineWith
+    // Build the path sequence (without climb)
+    List<Command> pathSequence = new ArrayList<>();
+
     if (dest1 != null && !dest1.equals("None")) {
       Command firstPath = loadPathCommand(alliance, currentLocation, dest1);
       Command firstAction = getActionForDestination(dest1);
-      commandSequence.add(firstPath.deadlineWith(firstAction));
+      pathSequence.add(firstPath.deadlineWith(firstAction));
       currentLocation = dest1;
 
       if (dest2 != null && !dest2.equals("None")) {
         Command secondPath = loadPathCommand(alliance, currentLocation, dest2);
         Command secondAction = getActionForDestination(dest2);
-        commandSequence.add(secondPath.deadlineWith(secondAction));
+        pathSequence.add(secondPath.deadlineWith(secondAction));
         currentLocation = dest2;
 
         if (dest3 != null && !dest3.equals("None")) {
           Command thirdPath = loadPathCommand(alliance, currentLocation, dest3);
           Command thirdAction = getActionForDestination(dest3);
-          commandSequence.add(thirdPath.deadlineWith(thirdAction));
+          pathSequence.add(thirdPath.deadlineWith(thirdAction));
           currentLocation = dest3;
         }
       }
     }
 
+    // Start with homing command (turret and hood) - skipped in sim
+    commandSequence.add(createHomingCommand());
+
+    // Deploy intake once at start (skip mech in sim)
+    if (RobotBase.isReal()) {
+      commandSequence.add(IntakeCommands.DeployIntake(intakeSubsystem));
+    }
+
+    // Run all paths with intake and shooting running continuously
+    // Intake runs all the time, shooting only fires when in alliance zone
+    if (!pathSequence.isEmpty()) {
+      Command allPaths = Commands.sequence(pathSequence.toArray(new Command[0]));
+      if (RobotBase.isReal()) {
+        Command intakeAndShooting =
+            IntakeCommands.RunIntake(intakeSubsystem).alongWith(createShootingWithZoneCheck());
+        // Paths are the deadline - when paths finish, intake/shooting stop (until climb or end)
+        commandSequence.add(allPaths.deadlineWith(intakeAndShooting));
+      } else {
+        // In sim, just run the paths without mech
+        commandSequence.add(allPaths);
+      }
+    }
+
     if (climb) {
+      // Stop intake before climbing (intake not needed for tower)
       // If the last destination is a depot, use a specific depot-to-tower path first
       // because pathfinding from depot to tower doesn't work well in tight spaces
       if (isDepot(currentLocation)) {

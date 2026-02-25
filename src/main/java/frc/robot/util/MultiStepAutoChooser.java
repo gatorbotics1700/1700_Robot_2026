@@ -2,11 +2,17 @@ package frc.robot.util;
 
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.mech.ClimberSubsystem;
+import frc.robot.subsystems.mech.HoodSubsystem;
+import frc.robot.subsystems.mech.HopperFloorSubsystem;
 import frc.robot.subsystems.mech.IntakeSubsystem;
+import frc.robot.subsystems.mech.ShooterSubsystem;
+import frc.robot.subsystems.mech.TurretSubsystem;
 import java.util.Optional;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class MultiStepAutoChooser {
@@ -29,9 +35,27 @@ public class MultiStepAutoChooser {
   private final LoggedDashboardChooser<Boolean> shouldClimbChooser;
 
   public MultiStepAutoChooser(
-      IntakeSubsystem intakeSubsystem, Drive drive, ClimberSubsystem climberSubsystem) {
+      IntakeSubsystem intakeSubsystem,
+      Drive drive,
+      ClimberSubsystem climberSubsystem,
+      HoodSubsystem hoodSubsystem,
+      ShooterSubsystem shooterSubsystem,
+      TurretSubsystem turretSubsystem,
+      HopperFloorSubsystem hopperFloorSubsystem,
+      Supplier<Pose2d> robotPose,
+      Supplier<ChassisSpeeds> chassisSpeeds) {
     // Create the dynamic auto builder
-    this.dynamicAutoBuilder = new DynamicAutoBuilder(intakeSubsystem, drive, climberSubsystem);
+    this.dynamicAutoBuilder =
+        new DynamicAutoBuilder(
+            intakeSubsystem,
+            drive,
+            climberSubsystem,
+            hoodSubsystem,
+            shooterSubsystem,
+            turretSubsystem,
+            hopperFloorSubsystem,
+            robotPose,
+            chassisSpeeds);
 
     // Initialize choosers
     allianceChooser = new LoggedDashboardChooser<>("Auto/Alliance");
