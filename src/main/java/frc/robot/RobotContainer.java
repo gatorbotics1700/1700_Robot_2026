@@ -33,6 +33,8 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.drive.DriveCommands;
+import frc.robot.commands.drive.DriveToFuelCommand;
+import frc.robot.generated.TunerConstants;
 import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
 import frc.robot.commands.mech.HoodHomingCommand;
@@ -635,6 +637,8 @@ public class RobotContainer {
 
     // Log if commands are running
     Logger.recordOutput("Commands/DriveCommandActive", driveCmd != null);
+
+    Logger.recordOutput("DriveToFuel/Fuel", vision.getFuelPose(drive.getPose()));
     Logger.recordOutput("Odometry/Fuel", vision.getFuelPose(drive.getPose()));
 
     // shotParameters =
