@@ -10,6 +10,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.TunerConstants;
+import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
@@ -29,7 +30,8 @@ public class ShooterSubsystem extends SubsystemBase {
   private static Slot0Configs leftFlywheelSlot0Configs;
   private static Slot0Configs rightFlywheelSlot0Configs;
 
-  private boolean shouldShoot;
+  private BooleanSupplier shouldShoot;
+
   public static LoggedNetworkNumber flyWheelSlip =
       new LoggedNetworkNumber("/Tuning/flywheelSlip", 1);
 
@@ -94,7 +96,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
     m_request = new MotionMagicVelocityVoltage(0);
 
-    shouldShoot = false;
+    shouldShoot =
+        () -> {
+          return false;
+        };
   }
 
   public void periodic() {
@@ -144,11 +149,30 @@ public class ShooterSubsystem extends SubsystemBase {
     return shotSpeed / flyWheelSlip.get() / 2 / Math.PI / ShooterConstants.FLYWHEEL_RADIUS_METERS;
   }
 
-  public boolean getShouldShoot() {
-    return shouldShoot;
+  public void toggleShouldShoot() {
+    if (shouldShoot.getAsBoolean()) {
+      shouldShoot =
+          () -> {
+            return false;
+          };
+    } else {
+      shouldShoot =
+          () -> {
+            return true;
+          };
+    }
   }
 
-  public void setShouldShoot(boolean shouldShoot) {
+  /**
+   * Sets a supplier for the desired angle. This allows the desired angle to be calculated
+   * dynamically each cycle. The supplier will be called each time getDesiredAngle() is called.
+   */
+  public void setShouldShoot(BooleanSupplier shouldShoot) {
     this.shouldShoot = shouldShoot;
+  }
+
+  /** Returns the desired angle, or null if no angle is set. */
+  public BooleanSupplier getShouldShoot() {
+    return shouldShoot;
   }
 }
