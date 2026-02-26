@@ -11,6 +11,7 @@ import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.FieldCoordinates;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.mech.ClimberSubsystem;
+import frc.robot.util.MultiStepAutoChooser;
 import java.io.IOException;
 import org.json.simple.parser.ParseException;
 
@@ -54,17 +55,6 @@ public class ClimbCommands {
     }
   }
 
-  // teleop version - uses pose and logic
-  public static Command DriveToTower(Drive drive) {
-    return new DriveToTowerCommand(drive, null);
-  }
-
-  // auto version - uses the alliance from the chooser
-  public static Command DriveToTower(Drive drive, String alliance) {
-    return new DriveToTowerCommand(drive, alliance);
-  }
-
-  /** Teleop version - determines alliance from current pose */
   public static Command Climb(Drive drive, ClimberSubsystem climberSubsystem)
       throws IOException, ParseException {
     return ExtendClimber(climberSubsystem)
@@ -72,29 +62,20 @@ public class ClimbCommands {
         .andThen(RetractClimber(climberSubsystem));
   }
 
-  // auto version - uses the alliance from the chooser
-  public static Command Climb(Drive drive, ClimberSubsystem climberSubsystem, String alliance)
-      throws IOException, ParseException {
-    return ExtendClimber(climberSubsystem)
-        .alongWith(DriveToTower(drive, alliance))
-        .andThen(RetractClimber(climberSubsystem));
+  public static Command DriveToTower(Drive drive) {
+    return new DriveToTowerCommand(drive);
   }
 
-  // auto version that skips DriveToTower - use when already at tower (e.g. after depot-to-tower
-  // path)
   public static Command ClimbWithoutDrive(ClimberSubsystem climberSubsystem) {
     return ExtendClimber(climberSubsystem).andThen(RetractClimber(climberSubsystem));
   }
 
   private static class DriveToTowerCommand extends Command {
     private final Drive drive;
-    private final String
-        allianceFromChooser; // null means that we will determine from pose (teleop)
     private Command pathCommand;
 
-    DriveToTowerCommand(Drive drive, String allianceFromChooser) {
+    DriveToTowerCommand(Drive drive) {
       this.drive = drive;
-      this.allianceFromChooser = allianceFromChooser;
       addRequirements(drive);
     }
 
@@ -105,12 +86,7 @@ public class ClimbCommands {
 
       Pose2d pose = drive.getPose();
 
-      // Determine alliance - use chooser value for auto or determine from pose for teleop
-      String allianceToUse = allianceFromChooser;
-      if (allianceToUse == null) {
-        boolean isBlue = pose.getX() <= FieldCoordinates.FIELD_CENTER.getX();
-        allianceToUse = isBlue ? "B" : "R";
-      }
+      String allianceToUse = MultiStepAutoChooser.getAlliance();
 
       try {
         if (allianceToUse.equals("B")) { // blue

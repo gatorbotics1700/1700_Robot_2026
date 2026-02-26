@@ -28,12 +28,6 @@ import java.util.function.Supplier;
 
 public class DynamicAutoBuilder {
 
-  /* TODO: thoughts
-   *    deploy and start intake unless first target is tower
-   *    do we need to retract intake to climb? -- if so, just add to climb command
-   *    how do we test this? -- tried testing in sim and made it so start pose updates properly, paths arent quite running correctly, and idk when mech is trying to run
-   */
-
   private final IntakeSubsystem intakeSubsystem;
   private final Drive drive;
   private final ClimberSubsystem climberSubsystem;
@@ -66,8 +60,6 @@ public class DynamicAutoBuilder {
   }
 
   private String convertFromLocation(String location) {
-    // No conversion needed - the chooser already outputs the correct format
-    // (e.g., "Fuel Pile L", "DC", "Outpost")
     return location;
   }
 
@@ -89,7 +81,7 @@ public class DynamicAutoBuilder {
   private boolean isInAllianceZone() {
     double x = robotPose.get().getX();
     // Robot is in alliance zone if NOT between the bump/trench boundaries
-    return x < FieldCoordinates.BLUE_BUMP_AND_TRENCH_X
+    return x <= FieldCoordinates.BLUE_BUMP_AND_TRENCH_X
         || x >= FieldCoordinates.RED_BUMP_AND_TRENCH_X;
   }
 
@@ -110,6 +102,8 @@ public class DynamicAutoBuilder {
    * Creates homing command for turret and hood at auto start. Skips in sim since sensors don't
    * work.
    */
+
+  // just call HomeMechanisms
   private Command createHomingCommand() {
     if (RobotBase.isSimulation()) {
       System.out.println("  Skipping homing commands in simulation");
@@ -264,9 +258,7 @@ public class DynamicAutoBuilder {
     }
 
     if (climb) {
-      // Stop intake before climbing (intake not needed for tower)
-      // If the last destination is a depot, use a specific depot-to-tower path first
-      // because pathfinding from depot to tower doesn't work well in tight spaces
+      
       if (isDepot(currentLocation)) {
         Command depotToTower = loadDepotToTowerPath(alliance, currentLocation);
         if (depotToTower != null) {
@@ -278,14 +270,14 @@ public class DynamicAutoBuilder {
           System.out.println("  WARNING: No depot-to-tower path found for " + currentLocation);
           // Fall back to normal climb with DriveToTower
           try {
-            commandSequence.add(ClimbCommands.Climb(drive, climberSubsystem, alliance));
+            commandSequence.add(ClimbCommands.Climb(drive, climberSubsystem));
           } catch (Exception e) {
             System.out.println("DynamicAutoBuilder: Climb command not available - skipping");
           }
         }
       } else {
         try {
-          commandSequence.add(ClimbCommands.Climb(drive, climberSubsystem, alliance));
+          commandSequence.add(ClimbCommands.Climb(drive, climberSubsystem));
         } catch (Exception e) {
           System.out.println("DynamicAutoBuilder: Climb command not available - skipping");
         }
@@ -300,10 +292,6 @@ public class DynamicAutoBuilder {
     return Commands.sequence(commandSequence.toArray(new Command[0]));
   }
 
-  /**
-   * Returns the path name of the first path in the auto, if any. Used for start-pose lookup (e.g.
-   * getAutoStartPose). Empty when there is no first path (climb-only or invalid).
-   */
   public Optional<String> getFirstPathName(
       String alliance, String startPos, String dest1, String dest2, String dest3, boolean climb) {
     if (isInvalid(alliance) || isInvalid(startPos)) {

@@ -16,6 +16,8 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class MultiStepAutoChooser {
+  private static MultiStepAutoChooser instance;
+
   private final LoggedDashboardChooser<String> allianceChooser;
   private final LoggedDashboardChooser<String> startPosChooser;
   private final DynamicAutoBuilder dynamicAutoBuilder;
@@ -44,6 +46,8 @@ public class MultiStepAutoChooser {
       HopperFloorSubsystem hopperFloorSubsystem,
       Supplier<Pose2d> robotPose,
       Supplier<ChassisSpeeds> chassisSpeeds) {
+    instance = this;
+
     // Create the dynamic auto builder
     this.dynamicAutoBuilder =
         new DynamicAutoBuilder(
@@ -79,8 +83,7 @@ public class MultiStepAutoChooser {
     shouldClimbChooser = new LoggedDashboardChooser<>("Auto/Climb?");
 
     // Populate alliance chooser with hardcoded values
-    allianceChooser.addDefaultOption(
-        "None", "None"); // TODO: default it as red or blue for safety???
+    allianceChooser.addDefaultOption("None", "None");
     allianceChooser.addOption("Red", "R");
     allianceChooser.addOption("Blue", "B");
 
@@ -97,8 +100,6 @@ public class MultiStepAutoChooser {
     firstDestinationTypeChooser.addOption("Depot", "Depot");
     firstDestinationTypeChooser.addOption("Outpost", "Outpost");
     firstDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
-    // firstDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
-    // firstDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
 
     // Populate first destination side chooser
     firstDestinationSideChooser.addDefaultOption("None", "None");
@@ -111,8 +112,6 @@ public class MultiStepAutoChooser {
     secondDestinationTypeChooser.addOption("Depot", "Depot");
     secondDestinationTypeChooser.addOption("Outpost", "Outpost");
     secondDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
-    // secondDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
-    // secondDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
 
     // Populate second destination side chooser
     secondDestinationSideChooser.addDefaultOption("None", "None");
@@ -125,8 +124,6 @@ public class MultiStepAutoChooser {
     thirdDestinationTypeChooser.addOption("Depot", "Depot");
     thirdDestinationTypeChooser.addOption("Outpost", "Outpost");
     thirdDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
-    // thirdDestinationTypeChooser.addOption("Fuel Pile Far", "Fuel Pile Far");
-    // thirdDestinationTypeChooser.addOption("Fuel Pile Middle", "Fuel Pile Middle");
 
     // Populate third destination side chooser
     thirdDestinationSideChooser.addDefaultOption("None", "None");
@@ -167,7 +164,7 @@ public class MultiStepAutoChooser {
 
     if (type.equals("Depot")) {
       if (side == null || side.equals("None")) {
-        return "None"; // TODO: do we want to default somewhere else?
+        return "None";
       }
       switch (side) {
         case "Center":
@@ -183,17 +180,7 @@ public class MultiStepAutoChooser {
       if (side == null || side.equals("None")) {
         return "None";
       }
-      // Extract distance: "Fuel Pile Near" -> "N", "Fuel Pile Far" -> "F", "Fuel Pile Middle" ->
-      // "M"
-      /*String distance = "";
-            if (type.contains("Near")) {
-              distance = "N";
-            } else if (type.contains("Far")) {
-              distance = "F";
-            } else if (type.contains("Middle")) {
-              distance = "M";
-            }
-      */
+
       // Map side to letter
       String sideLetter = "";
       switch (side) {
@@ -216,53 +203,6 @@ public class MultiStepAutoChooser {
     return "None";
   }
 
-  private String buildAutoFileName(
-      String alliance, String startPos, String dest1, String dest2, String dest3, boolean climb) {
-    StringBuilder fileName = new StringBuilder();
-
-    // Alliance
-    if (alliance != null && !alliance.equals("None")) {
-      fileName.append(alliance.equals("R") ? "R" : "B");
-    } else {
-      return null; // Need alliance
-    }
-
-    // Start position
-    if (startPos != null && !startPos.equals("None")) {
-      fileName.append(" ").append(startPos);
-    } else {
-      return null; // Need start position
-    }
-
-    // Require at least one destination or climb; otherwise run no auto
-    boolean hasDestination = dest1 != null && !dest1.equals("None");
-    if (!hasDestination && !climb) {
-      return null;
-    }
-
-    // Destinations: only add in order, no gaps (location 2 only if 1 is set, location 3 only if 2
-    // is set)
-    if (dest1 != null && !dest1.equals("None")) {
-      fileName.append("-").append(dest1);
-
-      if (dest2 != null && !dest2.equals("None")) {
-        fileName.append("-").append(dest2);
-
-        if (dest3 != null && !dest3.equals("None")) {
-          fileName.append("-").append(dest3);
-        }
-      }
-    }
-
-    // Climb
-    if (climb) {
-      fileName.append("-Tower");
-    }
-
-    fileName.append(".auto");
-    return fileName.toString();
-  }
-
   public void updateChooserOptions() {
 
     allianceChooser.get();
@@ -274,29 +214,6 @@ public class MultiStepAutoChooser {
     thirdDestinationTypeChooser.get();
     thirdDestinationSideChooser.get();
     shouldClimbChooser.get();
-  }
-
-  public String getSelectedPathName() {
-    String autoFileName = buildAutoFileNameFromChoosers();
-    return autoFileName != null ? autoFileName : "None";
-  }
-
-  private String buildAutoFileNameFromChoosers() {
-    String alliance = allianceChooser.get();
-    String startPos = startPosChooser.get();
-
-    String firstDestination =
-        combineDestination(firstDestinationTypeChooser.get(), firstDestinationSideChooser.get());
-    String secondDestination =
-        combineDestination(secondDestinationTypeChooser.get(), secondDestinationSideChooser.get());
-    String thirdDestination =
-        combineDestination(thirdDestinationTypeChooser.get(), thirdDestinationSideChooser.get());
-
-    Boolean shouldClimb = shouldClimbChooser.get();
-    boolean climb = shouldClimb != null && shouldClimb;
-
-    return buildAutoFileName(
-        alliance, startPos, firstDestination, secondDestination, thirdDestination, climb);
   }
 
   /**
@@ -333,7 +250,7 @@ public class MultiStepAutoChooser {
   public Optional<Pose2d> getAutoStartPose() {
     updateChooserOptions();
     String alliance = allianceChooser.get();
-    String startPos = startPosChooser.get();
+    String startPose = startPosChooser.get();
     String firstDestination =
         combineDestination(firstDestinationTypeChooser.get(), firstDestinationSideChooser.get());
     String secondDestination =
@@ -345,7 +262,7 @@ public class MultiStepAutoChooser {
 
     Optional<String> firstPathName =
         dynamicAutoBuilder.getFirstPathName(
-            alliance, startPos, firstDestination, secondDestination, thirdDestination, climb);
+            alliance, startPose, firstDestination, secondDestination, thirdDestination, climb);
     if (firstPathName.isEmpty()) {
       return Optional.empty();
     }
@@ -355,5 +272,20 @@ public class MultiStepAutoChooser {
     } catch (Exception e) {
       return Optional.empty();
     }
+  }
+
+  /**
+   * Returns the alliance selected in the auto chooser ("B" or "R"). Returns "R" as default if no
+   * selection or instance not initialized.
+   */
+  public static String getAlliance() {
+    if (instance == null) {
+      return "R";
+    }
+    String alliance = instance.allianceChooser.get();
+    if (alliance == null || alliance.equals("None")) {
+      return "R";
+    }
+    return alliance;
   }
 }
