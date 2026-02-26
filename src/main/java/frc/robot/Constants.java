@@ -580,6 +580,10 @@ public final class Constants {
     public static final double TURRET_DEADBAND = 0.75;
   }
 
+  public static final class LEDConstants {
+    public static final int CANdle_CAN_ID = 12; 
+  }
+
   public static final class FieldCoordinates {
     public static final Translation3d BLUE_HUB =
         new Translation3d(
