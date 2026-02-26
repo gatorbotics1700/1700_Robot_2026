@@ -110,7 +110,6 @@ public class DynamicAutoBuilder {
     return new TurretHomingCommand(turretSubsystem).alongWith(new HoodHomingCommand(hoodSubsystem));
   }
 
-  
   private Command getActionForDestination(String destination) {
     if (destination == null || destination.equals("None")) {
       return Commands.none();
@@ -120,7 +119,6 @@ public class DynamicAutoBuilder {
       return new HoodRetractCommand(hoodSubsystem).onlyWhile(() -> !isInAllianceZone());
     }
 
-   
     return Commands.none();
   }
 
@@ -250,7 +248,7 @@ public class DynamicAutoBuilder {
     }
 
     if (climb) {
-      
+
       if (isDepot(currentLocation)) {
         Command depotToTower = loadDepotToTowerPath(alliance, currentLocation);
         if (depotToTower != null) {

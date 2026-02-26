@@ -39,8 +39,6 @@ import frc.robot.util.Calculations;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Supplier;
-
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -87,12 +85,11 @@ public class Vision extends SubsystemBase {
 
           Pose3d cameraInFieldSpace =
               robotPose3d.transformBy(
-                  robotToCamera); // TODO: log robotpose and camera pose in advantagescope and spin,
-          // testing for accuracy
+                  robotToCamera);
           double targetPitchDegrees = -target.getPitch() * VisionConstants.TARGET_ANGLE_SCALAR;
           double targetYawDegrees = -target.getYaw() * VisionConstants.TARGET_ANGLE_SCALAR;
           // values for yaw and pitch
-          Logger.recordOutput("DriveToFuel/Altered Target Pitcb", targetPitchDegrees);
+          Logger.recordOutput("DriveToFuel/Altered Target Pitch", targetPitchDegrees);
           Logger.recordOutput("DriveToFuel/Altered Target Yaw", targetYawDegrees);
           cameraInFieldSpace =
               cameraInFieldSpace.transformBy(
@@ -127,7 +124,6 @@ public class Vision extends SubsystemBase {
           fuelPose = new Pose2d(fuelPoseX, fuelPoseY, new Rotation2d());
         }
       }
-      Logger.recordOutput("DriveToFuel/Camera Pose", robotToCamera);
     }
 
     if (fuelPose == null) {
@@ -147,7 +143,6 @@ public class Vision extends SubsystemBase {
   }
 
   public Pose2d tempGetFuelPoseInSim(Pose2d robotPose) {
-
     int closestFuelIndex = getValidFuelIndexSim(robotPose);
     Pose2d closestFuelPose = null;
     if (closestFuelIndex != -1) {
@@ -166,8 +161,6 @@ public class Vision extends SubsystemBase {
             Calculations.angleToPoint(deltaX, deltaY)
                 .rotateBy(
                     new Rotation2d(Math.toRadians(-IntakeConstants.ROBOT_TO_INTAKE_YAW_DEGREES))));
-    // which is 180
-    // System.out.println("fuelPose before rotation stuff again: " + fuelPose);
     return closestFuelPose;
   }
 
@@ -207,7 +200,7 @@ public class Vision extends SubsystemBase {
     robotPose =
         new Pose2d(
             robotPose.getTranslation(),
-            robotPose.getRotation().rotateBy(new Rotation2d(Math.toRadians(180))));
+            robotPose.getRotation().rotateBy(new Rotation2d(Math.toRadians(-IntakeConstants.ROBOT_TO_INTAKE_YAW_DEGREES))));
     Rotation2d leftSlope =
         robotPose
             .getRotation()
@@ -353,7 +346,7 @@ public class Vision extends SubsystemBase {
     for (int t = 0; t < simulatedTargets.size(); t++) {
       Translation2d target = simulatedTargets.get(t);
       Pose2d targetPose = new Pose2d(target, new Rotation2d());
-      Logger.recordOutput("DriveToFuel/simuatedTarget" + t, targetPose);
+      Logger.recordOutput("DriveToFuel/Simulated Target" + t, targetPose);
     }
   }
 
@@ -363,32 +356,5 @@ public class Vision extends SubsystemBase {
         Pose2d visionRobotPoseMeters,
         double timestampSeconds,
         Matrix<N3, N1> visionMeasurementStdDevs);
-  }
-
-  public Pose3d getTagPose(int tagid) {
-    return this.tagPoses.get(tagid);
-  }
-
-  public Pose2d getLineupPose(int tagId, boolean isLeftPipe) {
-    AprilTagFieldLayout layout = VisionConstants.APRIL_TAG_LAYOUT;
-    Pose3d tagPose = layout.getTagPose(tagId).get();
-    Distance lineupXOffset = Centimeters.of(45.72);
-    Distance lineupYOffset = Centimeters.of(-10);
-    if (isLeftPipe) {
-      lineupYOffset = Centimeters.of(10);
-    }
-    Transform3d lineup =
-        new Transform3d(lineupXOffset, lineupYOffset, Centimeters.of(0.0), new Rotation3d());
-    Pose2d fieldRelativePose =
-        tagPose
-            .transformBy(lineup)
-            .toPose2d()
-            .transformBy(new Transform2d(0, 0, new Rotation2d(Degrees.of(90))));
-    return fieldRelativePose;
-  }
-
-  public void takePicture() {
-    System.out.println("taking picture for camera ");
-    io[0].getCamera().takeInputSnapshot();
   }
 }
