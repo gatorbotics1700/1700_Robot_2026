@@ -84,7 +84,6 @@ public class Vision extends SubsystemBase {
   }
 
   public Pose2d getFuelPose(Pose2d robotPose) {
-    System.out.println("in method!!");
     Pose3d robotPose3d = new Pose3d(robotPose);
     Pose2d fuelPose = null;
     double maxArea = 0;

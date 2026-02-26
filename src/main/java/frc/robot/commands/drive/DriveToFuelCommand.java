@@ -27,6 +27,7 @@ public class DriveToFuelCommand extends Command {
 
   // constructor
   public DriveToFuelCommand(Drive drive, Vision vision) {
+    setName("DriveToFuel");
     this.drive = drive;
     this.vision = vision;
     validTargetSeenTime = 0.0;
