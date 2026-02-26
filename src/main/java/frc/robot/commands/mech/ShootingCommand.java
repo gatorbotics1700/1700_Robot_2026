@@ -22,13 +22,10 @@ public class ShootingCommand extends Command {
   private final ShooterSubsystem shooterSubsystem;
   private Supplier<Pose2d> drivetrainPose;
   private Supplier<ChassisSpeeds> drivetrainVelocity;
-  // private BooleanSupplier shouldShoot;
   private final HopperFloorSubsystem hopperFloorSubsystem;
   private final HoodSubsystem hoodSubsystem;
 
   private final TurretSubsystem turretSubsystem;
-
-  private double lastVelocity = 0; // TODO: we set this in periodic, but never use it -- why?
 
   // Current logic is that if the flywheel speed is 0 then we're just tracking and if the flywheel
   // speed is not zero then we're trying to shoot, but we may decide we want a separate command for
@@ -40,8 +37,7 @@ public class ShootingCommand extends Command {
       TurretSubsystem turretSubsystem,
       HopperFloorSubsystem hopperFloorSubsystem,
       Supplier<Pose2d> drivetrainPose,
-      Supplier<ChassisSpeeds> drivetrainVelocity
-      /*BooleanSupplier shouldShoot*/ ) {
+      Supplier<ChassisSpeeds> drivetrainVelocity) {
 
     this.shooterSubsystem = shooterSubsystem;
     this.hopperFloorSubsystem = hopperFloorSubsystem;
@@ -49,7 +45,6 @@ public class ShootingCommand extends Command {
     this.drivetrainVelocity = drivetrainVelocity;
     this.hoodSubsystem = hoodSubsystem;
     this.turretSubsystem = turretSubsystem;
-    // this.shouldShoot = shouldShoot;
     addRequirements(shooterSubsystem, hoodSubsystem, turretSubsystem, hopperFloorSubsystem);
   }
 
@@ -101,31 +96,7 @@ public class ShootingCommand extends Command {
     // if params.shotSpeed == 0 , stop the transition
     // if params.shotSpeed != 0 and our current speed matches that desired speed, run the transition
 
-    // if shouldnt be shooting
-    // stop everything including flywheel //TODO: is this the logic we actually want? i dont think
-    // we want to stop the flywheel
-    // if (params.shotSpeed != 0) { // if we have a valid shot
-    //   lastVelocity =
-    //       ShooterSubsystem.calculateFlywheelSpeed(
-    //           params.shotSpeed); // update our last velocity / set our desired velocity
-    // }
-
-    /*  TODO: get should shoot hasn't been working/setting properly -- we probably want the logic to
-    // set better and automatically, but need to test further
-    // reasoning for this boolean rather than scheduling the command and stopping it more frequently
-    // -- we want this to be as automated as possible (so based on pose)
-    // but the problem if it's only based on pose is that if we want to stop shooting for some
-    // reason or don't want to funnel in the neutral zone, we would have to stop the command from
-    // running
-    // if we get a toggle working for shouldShoot, we can keep the command running, default to not
-    // shooting if we're in the neutral zone, but the command is still updating pose
-    // and default to shooting in our zone, but then the toggle can change that behavior
-    // i (phoenix) can't currently think of a better way to constantly be scheduling this command
-    // automatically, but if people have ideas that would be great! */
-    if (shooterSubsystem
-        .getShouldShoot()
-        .getAsBoolean()) { // if we want to shoot //TODO: commented out for
-      // testing -- likely don't leave it this way, but see above block comment
+    if (shooterSubsystem.getShouldShoot().getAsBoolean()) {
       System.out.println("WE WANT TO SHOOT");
       if (params.shotSpeed != 0) { // and if we have a valid shot
 
@@ -151,7 +122,6 @@ public class ShootingCommand extends Command {
     } else {
       System.out.println("WE DONT WANT TO SHOOT");
       shooterSubsystem.setDesiredFlywheelVelocity(0);
-      // shooterSubsystem.setFlywheelVoltage(0);
       shooterSubsystem.setDesiredTransitionVoltage(0);
       hopperFloorSubsystem.setDesiredHopperFloorVelocity(0);
     }
@@ -168,8 +138,6 @@ public class ShootingCommand extends Command {
   // these things in end instead of isFinished
   @Override
   public void end(boolean interrupted) {
-    // shooterSubsystem.setDesiredFlywheelVelocity(0); //TODO: do we want to set the flywheel
-    // velocity to 0? don't we want to keep the flywheel running unless we specifically turn it off?
     hopperFloorSubsystem.setDesiredHopperFloorVelocity(0);
     shooterSubsystem.setDesiredTransitionVoltage(0);
   }

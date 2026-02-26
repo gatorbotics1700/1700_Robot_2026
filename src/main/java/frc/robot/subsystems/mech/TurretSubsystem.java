@@ -26,6 +26,7 @@ public class TurretSubsystem extends SubsystemBase {
   private final int TURRET_GEARBOX_RATIO = 9;
   private final int GEAR_REVS_PER_TURRET_REV = 10;
   private final int ENCODER_REVS_PER_TURRET_REV = 10;
+  //TODO make the encoder absolute
   private Encoder boreEncoder =
       new Encoder(
           TurretConstants.TURRET_BORE_ENCODER_PORT1, TurretConstants.TURRET_BORE_ENCODER_PORT2);

@@ -67,6 +67,7 @@ public class ClimberSubsystem extends SubsystemBase {
     Logger.recordOutput("Mech/Climber/Motor Output", motor.get());
     Logger.recordOutput(
         "Mech/Climber/Control Mode", positionControl ? "position control" : "voltage control");
+    Logger.recordOutput("Mech/Climber/Limit Switch", limitSwitchPressed());
     if (!limitSwitchPressed() && positionControl) {
       motor.setControl(m_request.withPosition(inchesToRevs(desiredPositionInches)));
     } else {
@@ -94,6 +95,10 @@ public class ClimberSubsystem extends SubsystemBase {
     return motor.getPosition().getValueAsDouble()
         / ClimberConstants.CLIMBER_GEAR_RATIO
         * ClimberConstants.WINCH_INCHES_PER_REV;
+  }
+
+  public double getDesiredPositionInches() {
+    return desiredPositionInches;
   }
 
   public double inchesToRevs(double positionInches) {

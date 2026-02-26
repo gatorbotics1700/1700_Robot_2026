@@ -88,7 +88,13 @@ public class IntakeCommands {
 
     @Override
     public boolean isFinished() {
-      return true; // TODO fix
+      if(isRetracting && Math.abs(IntakeConstants.RETRACTED_ANGLE_DEGREES-intakeSubsystem.getCurrentAngle().getDegrees())<=IntakeConstants.POSITION_DEADBAND){
+        return true;
+      }
+      if(!isRetracting && Math.abs(IntakeConstants.EXTENDED_ANGLE_DEGREES-intakeSubsystem.getCurrentAngle().getDegrees())<=IntakeConstants.POSITION_DEADBAND){
+        return true;
+      }
+      return false;
     }
   }
 

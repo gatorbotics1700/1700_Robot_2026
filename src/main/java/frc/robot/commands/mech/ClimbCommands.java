@@ -203,11 +203,11 @@ public class ClimbCommands {
     }
 
     @Override
-    public void execute() {}
-
-    @Override
     public boolean isFinished() {
-      if (climberSubsystem.getCurrentPositionInches() == 0) { // TODO: add a deadband here?
+      if (Math.abs(
+              climberSubsystem.getCurrentPositionInches()
+                  - climberSubsystem.getDesiredPositionInches())
+          <= ClimberConstants.POSITION_DEADBAND) {
         return true;
       }
       return false;

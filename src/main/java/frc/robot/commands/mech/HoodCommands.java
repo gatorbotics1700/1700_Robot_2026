@@ -14,9 +14,9 @@ public class HoodCommands {
   }
 
   public static Command HomeHood(HoodSubsystem hoodSubsystem) {
-    return new HoodHomingStageOneCommand(hoodSubsystem)
-        .andThen(new HoodHomingStageTwoCommand(hoodSubsystem))
-        .andThen(new HoodHomingStageThreeCommand(hoodSubsystem));
+    return new HoodHomingFindLimitSwitchCommand(hoodSubsystem)
+        .andThen(new HoodHomingBackOffCommand(hoodSubsystem))
+        .andThen(new HoodHomingFinalCommand(hoodSubsystem));
   }
 
   // The reason this command isn't an instant command is so we don't go under the trench if the hood
@@ -56,10 +56,10 @@ public class HoodCommands {
    * Stage 1 of hood homing: move fast toward the retracted limit switch and rough-zero when
    * pressed.
    */
-  private static class HoodHomingStageOneCommand extends Command {
+  private static class HoodHomingFindLimitSwitchCommand extends Command {
     private final HoodSubsystem hoodSubsystem;
 
-    public HoodHomingStageOneCommand(HoodSubsystem hoodSubsystem) {
+    public HoodHomingFindLimitSwitchCommand(HoodSubsystem hoodSubsystem) {
       this.hoodSubsystem = hoodSubsystem;
       addRequirements(hoodSubsystem);
     }
@@ -84,10 +84,10 @@ public class HoodCommands {
    * Stage 2 of hood homing: back off to just before retracted position (RETRACTED - 5°) and wait
    * until the hood reaches that position (limit switch still pressed).
    */
-  private static class HoodHomingStageTwoCommand extends Command {
+  private static class HoodHomingBackOffCommand extends Command {
     private final HoodSubsystem hoodSubsystem;
 
-    public HoodHomingStageTwoCommand(HoodSubsystem hoodSubsystem) {
+    public HoodHomingBackOffCommand(HoodSubsystem hoodSubsystem) {
       this.hoodSubsystem = hoodSubsystem;
       addRequirements(hoodSubsystem);
     }
@@ -111,10 +111,10 @@ public class HoodCommands {
    * Stage 3 of hood homing: move slowly toward the retracted limit switch, final-zero when pressed,
    * and hold position at RETRACTED - 1°.
    */
-  private static class HoodHomingStageThreeCommand extends Command {
+  private static class HoodHomingFinalCommand extends Command {
     private final HoodSubsystem hoodSubsystem;
 
-    public HoodHomingStageThreeCommand(HoodSubsystem hoodSubsystem) {
+    public HoodHomingFinalCommand(HoodSubsystem hoodSubsystem) {
       this.hoodSubsystem = hoodSubsystem;
       addRequirements(hoodSubsystem);
     }

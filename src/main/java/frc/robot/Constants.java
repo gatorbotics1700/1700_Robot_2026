@@ -488,7 +488,7 @@ public final class Constants {
 
   public static final class ClimberConstants {
     public static final int CLIMBER_MOTOR_CAN_ID = 36;
-    public static final int CLIMBER_LIMIT_SWITCH_PORT = 8;
+    public static final int CLIMBER_LIMIT_SWITCH_PORT = 7;//TODO is this a limit switch or hall effect
     public static final double L1_EXTENSION_INCHES = 20; // TODO get a real number
 
     public static final int CLIMBER_GEAR_RATIO = 81; // TODO get a real number
@@ -497,6 +497,7 @@ public final class Constants {
     public static final double MAX_EXTENSION_INCHES = 30; // TODO get a real number
     public static final double RETRACTED_HEIGHT_INCHES = 20; // TODO get a real number
     public static final double HOMING_VOLTAGE = 10; // TODO get a real number
+    public static final double POSITION_DEADBAND = 0.5; // TODO get a real number
   }
 
   public static final class HoodConstants {
@@ -535,7 +536,7 @@ public final class Constants {
   public static final class IntakeConstants {
     public static final int INTAKE_MOTOR_CAN_ID = 9;
     public static final int INTAKE_DEPLOY_MOTOR_CAN_ID = 10;
-    public static final int INTAKE_HALL_EFFECT_PORT = 2;
+    public static final int INTAKE_HALL_EFFECT_PORT = 0;
 
     public static final int DEPLOY_GEARBOX_RATIO = 9; // TODO find the real value
     public static final double DEPLOY_PULLEY_ONE_GEAR_RATIO = 42.0 / 18.0;
@@ -552,6 +553,8 @@ public final class Constants {
 
     public static final double HOMING_VOLTAGE = 10; // TODO tune
     public static final double INTAKING_VOLTAGE = 10;
+
+    public static final double POSITION_DEADBAND = 2;
   }
 
   public static final class ShooterConstants {
@@ -574,9 +577,9 @@ public final class Constants {
 
   public static final class TurretConstants {
     public static final int TURRET_MOTOR_CAN_ID = 14;
-    public static final int TURRET_BORE_ENCODER_PORT1 = 7;
-    public static final int TURRET_BORE_ENCODER_PORT2 = 3;
-    public static final int TURRET_HALL_EFFECT_PORT = 5;
+    public static final int TURRET_BORE_ENCODER_PORT1 = 2;
+    public static final int TURRET_BORE_ENCODER_PORT2 = 3;//TODO get rid of the other port
+    public static final int TURRET_HALL_EFFECT_PORT = 8;
 
     public static final double TURRET_DEADBAND = 0.75;
 

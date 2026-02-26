@@ -630,10 +630,7 @@ public class RobotContainer {
   }
 
   public void teleopInit() {
-    // TODO: currently the comp bot has no turret function, change back
-    // TODO: this doesn't seem to be working on the comp bot right now
-    if (RobotConfigLoader.getSerialNumber().equals(RobotConfigLoader.NILE_SERIAL)
-        || RobotConfigLoader.getSerialNumber().equals(RobotConfigLoader.HUANG_HE_SERIAL)) {
+    if (RobotConfigLoader.getSerialNumber().equals(RobotConfigLoader.NILE_SERIAL)) {
       drive.enableTargetPointFacing();
     }
     configureButtonBindings();
