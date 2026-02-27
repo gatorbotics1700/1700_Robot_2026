@@ -22,6 +22,7 @@ public class DriveToFuelCommand extends Command {
 
   // constructor
   public DriveToFuelCommand(Drive drive, Vision vision, Supplier<Pose2d> currentPose) {
+    setName("DriveToFuel");
     this.drive = drive;
     this.vision = vision;
     this.currentPose = currentPose;
