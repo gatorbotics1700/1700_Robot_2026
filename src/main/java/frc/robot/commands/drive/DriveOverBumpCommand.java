@@ -12,7 +12,6 @@ import frc.robot.subsystems.mech.ShooterSubsystem;
 import java.io.IOException;
 import org.json.simple.parser.ParseException;
 
-// TODO: make sure we have field avoidance file
 public class DriveOverBumpCommand {
 
   public static Command driveOverBump(Drive drive, ShooterSubsystem shooterSubsystem)

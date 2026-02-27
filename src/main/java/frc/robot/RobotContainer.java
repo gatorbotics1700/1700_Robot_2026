@@ -308,11 +308,6 @@ public class RobotContainer {
                       e.printStackTrace();
                     }
                   }));
-      PathConstraints constraints =
-          new PathConstraints(1, 1, Units.degreesToRadians(700), Units.degreesToRadians(1000));
-      controller
-          .y()
-          .onTrue(AutoBuilder.pathfindToPose(new Pose2d(6.5, 4, new Rotation2d()), constraints));
 
       controller
           .rightBumper()
