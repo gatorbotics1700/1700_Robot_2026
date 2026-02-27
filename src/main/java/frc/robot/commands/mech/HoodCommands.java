@@ -10,13 +10,15 @@ public class HoodCommands {
   private HoodCommands() {}
 
   public static Command RetractHood(HoodSubsystem hoodSubsystem) {
-    return new HoodRetractCommand(hoodSubsystem);
+    return new HoodRetractCommand(hoodSubsystem)
+    .withName("Retract Hood");
   }
 
   public static Command HomeHood(HoodSubsystem hoodSubsystem) {
     return new HoodHomingFindLimitSwitchCommand(hoodSubsystem)
         .andThen(new HoodHomingBackOffCommand(hoodSubsystem))
-        .andThen(new HoodHomingFinalCommand(hoodSubsystem));
+        .andThen(new HoodHomingFinalCommand(hoodSubsystem))
+        .withName("Hood Home");
   }
 
   // The reason this command isn't an instant command is so we don't go under the trench if the hood
@@ -27,6 +29,7 @@ public class HoodCommands {
     public HoodRetractCommand(HoodSubsystem hoodSubsystem) {
       this.hoodSubsystem = hoodSubsystem;
       addRequirements(hoodSubsystem);
+      setName("Retract Hood");
     }
 
     @Override
@@ -62,6 +65,7 @@ public class HoodCommands {
     public HoodHomingFindLimitSwitchCommand(HoodSubsystem hoodSubsystem) {
       this.hoodSubsystem = hoodSubsystem;
       addRequirements(hoodSubsystem);
+      setName("HoodHomingLimitSwitch");
     }
 
     @Override
@@ -90,6 +94,7 @@ public class HoodCommands {
     public HoodHomingBackOffCommand(HoodSubsystem hoodSubsystem) {
       this.hoodSubsystem = hoodSubsystem;
       addRequirements(hoodSubsystem);
+      setName("HoodHomingBackOffCommand");
     }
 
     @Override

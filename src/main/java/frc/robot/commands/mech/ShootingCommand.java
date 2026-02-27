@@ -46,6 +46,7 @@ public class ShootingCommand extends Command {
     this.hoodSubsystem = hoodSubsystem;
     this.turretSubsystem = turretSubsystem;
     addRequirements(shooterSubsystem, hoodSubsystem, turretSubsystem, hopperFloorSubsystem);
+    setName("ShootingCommand");
   }
 
   @Override

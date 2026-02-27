@@ -13,6 +13,7 @@ public class TurretHomingCommand extends Command {
   public TurretHomingCommand(TurretSubsystem turretSubsystem) {
     this.turretSubsystem = turretSubsystem;
     addRequirements(turretSubsystem);
+    setName("Turret Homing Command");
   }
 
   @Override

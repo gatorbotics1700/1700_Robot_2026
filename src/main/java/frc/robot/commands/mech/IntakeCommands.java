@@ -19,11 +19,13 @@ public class IntakeCommands {
   public IntakeCommands() {}
 
   public static Command RetractIntake(IntakeSubsystem intakeSubsystem) {
-    return new DeployIntakeCommand(true, intakeSubsystem);
+    return new DeployIntakeCommand(true, intakeSubsystem)
+    .withName("Retract Intake");
   }
 
   public static Command DeployIntake(IntakeSubsystem intakeSubsystem) {
-    return new DeployIntakeCommand(false, intakeSubsystem);
+    return new DeployIntakeCommand(false, intakeSubsystem)
+    .withName("Deploy Intake");
   }
 
   public static class HomeIntakeDeploy extends Command {
@@ -32,6 +34,7 @@ public class IntakeCommands {
     public HomeIntakeDeploy(IntakeSubsystem intakeSubsystem) {
       this.intakeSubsystem = intakeSubsystem;
       addRequirements(intakeSubsystem);
+      setName("Home Intake Deploy");
     }
 
     @Override
@@ -56,14 +59,15 @@ public class IntakeCommands {
     return new InstantCommand(
         () -> {
           intakeSubsystem.setIntakeVoltage(IntakeConstants.INTAKING_VOLTAGE);
-        });
+        }).withName("Run Intake");
   }
 
   public static Command StopIntake(IntakeSubsystem intakeSubsystem) {
     return new InstantCommand(
         () -> {
           intakeSubsystem.setIntakeVoltage(0);
-        });
+        })
+        .withName("Stop Intake");
   }
 
   public static class DeployIntakeCommand extends Command {
@@ -75,6 +79,7 @@ public class IntakeCommands {
       this.isRetracting = isRetracting;
       this.intakeSubsystem = intakeSubsystem;
       addRequirements(intakeSubsystem);
+      setName("Deploy Intake");
     }
 
     @Override
