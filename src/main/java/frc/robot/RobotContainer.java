@@ -35,6 +35,7 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
+import frc.robot.commands.leds.LEDCommands;
 import frc.robot.commands.mech.HoodHomingCommand;
 import frc.robot.commands.mech.HoodRetractCommand;
 import frc.robot.commands.mech.IntakeCommands;
@@ -45,6 +46,7 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.leds.LEDSubsystem;
 import frc.robot.subsystems.mech.ClimberSubsystem;
 import frc.robot.subsystems.mech.HoodSubsystem;
 import frc.robot.subsystems.mech.HopperFloorSubsystem;
@@ -75,6 +77,7 @@ public class RobotContainer {
   public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   public final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final TurretSubsystem turretSubsystem = new TurretSubsystem();
+  private final LEDSubsystem ledSubsystem = new LEDSubsystem();
 
   private final GamePieceSimulation gamePieceSimulation = new GamePieceSimulation();
   private ShotParameters shotParameters; // TODO: do we need this?
@@ -525,24 +528,26 @@ public class RobotContainer {
 
       // TODO HOOD TESTING BUTTONS - uncomment for use
 
-      controller_two
-          .rightBumper()
-          .onTrue(
-              new InstantCommand(
-                  () -> {
-                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(70.0)));
-                  }));
+      // controller_two
+      //     .rightBumper()
+      //     .onTrue(
+      //         new InstantCommand(
+      //             () -> {
+      //               hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(70.0)));
+      //             }));
 
-      controller_two
-          .leftBumper()
-          .onTrue(
-              new InstantCommand(
-                  () -> {
-                    hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(77.0)));
-                  }));
-      controller_two.y().onTrue(new HoodHomingCommand(hoodSubsystem));
-      controller_two.a().onTrue(RunMechWheels());
-      controller_two.b().onTrue(MechStop());
+      // controller_two
+      //     .leftBumper()
+      //     .onTrue(
+      //         new InstantCommand(
+      //             () -> {
+      //               hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(77.0)));
+      //             }));
+      // controller_two.y().onTrue(new HoodHomingCommand(hoodSubsystem));
+      // controller_two.a().onTrue(RunMechWheels());
+      // controller_two.b().onTrue(MechStop());
+
+      controller_two.y().onTrue(LEDCommands.changeColorCommand(ledSubsystem, 0, 255, 0));
     }
   }
 
