@@ -581,7 +581,7 @@ public final class Constants {
   }
 
   public static final class LEDConstants {
-    public static final int CANdle_CAN_ID = 12; 
+    public static final int CANdle_CAN_ID = 12;
   }
 
   public static final class FieldCoordinates {

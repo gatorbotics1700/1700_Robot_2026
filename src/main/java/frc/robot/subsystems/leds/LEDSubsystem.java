@@ -30,7 +30,7 @@ public class LEDSubsystem extends SubsystemBase {
     this.r = new_r;
     this.g = new_g;
     this.b = new_b;
-    SolidColor solidColor = new SolidColor(8, 67);
+    SolidColor solidColor = new SolidColor(0, 67);
     candle.setControl(solidColor.withColor(new RGBWColor(r, g, b, 0)));
   }
 }

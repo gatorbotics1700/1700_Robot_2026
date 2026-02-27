@@ -12,7 +12,6 @@ public class LEDCommands {
 
   public static class colorCommand extends Command {
     private final LEDSubsystem ledSubsystem;
-   
 
     colorCommand(LEDSubsystem ledSubsystem, int r, int g, int b) {
       this.ledSubsystem = ledSubsystem;
@@ -21,7 +20,8 @@ public class LEDCommands {
 
     @Override
     public void initialize() {
-      ledSubsystem.setColor(255, 255, 255); // sets initial LED color to white
+      ledSubsystem.setColor(0, 255, 0); // sets initial LED color to
+      System.out.println("initializing");
     }
 
     @Override
