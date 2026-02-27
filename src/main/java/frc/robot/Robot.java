@@ -17,6 +17,8 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.net.WebServer;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -111,6 +113,11 @@ public class Robot extends LoggedRobot {
     SmartDashboard.putData(CommandScheduler.getInstance());
   }
 
+  @Override
+  public void robotInit() {
+    WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
+  }
+
   /** This function is called periodically during all modes. */
   @Override
   public void robotPeriodic() {
@@ -127,8 +134,6 @@ public class Robot extends LoggedRobot {
 
     // Return to non-RT thread priority (do not modify the first argument)
     // Threads.setCurrentThreadPriority(false, 10);
-
-    SmartDashboard.putNumber("amelia's number", 10);
   }
 
   /** This function is called once when the robot is disabled. */
