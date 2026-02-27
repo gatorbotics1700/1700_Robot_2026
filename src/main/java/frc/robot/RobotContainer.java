@@ -19,7 +19,6 @@ import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -255,7 +254,8 @@ public class RobotContainer {
                                           turretSubsystem,
                                           transitionSubsystem,
                                           robotPose,
-                                          chassisSpeeds)));
+                                          chassisSpeeds))
+                                  .withName("DriveOverBump"));
                     } catch (Exception e) {
                       e.printStackTrace();
                     }
@@ -303,7 +303,8 @@ public class RobotContainer {
                                           turretSubsystem,
                                           transitionSubsystem,
                                           robotPose,
-                                          chassisSpeeds)));
+                                          chassisSpeeds))
+                                  .withName("DriveUnderTrench"));
                     } catch (Exception e) {
                       e.printStackTrace();
                     }

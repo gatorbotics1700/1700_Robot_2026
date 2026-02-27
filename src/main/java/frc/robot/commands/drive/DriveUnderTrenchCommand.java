@@ -75,7 +75,6 @@ public class DriveUnderTrenchCommand {
         shooterSubsystem.setShouldShoot(true);
       }
     }
-    return pathToFollow; // TODO: stop shooting, retract hood, and then follow path -- add the stop
-    // shooting part
+    return pathToFollow.withName("DriveUnderTrench");
   }
 }

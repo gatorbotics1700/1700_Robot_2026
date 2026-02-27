@@ -74,7 +74,6 @@ public class DriveOverBumpCommand {
         shooterSubsystem.setShouldShoot(true);
       }
     }
-    return pathToFollow; // TODO: stop shooting and then path to follow -- need to add part to stop
-    // shooting
+    return pathToFollow.withName("DriveOverBump");
   }
 }

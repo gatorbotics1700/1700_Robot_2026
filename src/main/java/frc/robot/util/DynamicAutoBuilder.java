@@ -206,19 +206,19 @@ public class DynamicAutoBuilder {
     if (dest1 != null && !dest1.equals("None")) {
       Command firstPath = loadPathCommand(alliance, currentLocation, dest1);
       Command firstAction = getActionForDestination(dest1);
-      pathSequence.add(firstPath.deadlineWith(firstAction));
+      pathSequence.add(firstPath.deadlineFor(firstAction));
       currentLocation = dest1;
 
       if (dest2 != null && !dest2.equals("None")) {
         Command secondPath = loadPathCommand(alliance, currentLocation, dest2);
         Command secondAction = getActionForDestination(dest2);
-        pathSequence.add(secondPath.deadlineWith(secondAction));
+        pathSequence.add(secondPath.deadlineFor(secondAction));
         currentLocation = dest2;
 
         if (dest3 != null && !dest3.equals("None")) {
           Command thirdPath = loadPathCommand(alliance, currentLocation, dest3);
           Command thirdAction = getActionForDestination(dest3);
-          pathSequence.add(thirdPath.deadlineWith(thirdAction));
+          pathSequence.add(thirdPath.deadlineFor(thirdAction));
           currentLocation = dest3;
         }
       }
@@ -240,7 +240,7 @@ public class DynamicAutoBuilder {
         Command intakeAndShooting =
             IntakeCommands.RunIntake(intakeSubsystem).alongWith(createShootingWithZoneCheck());
         // Paths are the deadline - when paths finish, intake/shooting stop (until climb or end)
-        commandSequence.add(allPaths.deadlineWith(intakeAndShooting));
+        commandSequence.add(allPaths.deadlineFor(intakeAndShooting));
       } else {
         // In sim, just run the paths without mech
         commandSequence.add(allPaths);

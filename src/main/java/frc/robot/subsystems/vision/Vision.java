@@ -74,50 +74,52 @@ public class Vision extends SubsystemBase {
     Pose2d fuelPose = null;
     double maxArea = 0;
     for (int cameraIndex = 0; cameraIndex < 1; cameraIndex++) { // TODO: fix this for loop range
-      PhotonPipelineResult result = io[cameraIndex].getCamera().getLatestResult();
-      PhotonTrackedTarget target = result.getBestTarget();
-      Transform3d robotToCamera = VisionConstants.ROBOT_TO_CAMERA_TRANSFORMS_ARRAY[cameraIndex];
-      if (target != null && target.getDetectedObjectClassID() == VisionConstants.FUEL_CLASS_ID) {
-        if (target.getArea() > maxArea) {
-          maxArea = target.getArea();
+      List<PhotonPipelineResult> allResults = io[cameraIndex].getCamera().getAllUnreadResults();
+      for (PhotonPipelineResult result : allResults) {
+        PhotonTrackedTarget target = result.getBestTarget();
+        Transform3d robotToCamera = VisionConstants.ROBOT_TO_CAMERA_TRANSFORMS_ARRAY[cameraIndex];
+        if (target != null && target.getDetectedObjectClassID() == VisionConstants.FUEL_CLASS_ID) {
+          if (target.getArea() > maxArea) {
+            maxArea = target.getArea();
 
-          Pose3d cameraInFieldSpace = robotPose3d.transformBy(robotToCamera);
-          double targetPitchDegrees = -target.getPitch() * VisionConstants.TARGET_ANGLE_SCALAR;
-          double targetYawDegrees = -target.getYaw() * VisionConstants.TARGET_ANGLE_SCALAR;
-          // values for yaw and pitch
-          Logger.recordOutput("DriveToFuel/Altered Target Pitch", targetPitchDegrees);
-          Logger.recordOutput("DriveToFuel/Altered Target Yaw", targetYawDegrees);
-          cameraInFieldSpace =
-              cameraInFieldSpace.transformBy(
-                  new Transform3d(
-                      new Translation3d(),
-                      new Rotation3d(
-                          0,
-                          Math.toRadians(targetPitchDegrees),
-                          Math.toRadians(targetYawDegrees))));
-          Translation3d towardFuelInRobotSpace =
-              cameraInFieldSpace
-                  .transformBy(
-                      new Transform3d(
-                          new Translation3d(
-                              Centimeters.of(100), Centimeters.of(0), Centimeters.of(0)),
-                          new Rotation3d()))
-                  .getTranslation();
-          double deltaX = towardFuelInRobotSpace.getX() - cameraInFieldSpace.getX();
-          double deltaY = towardFuelInRobotSpace.getY() - cameraInFieldSpace.getY();
-          double deltaZ = towardFuelInRobotSpace.getZ() - cameraInFieldSpace.getZ();
-          final Distance fuelRadius = Centimeters.of(7.5);
-          Distance fuelPoseX =
-              (fuelRadius.minus(cameraInFieldSpace.getMeasureZ()))
-                  .div(deltaZ)
-                  .times(deltaX)
-                  .plus(cameraInFieldSpace.getMeasureX());
-          Distance fuelPoseY =
-              (fuelRadius.minus(cameraInFieldSpace.getMeasureZ()))
-                  .div(deltaZ)
-                  .times(deltaY)
-                  .plus(cameraInFieldSpace.getMeasureY());
-          fuelPose = new Pose2d(fuelPoseX, fuelPoseY, new Rotation2d());
+            Pose3d cameraInFieldSpace = robotPose3d.transformBy(robotToCamera);
+            double targetPitchDegrees = -target.getPitch() * VisionConstants.TARGET_ANGLE_SCALAR;
+            double targetYawDegrees = -target.getYaw() * VisionConstants.TARGET_ANGLE_SCALAR;
+            // values for yaw and pitch
+            Logger.recordOutput("DriveToFuel/Altered Target Pitch", targetPitchDegrees);
+            Logger.recordOutput("DriveToFuel/Altered Target Yaw", targetYawDegrees);
+            cameraInFieldSpace =
+                cameraInFieldSpace.transformBy(
+                    new Transform3d(
+                        new Translation3d(),
+                        new Rotation3d(
+                            0,
+                            Math.toRadians(targetPitchDegrees),
+                            Math.toRadians(targetYawDegrees))));
+            Translation3d towardFuelInRobotSpace =
+                cameraInFieldSpace
+                    .transformBy(
+                        new Transform3d(
+                            new Translation3d(
+                                Centimeters.of(100), Centimeters.of(0), Centimeters.of(0)),
+                            new Rotation3d()))
+                    .getTranslation();
+            double deltaX = towardFuelInRobotSpace.getX() - cameraInFieldSpace.getX();
+            double deltaY = towardFuelInRobotSpace.getY() - cameraInFieldSpace.getY();
+            double deltaZ = towardFuelInRobotSpace.getZ() - cameraInFieldSpace.getZ();
+            final Distance fuelRadius = Centimeters.of(7.5);
+            Distance fuelPoseX =
+                (fuelRadius.minus(cameraInFieldSpace.getMeasureZ()))
+                    .div(deltaZ)
+                    .times(deltaX)
+                    .plus(cameraInFieldSpace.getMeasureX());
+            Distance fuelPoseY =
+                (fuelRadius.minus(cameraInFieldSpace.getMeasureZ()))
+                    .div(deltaZ)
+                    .times(deltaY)
+                    .plus(cameraInFieldSpace.getMeasureY());
+            fuelPose = new Pose2d(fuelPoseX, fuelPoseY, new Rotation2d());
+          }
         }
       }
     }

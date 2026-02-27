@@ -20,17 +20,19 @@ public class ClimbCommands {
   private ClimbCommands() {}
 
   public static Command ExtendClimber(ClimberSubsystem climberSubsystem) {
-    return new ClimberCommand(climberSubsystem, ClimberConstants.L1_EXTENSION_INCHES);
+    return new ClimberCommand(climberSubsystem, ClimberConstants.L1_EXTENSION_INCHES)
+        .withName("ExtendClimber");
   }
 
   public static Command RetractClimber(ClimberSubsystem climberSubsystem) {
-    return new ClimberCommand(climberSubsystem, 0.0);
+    return new ClimberCommand(climberSubsystem, 0.0).withName("RetractClimber");
   }
 
   public static class HomeClimber extends Command {
     private final ClimberSubsystem climberSubsystem;
 
     HomeClimber(ClimberSubsystem climberSubsystem) {
+      setName("HomeClimber");
       this.climberSubsystem = climberSubsystem;
       addRequirements(climberSubsystem);
     }
@@ -59,7 +61,8 @@ public class ClimbCommands {
       throws IOException, ParseException {
     return ExtendClimber(climberSubsystem)
         .alongWith(DriveToTower(drive))
-        .andThen(RetractClimber(climberSubsystem));
+        .andThen(RetractClimber(climberSubsystem))
+        .withName("Climb");
   }
 
   public static Command DriveToTower(Drive drive) {
@@ -67,7 +70,9 @@ public class ClimbCommands {
   }
 
   public static Command ClimbWithoutDrive(ClimberSubsystem climberSubsystem) {
-    return ExtendClimber(climberSubsystem).andThen(RetractClimber(climberSubsystem));
+    return ExtendClimber(climberSubsystem)
+        .andThen(RetractClimber(climberSubsystem))
+        .withName("ClimbWithoutDrive");
   }
 
   private static class DriveToTowerCommand extends Command {
@@ -75,6 +80,7 @@ public class ClimbCommands {
     private Command pathCommand;
 
     DriveToTowerCommand(Drive drive) {
+      setName("DriveToTower");
       this.drive = drive;
       addRequirements(drive);
     }
