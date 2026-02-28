@@ -18,7 +18,7 @@ public class ClimberSubsystem extends SubsystemBase {
   private boolean positionControl = true; // if false use voltage control
 
   private final TalonFX motor;
-  private final DigitalInput limitSwitch;
+  private final DigitalInput hallEffect;
 
   private static TalonFXConfiguration talonFXConfigs;
   private static MotionMagicExpoVoltage m_request;
@@ -26,7 +26,7 @@ public class ClimberSubsystem extends SubsystemBase {
   private double desiredPositionInches;
 
   public ClimberSubsystem() {
-    limitSwitch = new DigitalInput(ClimberConstants.CLIMBER_LIMIT_SWITCH_PORT);
+    hallEffect = new DigitalInput(ClimberConstants.CLIMBER_HALL_EFFECT_PORT);
     motor = new TalonFX(ClimberConstants.CLIMBER_MOTOR_CAN_ID, TunerConstants.mechCANBus);
     motor.setNeutralMode(NeutralModeValue.Brake);
 
@@ -67,8 +67,9 @@ public class ClimberSubsystem extends SubsystemBase {
     Logger.recordOutput("Mech/Climber/Motor Output", motor.get());
     Logger.recordOutput(
         "Mech/Climber/Control Mode", positionControl ? "position control" : "voltage control");
-    Logger.recordOutput("Mech/Climber/Limit Switch", limitSwitchPressed());
-    if (!limitSwitchPressed() && positionControl) {
+    Logger.recordOutput(
+        "Mech/Climber/Hall Effect Triggered (!halleffect.get)", hallEffectTriggered());
+    if (!hallEffectTriggered() && positionControl) {
       motor.setControl(m_request.withPosition(inchesToRevs(desiredPositionInches)));
     } else {
       setClimberVoltage(0); // TODO figure out if this actually works?
@@ -86,8 +87,8 @@ public class ClimberSubsystem extends SubsystemBase {
     }
   }
 
-  public boolean limitSwitchPressed() {
-    return limitSwitch
+  public boolean hallEffectTriggered() {
+    return !hallEffect
         .get(); // TODO confirm that normally closed limit switch is true when pressed?
   }
 

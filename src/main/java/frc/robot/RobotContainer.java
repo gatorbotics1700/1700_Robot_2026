@@ -31,6 +31,7 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
+import frc.robot.commands.mech.ClimbCommands;
 import frc.robot.commands.mech.HoodCommands;
 import frc.robot.commands.mech.IntakeCommands;
 import frc.robot.commands.mech.ShootingCommand;
@@ -460,25 +461,25 @@ public class RobotContainer {
         // params.hoodAngle);
         // })));
 
-        controller_two
-            .a()
-            .onTrue(
-                new InstantCommand(
-                    () -> {
-                      shooterSubsystem.toggleShouldShoot();
-                      System.out.println("BUTTON AAAAAAAAA");
-                    }));
+        // controller_two
+        //     .a()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () -> {
+        //               shooterSubsystem.toggleShouldShoot();
+        //               System.out.println("BUTTON AAAAAAAAA");
+        //             }));
 
-        controller_two
-            .x()
-            .onTrue(
-                new ShootingCommand(
-                    shooterSubsystem,
-                    hoodSubsystem,
-                    turretSubsystem,
-                    transitionSubsystem,
-                    robotPose,
-                    chassisSpeeds));
+        // controller_two
+        //     .x()
+        //     .onTrue(
+        //         new ShootingCommand(
+        //             shooterSubsystem,
+        //             hoodSubsystem,
+        //             turretSubsystem,
+        //             transitionSubsystem,
+        //             robotPose,
+        //             chassisSpeeds));
       } else {
         // TODO INTAKE TESTING BUTTONS - uncomment for use
 
@@ -510,23 +511,11 @@ public class RobotContainer {
 
         // TODO TURRET TESTING BUTTONS - uncomment for use
 
-        controller_two
-            .x()
-            .onTrue(
-                new InstantCommand(
-                    () -> {
-                      turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(125)));
-                    }));
+        controller_two.x().onTrue(ClimbCommands.HomeClimber(climberSubsystem));
 
-        controller_two.y().onTrue(new TurretHomingCommand(turretSubsystem));
+        controller_two.y().onTrue(ClimbCommands.RetractClimber(climberSubsystem));
 
-        controller_two
-            .a()
-            .onTrue(
-                new InstantCommand(
-                    () -> {
-                      turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(-200)));
-                    }));
+        controller_two.a().onTrue(ClimbCommands.ExtendClimber(climberSubsystem));
 
         controller_two
             .b()

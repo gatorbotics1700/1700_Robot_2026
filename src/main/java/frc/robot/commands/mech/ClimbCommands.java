@@ -25,7 +25,8 @@ public class ClimbCommands {
   }
 
   public static Command RetractClimber(ClimberSubsystem climberSubsystem) {
-    return new ClimberCommand(climberSubsystem, 0.0).withName("RetractClimber");
+    return new ClimberCommand(climberSubsystem, ClimberConstants.RETRACTED_HEIGHT_INCHES)
+        .withName("RetractClimber");
   }
 
   public static class HomeClimber extends Command {
@@ -44,7 +45,7 @@ public class ClimbCommands {
 
     @Override
     public boolean isFinished() {
-      return climberSubsystem.limitSwitchPressed();
+      return climberSubsystem.hallEffectTriggered();
     }
 
     @Override
@@ -196,5 +197,10 @@ public class ClimbCommands {
       }
       return false;
     }
+  }
+
+  public static Command HomeClimber(ClimberSubsystem climberSubsystem) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'HomeClimber'");
   }
 }

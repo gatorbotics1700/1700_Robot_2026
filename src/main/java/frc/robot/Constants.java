@@ -495,7 +495,7 @@ public final class Constants {
 
   public static final class ClimberConstants {
     public static final int CLIMBER_MOTOR_CAN_ID = 36;
-    public static final int CLIMBER_LIMIT_SWITCH_PORT =
+    public static final int CLIMBER_HALL_EFFECT_PORT =
         7; // TODO is this a limit switch or hall effect
     public static final double L1_EXTENSION_INCHES = 20; // TODO get a real number
 
