@@ -27,6 +27,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private Rotation2d desiredAngle = new Rotation2d();
   private double desiredIntakeVoltage;
   private double desiredDeployVoltage;
+  private boolean isDeployed;
 
   public IntakeSubsystem() {
     intakeMotor = new TalonFX(IntakeConstants.INTAKE_MOTOR_CAN_ID, TunerConstants.mechCANBus);
@@ -50,8 +51,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     deployTalonFXConfigs.withMotorOutput(
         new MotorOutputConfigs()
-            .withInverted(
-                InvertedValue.CounterClockwise_Positive)); // TODO check if we want to invert
+            .withInverted(InvertedValue.Clockwise_Positive)); // TODO check if we want to invert
 
     // TODO: TUNE ALL OF THESE
     Slot0Configs slot0Configs = deployTalonFXConfigs.Slot0;
@@ -84,12 +84,13 @@ public class IntakeSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    Logger.recordOutput("Mech/Intake/Current Deploy Angle", getCurrentAngle());
-    Logger.recordOutput("Mech/Intake/Desired Deploy Angle", desiredAngle);
+    Logger.recordOutput("Mech/Intake/Current Deploy Angle", getCurrentAngle().getDegrees());
+    Logger.recordOutput("Mech/Intake/Desired Deploy Angle", desiredAngle.getDegrees());
     Logger.recordOutput(
         "Mech/Intake/Desired Deploy Voltage", desiredDeployVoltage); // only gets set for homing
     Logger.recordOutput("Mech/Intake/Current Deploy Motor Output", deployMotor.get());
-    Logger.recordOutput("Mech/Intake/Intake Hall Effect", hallEffectTriggered());
+    Logger.recordOutput("Mech/Intake/Intake Hall Effect", isHallEffectTriggered());
+    Logger.recordOutput("Mech/Intake/IsDeployed", isDeployed);
 
     Logger.recordOutput("Mech/Intake/Current Intake Motor Output", intakeMotor.get());
     Logger.recordOutput("Mech/Intake/Desired Intake Voltage", desiredIntakeVoltage);
@@ -116,8 +117,6 @@ public class IntakeSubsystem extends SubsystemBase {
     }
     deployMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
   }
-
-
 
   public void setDeployVoltage(double voltage) {
     desiredDeployVoltage = voltage;
@@ -153,17 +152,20 @@ public class IntakeSubsystem extends SubsystemBase {
     deployMotor.setPosition(IntakeConstants.RETRACTED_POSITION.getDegrees());
   }
 
-  public boolean hallEffectTriggered() {
-    return hallEffect.get(); // TODO figure out what this actually returns
+  public boolean isHallEffectTriggered() {
+    return !hallEffect.get(); // TODO figure out what this actually returns
   }
 
-  public void toggleIntake(){
-    if(Math.abs(getCurrentAngle().getDegrees() - IntakeConstants.RETRACTED_ANGLE_DEGREES) < IntakeConstants.POSITION_DEADBAND){
+  public void toggleIntake() {
+    if (Math.abs(getCurrentAngle().getDegrees() - IntakeConstants.RETRACTED_ANGLE_DEGREES)
+        < IntakeConstants.POSITION_DEADBAND) {
       setDesiredAngle(IntakeConstants.EXTENDED_POSITION);
       setIntakeVoltage(IntakeConstants.INTAKING_VOLTAGE);
+      isDeployed = true;
     } else {
       setDesiredAngle(IntakeConstants.RETRACTED_POSITION);
       setIntakeVoltage(0);
+      isDeployed = false;
     }
   }
 }

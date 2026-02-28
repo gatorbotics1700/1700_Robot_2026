@@ -488,7 +488,8 @@ public final class Constants {
 
   public static final class ClimberConstants {
     public static final int CLIMBER_MOTOR_CAN_ID = 36;
-    public static final int CLIMBER_LIMIT_SWITCH_PORT = 7;//TODO is this a limit switch or hall effect
+    public static final int CLIMBER_LIMIT_SWITCH_PORT =
+        7; // TODO is this a limit switch or hall effect
     public static final double L1_EXTENSION_INCHES = 20; // TODO get a real number
 
     public static final int CLIMBER_GEAR_RATIO = 81; // TODO get a real number
@@ -538,12 +539,12 @@ public final class Constants {
     public static final int INTAKE_DEPLOY_MOTOR_CAN_ID = 10;
     public static final int INTAKE_HALL_EFFECT_PORT = 0;
 
-    public static final int DEPLOY_GEARBOX_RATIO = 9; // TODO find the real value
+    public static final int DEPLOY_GEARBOX_RATIO = 5; // TODO find the real value
     public static final double DEPLOY_PULLEY_ONE_GEAR_RATIO = 42.0 / 18.0;
     public static final double DEPLOY_PULLEY_TWO_GEAR_RATIO = 36.0 / 18.0;
 
     public static final double EXTENDED_ANGLE_DEGREES =
-        85; // TODO figure out if this is from vertical or from retracted position?
+        80; // TODO figure out if this is from vertical or from retracted position?
     public static final double RETRACTED_ANGLE_DEGREES = 0; // TODO measure?
 
     public static final Rotation2d EXTENDED_POSITION =
@@ -551,7 +552,7 @@ public final class Constants {
     public static final Rotation2d RETRACTED_POSITION =
         new Rotation2d(Math.toRadians(RETRACTED_ANGLE_DEGREES)); // TODO: change
 
-    public static final double HOMING_VOLTAGE = 10; // TODO tune
+    public static final double HOMING_VOLTAGE = -1; // TODO tune
     public static final double INTAKING_VOLTAGE = 10;
 
     public static final double POSITION_DEADBAND = 2;
@@ -577,18 +578,15 @@ public final class Constants {
 
   public static final class TurretConstants {
     public static final int TURRET_MOTOR_CAN_ID = 14;
-    public static final int TURRET_BORE_ENCODER_PORT1 = 2;
-    public static final int TURRET_BORE_ENCODER_PORT2 = 3;//TODO get rid of the other port
+    public static final int TURRET_BORE_ENCODER_PORT = 2;
     public static final int TURRET_HALL_EFFECT_PORT = 8;
 
     public static final double TURRET_DEADBAND = 0.75;
 
-    public static final double TURRET_ENCODER_OFFSET = 0.0; // TODO: Find actual offset
-    public static final double TURRET_HOMING_ANGLE =
-        0.0; // TODO: this is the angle for "zeroing" the turret but it might not actually be zero
-    public static final double TURRET_RANGE_DEGREES = 360; // TODO set actual value
-    public static final double MIN_TURRET_ANGLE = -180; // TODO: set actual value for min and max
-    public static final double MAX_TURRET_ANGLE = MIN_TURRET_ANGLE + TURRET_RANGE_DEGREES;
+    public static final double TURRET_ENCODER_OFFSET = 0.690;
+    public static final double TURRET_HOMING_ANGLE = 0.0;
+    public static final double MIN_TURRET_ANGLE = -250;
+    public static final double MAX_TURRET_ANGLE = 160;
   }
 
   public static final class FieldCoordinates {

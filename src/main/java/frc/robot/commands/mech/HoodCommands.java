@@ -10,8 +10,7 @@ public class HoodCommands {
   private HoodCommands() {}
 
   public static Command RetractHood(HoodSubsystem hoodSubsystem) {
-    return new HoodRetractCommand(hoodSubsystem)
-    .withName("Retract Hood");
+    return new HoodRetractCommand(hoodSubsystem).withName("Retract Hood");
   }
 
   public static Command HomeHood(HoodSubsystem hoodSubsystem) {

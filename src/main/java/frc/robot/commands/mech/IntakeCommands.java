@@ -18,14 +18,12 @@ public class IntakeCommands {
 
   public IntakeCommands() {}
 
-  public static Command RetractIntake(IntakeSubsystem intakeSubsystem) {
-    return new DeployIntakeCommand(true, intakeSubsystem)
-    .withName("Retract Intake");
+  public static Command RetractIntake(IntakeSubsystem intakeSubsystem) { // TODO use hall effect
+    return new DeployIntakeCommand(true, intakeSubsystem).withName("Retract Intake");
   }
 
   public static Command DeployIntake(IntakeSubsystem intakeSubsystem) {
-    return new DeployIntakeCommand(false, intakeSubsystem)
-    .withName("Deploy Intake");
+    return new DeployIntakeCommand(false, intakeSubsystem).withName("Deploy Intake");
   }
 
   public static class HomeIntakeDeploy extends Command {
@@ -44,7 +42,7 @@ public class IntakeCommands {
 
     @Override
     public boolean isFinished() {
-      return intakeSubsystem.hallEffectTriggered();
+      return intakeSubsystem.isHallEffectTriggered();
     }
 
     @Override
@@ -57,16 +55,17 @@ public class IntakeCommands {
 
   public static Command RunIntake(IntakeSubsystem intakeSubsystem) {
     return new InstantCommand(
-        () -> {
-          intakeSubsystem.setIntakeVoltage(IntakeConstants.INTAKING_VOLTAGE);
-        }).withName("Run Intake");
+            () -> {
+              intakeSubsystem.setIntakeVoltage(IntakeConstants.INTAKING_VOLTAGE);
+            })
+        .withName("Run Intake");
   }
 
   public static Command StopIntake(IntakeSubsystem intakeSubsystem) {
     return new InstantCommand(
-        () -> {
-          intakeSubsystem.setIntakeVoltage(0);
-        })
+            () -> {
+              intakeSubsystem.setIntakeVoltage(0);
+            })
         .withName("Stop Intake");
   }
 
@@ -93,10 +92,18 @@ public class IntakeCommands {
 
     @Override
     public boolean isFinished() {
-      if(isRetracting && Math.abs(IntakeConstants.RETRACTED_ANGLE_DEGREES-intakeSubsystem.getCurrentAngle().getDegrees())<=IntakeConstants.POSITION_DEADBAND){
+      if (isRetracting
+          && Math.abs(
+                  IntakeConstants.RETRACTED_ANGLE_DEGREES
+                      - intakeSubsystem.getCurrentAngle().getDegrees())
+              <= IntakeConstants.POSITION_DEADBAND) {
         return true;
       }
-      if(!isRetracting && Math.abs(IntakeConstants.EXTENDED_ANGLE_DEGREES-intakeSubsystem.getCurrentAngle().getDegrees())<=IntakeConstants.POSITION_DEADBAND){
+      if (!isRetracting
+          && Math.abs(
+                  IntakeConstants.EXTENDED_ANGLE_DEGREES
+                      - intakeSubsystem.getCurrentAngle().getDegrees())
+              <= IntakeConstants.POSITION_DEADBAND) {
         return true;
       }
       return false;

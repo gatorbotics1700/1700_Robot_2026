@@ -11,7 +11,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.TurretConstants;
@@ -26,10 +26,8 @@ public class TurretSubsystem extends SubsystemBase {
   private final int TURRET_GEARBOX_RATIO = 9;
   private final int GEAR_REVS_PER_TURRET_REV = 10;
   private final int ENCODER_REVS_PER_TURRET_REV = 10;
-  //TODO make the encoder absolute
-  private Encoder boreEncoder =
-      new Encoder(
-          TurretConstants.TURRET_BORE_ENCODER_PORT1, TurretConstants.TURRET_BORE_ENCODER_PORT2);
+  private DutyCycleEncoder boreEncoder =
+      new DutyCycleEncoder(TurretConstants.TURRET_BORE_ENCODER_PORT);
   private final DigitalInput hallEffect = new DigitalInput(TurretConstants.TURRET_HALL_EFFECT_PORT);
 
   private Rotation2d desiredAngle;
@@ -75,9 +73,13 @@ public class TurretSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     turretMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
-    // Logger.recordOutput("turret/output" + turretMotor.get());
+    Logger.recordOutput("Mech/Turret/boreEncoder", boreEncoder.get());
+    Logger.recordOutput("Mech/Turret/boreEncoder isConnected", boreEncoder.isConnected());
+    Logger.recordOutput("Mech/Turret/currentAngle", getCurrentAngle().getDegrees());
+    Logger.recordOutput("Mech/Turret/desiredAngle", desiredAngle.getDegrees());
+
     // System.out.println(desiredAngle.getDegrees());
-    Logger.recordOutput("turret/halleEffect", hallEffect.get());
+    Logger.recordOutput("Mech/Turret/hallEffect", isHallEffectTriggered());
   }
 
   public void setDesiredAngle(
@@ -103,8 +105,8 @@ public class TurretSubsystem extends SubsystemBase {
     return turretAngleDegrees / 360 * GEAR_REVS_PER_TURRET_REV * TURRET_GEARBOX_RATIO;
   }
 
-  public boolean getHallEffectValue() {
-    return hallEffect.get();
+  public boolean isHallEffectTriggered() {
+    return !hallEffect.get();
   }
 
   public void setMotorVoltage(double voltage) {
