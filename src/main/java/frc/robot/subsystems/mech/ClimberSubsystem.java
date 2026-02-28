@@ -116,6 +116,6 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public void setClimberVoltage(double voltage) {
     positionControl = false;
-    motor.setVoltage(0); // TODO figure out if this actually works?
+    motor.setVoltage(voltage); // TODO figure out if this actually works?
   }
 }

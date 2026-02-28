@@ -492,8 +492,8 @@ public final class Constants {
         7; // TODO is this a limit switch or hall effect
     public static final double L1_EXTENSION_INCHES = 20; // TODO get a real number
 
-    public static final int CLIMBER_GEAR_RATIO = 81; // TODO get a real number
-    public static final double WINCH_INCHES_PER_REV = (3 / 4) * Math.PI; // TODO get a real number
+    public static final int CLIMBER_GEAR_RATIO = 25; // TODO get a real number
+    public static final double WINCH_INCHES_PER_REV = (0.75) * Math.PI; // diameter in inches * pi
     // TODO decide if we want to measure climber extension from the floor or from stage 0 of the arm
     public static final double MAX_EXTENSION_INCHES = 30; // TODO get a real number
     public static final double RETRACTED_HEIGHT_INCHES = 20; // TODO get a real number

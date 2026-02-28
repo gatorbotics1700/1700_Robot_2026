@@ -46,8 +46,10 @@ public class ClimbCommands {
 
     @Override
     public void end(boolean interrupted) {
-      climberSubsystem.zeroClimber();
-      climberSubsystem.setDesiredPositionInches(ClimberConstants.RETRACTED_HEIGHT_INCHES + 0.25);
+      // TODO return this to its real state!
+      // climberSubsystem.zeroClimber();
+      // climberSubsystem.setDesiredPositionInches(ClimberConstants.RETRACTED_HEIGHT_INCHES + 0.25);
+      climberSubsystem.setDesiredPositionInches(climberSubsystem.getCurrentPositionInches() + 0.1);
     }
   }
 
