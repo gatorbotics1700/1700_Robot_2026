@@ -32,7 +32,7 @@ public class ClimbCommands {
   public static class HomeClimber extends Command {
     private final ClimberSubsystem climberSubsystem;
 
-    HomeClimber(ClimberSubsystem climberSubsystem) {
+    public HomeClimber(ClimberSubsystem climberSubsystem) {
       setName("HomeClimber");
       this.climberSubsystem = climberSubsystem;
       addRequirements(climberSubsystem);
@@ -51,9 +51,10 @@ public class ClimbCommands {
     @Override
     public void end(boolean interrupted) {
       // TODO return this to its real state!
-      // climberSubsystem.zeroClimber();
-      // climberSubsystem.setDesiredPositionInches(ClimberConstants.RETRACTED_HEIGHT_INCHES + 0.25);
-      climberSubsystem.setDesiredPositionInches(climberSubsystem.getCurrentPositionInches() + 0.1);
+      climberSubsystem.zeroClimber();
+      climberSubsystem.setDesiredPositionInches(ClimberConstants.RETRACTED_HEIGHT_INCHES + 0.1);
+      // climberSubsystem.setDesiredPositionInches(climberSubsystem.getCurrentPositionInches() +
+      // 0.1);
     }
   }
 

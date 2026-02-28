@@ -511,7 +511,7 @@ public class RobotContainer {
 
         // TODO TURRET TESTING BUTTONS - uncomment for use
 
-        controller_two.x().onTrue(ClimbCommands.HomeClimber(climberSubsystem));
+        controller_two.x().onTrue(new ClimbCommands.HomeClimber(climberSubsystem));
 
         controller_two.y().onTrue(ClimbCommands.RetractClimber(climberSubsystem));
 
