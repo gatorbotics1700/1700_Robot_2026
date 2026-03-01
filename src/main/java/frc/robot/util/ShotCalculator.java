@@ -45,7 +45,7 @@ public class ShotCalculator {
     Translation3d fieldToShooter =
         getFieldToShooter(drivetrainPose, ShooterConstants.BOT_TO_SHOOTER);
 
-    // Rotation2d uncompTurretToTargetAngle = getFieldRelativeYaw(fieldToShooter, target);
+    Rotation2d uncompTurretToTargetAngle = getFieldRelativeYaw(fieldToShooter, target);
 
     Translation2d shooterVelo =
         calculateShooterVelo(
@@ -61,24 +61,22 @@ public class ShotCalculator {
     // if the robot is turning because the turret isn't the center of the
     // rotation
 
-    // Translation2d trajectoryRelativeShooterVelo =
-    //     rotateFrameOfReference(
-    //         fieldRelativeShooterVelo,
-    //         uncompTurretToTargetAngle.unaryMinus());
+    Translation2d trajectoryRelativeShooterVelo =
+        rotateFrameOfReference(fieldRelativeShooterVelo, uncompTurretToTargetAngle.unaryMinus());
 
     // uncomp yaw is the angle from the robot to the hub so
     // long as
     // turret zero is robot zero and uncomp yaw is field relative
 
-    // double tangentialVelo = trajectoryRelativeShooterVelo.getY();
-    // double radialVelo = trajectoryRelativeShooterVelo.getX();
+    double tangentialVelo = trajectoryRelativeShooterVelo.getY();
+    double radialVelo = trajectoryRelativeShooterVelo.getX();
 
-    // double uncompRange = get2dDistance(fieldToShooter, target);
+    double uncompRange = get2dDistance(fieldToShooter, target);
 
     // double shooterToHubHeight = target.getZ() - fieldToShooter.getZ();
     Translation3d fieldRelativeShooterToTarget = target.minus(fieldToShooter);
 
-    ShotParameters fieldRelativeParams =
+    ShotParameters trajectoryRelativeParams =
         sweepTrajectories(
             // tangentialVelo,
             // radialVelo,
@@ -86,13 +84,16 @@ public class ShotCalculator {
             // drivetrainPose,
             // uncompTurretToTargetAngle,
             // shooterToHubHeight,
-            fieldRelativeShooterVelo, fieldRelativeShooterToTarget);
+            tangentialVelo, radialVelo, uncompRange, target.getZ() - fieldToShooter.getZ());
 
     ShotParameters botRelativeParams =
         new ShotParameters(
-            fieldRelativeParams.turretAngle.minus(drivetrainPose.getRotation()),
-            fieldRelativeParams.hoodAngle,
-            fieldRelativeParams.shotSpeed);
+            trajectoryRelativeParams
+                .turretAngle
+                .plus(uncompTurretToTargetAngle)
+                .minus(drivetrainPose.getRotation()),
+            trajectoryRelativeParams.hoodAngle,
+            trajectoryRelativeParams.shotSpeed);
     Logger.recordOutput("shotCalculator/turretAngle", botRelativeParams.turretAngle);
     Logger.recordOutput("shotCalculator/landingCoords", landingCoords);
     Logger.recordOutput(
@@ -103,29 +104,8 @@ public class ShotCalculator {
   }
 
   public static ShotParameters sweepTrajectories(
-      // double tangentialVelo,
-      // double radialVelo,
-      // double uncompRange,
-      // Pose2d drivetrainPose,
-      // Rotation2d uncompTurretToTargetAngle,
-      // double shooterToHubHeight,
-      Translation2d fieldRelativeShooterVelo,
-      // Translation3d fieldToShooter,
-      Translation3d fieldRelativeShooterToTarget) {
-    // Translation3d target) {
-
-    Rotation2d uncompTurretToTargetAngle =
-        new Rotation2d(
-            Math.atan2(fieldRelativeShooterToTarget.getY(), fieldRelativeShooterToTarget.getX()));
-    System.out.println("UNCOMP TURRET ANGLE: " + uncompTurretToTargetAngle.getDegrees());
-
-    double uncompRange = fieldRelativeShooterToTarget.toTranslation2d().getNorm();
-    // double shooterToHubHeight = fieldRelativeShooterToTarget.getZ();
-    Translation2d trajectoryRelativeShooterVelo =
-        rotateFrameOfReference(fieldRelativeShooterVelo, uncompTurretToTargetAngle.unaryMinus());
-
-    double tangentialVelo = trajectoryRelativeShooterVelo.getY();
-    double radialVelo = trajectoryRelativeShooterVelo.getX();
+      double tangentialVelo, double radialVelo, double uncompRange, double elevation
+      ) {
 
     double speedRange = ShotCalculatorConditions.MAX_SHOT_SPEED - 0;
     int speedIterations = (int) (speedRange / 0.5);
@@ -140,9 +120,9 @@ public class ShotCalculator {
 
     Rotation2d testHoodAngle = HoodConstants.MIN_ANGLE;
     double testShotSpeed = 0;
-    Rotation2d testTurretAngle = new Rotation2d();
+    Rotation2d testTurretAdjust = new Rotation2d();
 
-    Rotation2d bestTurretAngle = new Rotation2d();
+    Rotation2d bestTurretAdjust = new Rotation2d();
     Rotation2d bestHoodAngle = new Rotation2d();
     double bestShotSpeed = 0;
 
@@ -159,18 +139,17 @@ public class ShotCalculator {
                 * Math.sqrt(
                     tangentialVelo * tangentialVelo + effectiveRadialVelo * effectiveRadialVelo);
 
-        Rotation2d turretAdjust = new Rotation2d(Math.atan2(-tangentialVelo, effectiveRadialVelo));
-        Rotation2d compTurretToTargetAngle =
-            uncompTurretToTargetAngle.plus(turretAdjust); // field relative
-        testTurretAngle = compTurretToTargetAngle;
-        // compTurretToTargetAngle.minus(drivetrainPose.getRotation()); // robot relative
+        testTurretAdjust = new Rotation2d(Math.atan2(-tangentialVelo, effectiveRadialVelo));
+    
 
         double error =
             getTrajectoryError(
-                compTurretToTargetAngle,
                 testHoodAngle,
-                fieldRelativeShooterVelo,
-                fieldRelativeShooterToTarget,
+                testTurretAdjust,
+                tangentialVelo,
+                radialVelo,
+                uncompRange,
+                elevation,
                 testShotSpeed);
 
         double apexTime = apexTime(testShotSpeed * Math.sin(testHoodAngle.getRadians()));
@@ -188,7 +167,7 @@ public class ShotCalculator {
             && testShotSpeed <= ShotCalculatorConditions.MAX_SHOT_SPEED
             && Math.abs(error) <= ShotCalculatorConditions.SHOT_DEADBAND
             && vertexHeight > highestArc) {
-          bestTurretAngle = testTurretAngle;
+          bestTurretAdjust = testTurretAdjust;
           bestHoodAngle = testHoodAngle;
           bestShotSpeed = testShotSpeed;
           highestArc = vertexHeight;
@@ -206,7 +185,7 @@ public class ShotCalculator {
       // System.out.println("VALID SHOT CALCULATED");
     }
 
-    return new ShotParameters(bestTurretAngle, bestHoodAngle, bestShotSpeed);
+    return new ShotParameters(bestTurretAdjust, bestHoodAngle, bestShotSpeed);
   }
 
   /** Field-frame 3D position of the shooter exit given the robot pose. */
@@ -237,18 +216,22 @@ public class ShotCalculator {
   }
 
   public static double getTrajectoryError(
-      Rotation2d compTurretToTargetAngle, // field relative
       Rotation2d hoodAngle,
-      Translation2d fieldRelativeShooterVelo,
-      Translation3d fieldRelativeShooterToTarget,
+      Rotation2d turretAdjust,
+      double tangentialVelo,
+      double radialVelo,
+      double uncompRange,
+      double elevation,
       double shotSpeed) {
 
-    double vx = shotSpeed * Math.cos(hoodAngle.getRadians()) * compTurretToTargetAngle.getCos();
-    double vy = shotSpeed * Math.cos(hoodAngle.getRadians()) * compTurretToTargetAngle.getSin();
+    // all of this is in the coordinate space with x pointing from shooter to target (trajectory
+    // relative)
+    double vx = shotSpeed * Math.cos(hoodAngle.getRadians()) * Math.cos(turretAdjust.getRadians());
+    double vy = shotSpeed * Math.cos(hoodAngle.getRadians()) * Math.sin(turretAdjust.getRadians());
     double vz = shotSpeed * Math.sin(hoodAngle.getRadians());
 
-    vx += fieldRelativeShooterVelo.getX();
-    vy += fieldRelativeShooterVelo.getY();
+    vx += radialVelo;
+    vy += tangentialVelo;
 
     Translation3d initialVelocity = new Translation3d(vx, vy, vz);
 
@@ -256,50 +239,22 @@ public class ShotCalculator {
         timeToTargetHeight(
             -0.5 * 9.8,
             initialVelocity.getZ(),
-            -fieldRelativeShooterToTarget
-                .getZ()); // TODO figure out why this is negative? it works but I'm skeptical
+            -elevation); // TODO figure out why this is negative? it works but I'm skeptical
 
-    Translation3d fieldRelativeShooterToBallLanding =
+    Translation3d trajectoryRelativeShooterToBallLanding =
         new Translation3d(
             initialVelocity.getX() * t,
             initialVelocity.getY() * t,
             initialVelocity.getZ() * t - 0.5 * 9.8 * t * t);
 
-    double error = fieldRelativeShooterToBallLanding.minus(fieldRelativeShooterToTarget).getNorm();
+    Translation3d trajectoryRelativeShooterToTarget = new Translation3d(uncompRange, 0, elevation);
+
+    double error =
+        trajectoryRelativeShooterToBallLanding.minus(trajectoryRelativeShooterToTarget).getNorm();
     return error;
   }
 
-  // public static double getTrajectoryError(
-  //     Rotation2d compTurretToTargetAngle,
-  //     Rotation2d hoodAngle,
-  //     Translation2d fieldRelativeShooterVelo,
-  //     Translation3d fieldToShooter,
-  //     double shotSpeed,
-  //     Translation3d target) {
-
-  //   double vx = shotSpeed * Math.cos(hoodAngle.getRadians()) * compTurretToTargetAngle.getCos();
-  //   double vy = shotSpeed * Math.cos(hoodAngle.getRadians()) * compTurretToTargetAngle.getSin();
-  //   double vz = shotSpeed * Math.sin(hoodAngle.getRadians());
-
-  //   vx += fieldRelativeShooterVelo.getX();
-  //   vy += fieldRelativeShooterVelo.getY();
-
-  //   Translation3d initialVelocity = new Translation3d(vx, vy, vz);
-
-  //   double t =
-  //       timeToTargetHeight(
-  //           -0.5 * 9.8, initialVelocity.getZ(), fieldToShooter.getZ() - target.getZ());
-
-  //   Translation3d fieldToBall =
-  //       new Translation3d(
-  //           fieldToShooter.getX() + initialVelocity.getX() * t,
-  //           fieldToShooter.getY() + initialVelocity.getY() * t,
-  //           fieldToShooter.getZ() + initialVelocity.getZ() * t - 0.5 * 9.8 * t * t);
-
-  //   double error = fieldToBall.minus(target).getNorm();
-  //   return error;
-  // }
-
+  
   public static double apexTime(double vz) {
     return (-vz) / (2 * (-0.5 * 9.8));
   }
@@ -333,4 +288,7 @@ public class ShotCalculator {
     double vy = chassisSpeeds.vyMetersPerSecond + vyAdjust;
     return new Translation2d(vx, vy);
   }
+
+  // private static getHubShootingLookupTable()
+  // iterating through comp range, tangential velo, and radial velo
 }
