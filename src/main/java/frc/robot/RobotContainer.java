@@ -618,6 +618,8 @@ public class RobotContainer {
     CommandScheduler.getInstance().getActiveButtonLoop().clear();
     configureDriverButtonBindings();
     configureCodriverButtonBindings();
+    // if we're running sysid tetsts
+    turretSubsystem.configureSysIdButtonBindings(controller_two);
   }
 
   public void teleopInit() {

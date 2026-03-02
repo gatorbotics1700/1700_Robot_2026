@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.TurretConstants;
@@ -176,6 +177,13 @@ public class TurretSubsystem extends SubsystemBase {
         .dynamic(direction)
         .until(this::isSysIdOutOfBounds)
         .withName("Turret SysId Dynamic " + direction);
+  }
+
+  public void configureSysIdButtonBindings(CommandXboxController controller) {
+    controller.leftTrigger().whileTrue(sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    controller.rightTrigger().whileTrue(sysIdDynamic(SysIdRoutine.Direction.kForward));
+    controller.leftBumper().whileTrue(sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    controller.rightBumper().whileTrue(sysIdQuasistatic(SysIdRoutine.Direction.kForward));
   }
 
   private double getCurrentToOffsetError() {
