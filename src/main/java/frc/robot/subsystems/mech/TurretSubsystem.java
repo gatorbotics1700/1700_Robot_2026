@@ -1,5 +1,7 @@
 package frc.robot.subsystems.mech;
 
+import static edu.wpi.first.units.Units.*;
+
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -12,12 +14,16 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.TurretConstants;
 import org.littletonrobotics.junction.Logger;
 
 public class TurretSubsystem extends SubsystemBase {
+  private static final double SYSID_LIMIT_MARGIN_DEGREES = 10.0;
+
   private final TalonFX turretMotor;
 
   private static TalonFXConfiguration talonFXConfigs;
@@ -26,6 +32,7 @@ public class TurretSubsystem extends SubsystemBase {
   private final int TURRET_GEARBOX_RATIO = 9;
   private final int GEAR_REVS_PER_TURRET_REV = 10;
   private final int ENCODER_REVS_PER_TURRET_REV = 10;
+
   private DutyCycleEncoder boreEncoder =
       new DutyCycleEncoder(TurretConstants.TURRET_BORE_ENCODER_PORT);
   private final DigitalInput hallEffect = new DigitalInput(TurretConstants.TURRET_HALL_EFFECT_PORT);
@@ -49,7 +56,8 @@ public class TurretSubsystem extends SubsystemBase {
     slot0Configs.kG =
         0; // Add 0.2128 V output to overcome gravity (tuned in early feedforward testing)
     slot0Configs.kS =
-        0.25; // Add 0.01 V output to overcome static friction (just a guesstimate, but this might
+        0.25; // Add 0.01 V output to overcome static friction (just a guesstimate, but this
+    // might
     // just be 0
     slot0Configs.kV = 0.16; // A velocity target of 1 rps results in 0.12 V output
     slot0Configs.kA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
@@ -111,6 +119,63 @@ public class TurretSubsystem extends SubsystemBase {
 
   public void setMotorVoltage(double voltage) {
     turretMotor.setVoltage(voltage);
+  }
+
+  private double getVelocityRadPerSec() {
+    double motorRPS = turretMotor.getVelocity().getValueAsDouble();
+    return motorRPS / TURRET_GEARBOX_RATIO / GEAR_REVS_PER_TURRET_REV * 2 * Math.PI;
+  }
+
+  private SysIdRoutine sysIdRoutine() {
+    // config for our test. Sets voltage ramps, limits, and a logging callback
+    SysIdRoutine.Config config =
+        new SysIdRoutine.Config(
+            // this is the ramp rate for voltage during a test
+            Volts.per(Second).of(2),
+            // this is the maximum voltage for the test
+            Volts.of(4),
+            // this is the duration of the test.
+            // Note we use `until` when we return the command to abort if we hit turret
+            // limits
+            Seconds.of(10),
+            (state) -> Logger.recordOutput("Mech/Turret/SysIdState", state.toString()));
+
+    // mechanism for our test. Sets the voltage and logs the motor output
+    SysIdRoutine.Mechanism mechanism =
+        new SysIdRoutine.Mechanism(
+            (voltage) -> turretMotor.setVoltage(voltage.in(Volts)),
+            (log) ->
+                log.motor("turret")
+                    .voltage(Volts.of(turretMotor.getMotorVoltage().getValueAsDouble()))
+                    .angularPosition(Radians.of(getCurrentAngle().getRadians()))
+                    .angularVelocity(RadiansPerSecond.of(getVelocityRadPerSec())),
+            // the subsystem to test (which is us)
+            this,
+            // name for the task
+            "turret");
+    return new SysIdRoutine(config, mechanism);
+  }
+
+  private boolean isSysIdOutOfBounds() {
+    double angleDeg = getCurrentAngle().getDegrees();
+    return angleDeg >= TurretConstants.MAX_TURRET_ANGLE - SYSID_LIMIT_MARGIN_DEGREES
+        || angleDeg <= TurretConstants.MIN_TURRET_ANGLE + SYSID_LIMIT_MARGIN_DEGREES;
+  }
+
+  // run under a series of "flat" voltages to measure velocity behavior
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return sysIdRoutine()
+        .quasistatic(direction)
+        .until(this::isSysIdOutOfBounds)
+        .withName("Turret SysId Quasistatic " + direction);
+  }
+
+  // measure accelaration behavior
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return sysIdRoutine()
+        .dynamic(direction)
+        .until(this::isSysIdOutOfBounds)
+        .withName("Turret SysId Dynamic " + direction);
   }
 
   private double getCurrentToOffsetError() {
