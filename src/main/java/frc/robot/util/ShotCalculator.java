@@ -84,8 +84,8 @@ public class ShotCalculator {
 
     ShotParameters trajectoryRelativeParams =
         lookupShot(lookupTable, tangentialVelo, radialVelo, uncompRange);
-    // sweepTrajectories( tangentialVelo, radialVelo, uncompRange, target.getZ() -
-    // fieldToShooter.getZ());
+    // sweepTrajectories(
+    // 0, 0, 6, FieldCoordinates.BLUE_HUB.getZ() - ShooterConstants.BOT_TO_SHOOTER.getZ());
 
     ShotParameters botRelativeParams =
         new ShotParameters(
@@ -303,19 +303,20 @@ public class ShotCalculator {
     System.out.println("INCREMENTS: " + veloIncrements + ", " + rangeIncrements);
     System.out.println("ITERATIONS: " + veloIncrements * veloIncrements * rangeIncrements);
 
-    double tangentialVelo = 0;
-    double radialVelo = 0;
-    double range = 0; // TODO add min range perhaps?
-
     for (int i = 0; i < veloIncrements; i++) {
+      double tangentialVelo =
+          -ShotCalculatorConditions.MAX_COMPONENT_VELO
+              + ShotCalculatorConditions.VELO_INCREMENT * i;
       for (int j = 0; j < veloIncrements; j++) {
+        double radialVelo =
+            -ShotCalculatorConditions.MAX_COMPONENT_VELO
+                + ShotCalculatorConditions.VELO_INCREMENT * j;
         for (int k = 0; k < rangeIncrements; k++) {
+          double range = ShotCalculatorConditions.RANGE_INCREMENT * k;
           lookupTable[i][j][k] = sweepTrajectories(tangentialVelo, radialVelo, range, elevation);
-          range += ShotCalculatorConditions.RANGE_INCREMENT;
+          System.out.println(tangentialVelo + ", " + radialVelo + ", " + range);
         }
-        radialVelo += ShotCalculatorConditions.VELO_INCREMENT;
       }
-      tangentialVelo += ShotCalculatorConditions.VELO_INCREMENT;
     }
     double endTime = System.currentTimeMillis();
     System.out.println("TABLE GENERATED IN " + (endTime - startTime) + " MILIS");
@@ -333,6 +334,7 @@ public class ShotCalculator {
     if (Math.abs(tangentialVelo) > ShotCalculatorConditions.MAX_COMPONENT_VELO) {
       System.out.println("TOO FAST T TOO FAST T");
     }
+
     int i =
         (int)
             ((tangentialVelo + ShotCalculatorConditions.MAX_COMPONENT_VELO)
@@ -342,8 +344,26 @@ public class ShotCalculator {
             ((radialVelo + ShotCalculatorConditions.MAX_COMPONENT_VELO)
                 / ShotCalculatorConditions.VELO_INCREMENT);
     int k = (int) (range / ShotCalculatorConditions.RANGE_INCREMENT);
+
+    Logger.recordOutput(
+        "Mech/ShotCalculator/LookupTable/indexed t velo",
+        i * ShotCalculatorConditions.VELO_INCREMENT - ShotCalculatorConditions.MAX_COMPONENT_VELO);
+    Logger.recordOutput(
+        "Mech/ShotCalculator/LookupTable/indexed r velo",
+        j * ShotCalculatorConditions.VELO_INCREMENT - ShotCalculatorConditions.MAX_COMPONENT_VELO);
+    Logger.recordOutput(
+        "Mech/ShotCalculator/LookupTable/indexed range",
+        k * ShotCalculatorConditions.RANGE_INCREMENT);
+
+    System.out.println("RETURNING TABLE ENTRY " + i + ", " + j + ", " + k);
     ShotParameters params = lookupTable[i][j][k];
-    System.out.println(params.shotSpeed + ", " + params.hoodAngle + ", " + params.turretAngle);
+    System.out.println(
+        "PARAMS RETURNED FROM TABLE: "
+            + params.shotSpeed
+            + ", "
+            + params.hoodAngle
+            + ", "
+            + params.turretAngle);
     return params;
   }
 }
