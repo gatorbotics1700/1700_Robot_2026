@@ -576,10 +576,10 @@ public class RobotContainer {
       } else {
         controller_two = new CommandXboxController(3);
       }
-      controller_two.a().onTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-      controller_two.b().onTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-      controller_two.x().onTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-      controller_two.y().onTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      controller_two.a().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      controller_two.b().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      controller_two.x().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      controller_two.y().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     }
   }
 
@@ -640,7 +640,7 @@ public class RobotContainer {
 
   public void teleopInit() {
     if (RobotConfigLoader.getSerialNumber().equals(RobotConfigLoader.NILE_SERIAL)) {
-      drive.enableTargetPointFacing();
+      // drive.enableTargetPointFacing();
     }
     configureButtonBindings();
   }
