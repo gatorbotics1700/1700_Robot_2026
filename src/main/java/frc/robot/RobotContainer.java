@@ -640,7 +640,7 @@ public class RobotContainer {
 
   public void teleopInit() {
     if (RobotConfigLoader.getSerialNumber().equals(RobotConfigLoader.NILE_SERIAL)) {
-      // drive.enableTargetPointFacing();
+      drive.enableTargetPointFacing();
     }
     configureButtonBindings();
   }
