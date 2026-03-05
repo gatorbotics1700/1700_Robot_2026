@@ -230,13 +230,13 @@ public class ShooterSubsystem extends SubsystemBase {
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
     return sysIdRoutine()
         .quasistatic(direction)
-        .withName("Turret SysId Quasistatic " + direction);
+        .withName("Flywheel SysId Quasistatic " + direction);
   }
 
   // measure accelaration behavior
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     return sysIdRoutine()
         .dynamic(direction)
-        .withName("Turret SysId Dynamic " + direction);
+        .withName("Flywheel SysId Dynamic " + direction);
   }
 }
