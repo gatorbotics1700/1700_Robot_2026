@@ -537,7 +537,7 @@ public final class Constants {
 
   public static final class HopperFloorConstants {
     public static final int HOPPER_MOTOR_CAN_ID = 35;
-    public static final double HOPPER_FLOOR_VOLTAGE = -0.75;
+    public static final double HOPPER_FLOOR_VOLTAGE = 6;
     public static final double HOPPER_FLOOR_VELOCITY = 0.5; // TODO find a real number
   }
 
