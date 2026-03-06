@@ -666,7 +666,10 @@ public class RobotContainer {
     CommandScheduler.getInstance().getActiveButtonLoop().clear();
     configureDriverButtonBindings();
     configureCodriverButtonBindings();
-    configureSysIdButtonBindings(controller_two);
+    // Only configure SysId bindings if controller_two was initialized
+    if (controller_two != null) {
+      configureSysIdButtonBindings(controller_two);
+    }
   }
 
   public void teleopInit() {

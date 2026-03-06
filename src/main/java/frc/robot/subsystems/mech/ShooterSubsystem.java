@@ -7,6 +7,7 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -38,6 +39,7 @@ public class ShooterSubsystem extends SubsystemBase {
   private BooleanSupplier shouldShoot;
   private boolean sysIdRunning = false;
   private SysIdRoutine sysIdRoutine;
+  private final VoltageOut sysIdVoltageRequest = new VoltageOut(0);
 
   public static LoggedNetworkNumber flyWheelSlip =
       new LoggedNetworkNumber("/Tuning/flywheelSlip", 0.27);
@@ -219,7 +221,7 @@ public class ShooterSubsystem extends SubsystemBase {
         new SysIdRoutine.Mechanism(
             (voltage) -> {
               sysIdRunning = true;
-              rightFlywheelMotor.setVoltage(voltage.in(Volts));
+              rightFlywheelMotor.setControl(sysIdVoltageRequest.withOutput(voltage.in(Volts)));
             },
             (log) ->
                 log.motor("right shooter")
