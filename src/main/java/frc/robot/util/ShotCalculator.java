@@ -454,7 +454,10 @@ public class ShotCalculator {
       ShotParameters[][][] lookupTable, double tangentialVelo, double radialVelo, double range) {
     if (range > ShotCalculatorConditions.MAX_RANGE
         || Math.abs(radialVelo) > ShotCalculatorConditions.MAX_COMPONENT_VELO
-        || Math.abs(tangentialVelo) > ShotCalculatorConditions.MAX_COMPONENT_VELO) {
+        || Math.abs(tangentialVelo) > ShotCalculatorConditions.MAX_COMPONENT_VELO
+        || !turretAngleInterpolator.isValidPoint(tangentialVelo, radialVelo, range)
+        || !hoodAngleInterpolator.isValidPoint(tangentialVelo, radialVelo, range)
+        || !shotSpeedInterpolator.isValidPoint(tangentialVelo, radialVelo, range)) {
       return new ShotParameters(new Rotation2d(), new Rotation2d(), 0);
     }
 
@@ -464,6 +467,10 @@ public class ShotCalculator {
         new Rotation2d(hoodAngleInterpolator.value(tangentialVelo, radialVelo, range));
     double shotSpeed = shotSpeedInterpolator.value(tangentialVelo, radialVelo, range);
     ShotParameters params = new ShotParameters(turretAngle, hoodAngle, shotSpeed);
+    Logger.recordOutput("shotCalculator/turretAngle", turretAngle.getDegrees());
+    Logger.recordOutput("shotCalculator/hoodAngle", hoodAngle.getDegrees());
+    Logger.recordOutput("shotCalculator/shotSpeed", shotSpeed);
+
     System.out.println(
         "PARAMS RETURNED FROM TABLE: "
             + params.shotSpeed
