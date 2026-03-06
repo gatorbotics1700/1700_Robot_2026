@@ -461,15 +461,32 @@ public class ShotCalculator {
       return new ShotParameters(new Rotation2d(), new Rotation2d(), 0);
     }
 
+    int i =
+        (int)
+            ((tangentialVelo + ShotCalculatorConditions.MAX_COMPONENT_VELO)
+                / ShotCalculatorConditions.VELO_INCREMENT);
+    int j =
+        (int)
+            ((radialVelo + ShotCalculatorConditions.MAX_COMPONENT_VELO)
+                / ShotCalculatorConditions.VELO_INCREMENT);
+    int k = (int) (range / ShotCalculatorConditions.RANGE_INCREMENT);
+
     Rotation2d turretAngle =
         new Rotation2d(turretAngleInterpolator.value(tangentialVelo, radialVelo, range));
     Rotation2d hoodAngle =
         new Rotation2d(hoodAngleInterpolator.value(tangentialVelo, radialVelo, range));
     double shotSpeed = shotSpeedInterpolator.value(tangentialVelo, radialVelo, range);
-    ShotParameters params = new ShotParameters(turretAngle, hoodAngle, shotSpeed);
-    Logger.recordOutput("shotCalculator/turretAngle", turretAngle.getDegrees());
-    Logger.recordOutput("shotCalculator/hoodAngle", hoodAngle.getDegrees());
-    Logger.recordOutput("shotCalculator/shotSpeed", shotSpeed);
+    ShotParameters params =
+        new ShotParameters(lookupTable[i][j][k].turretAngle, hoodAngle, shotSpeed);
+    Logger.recordOutput("shotCalculator/turretAngleInLookupShot", turretAngle.getDegrees());
+    Logger.recordOutput("shotCalculator/hoodAngleInLookupShot", hoodAngle.getDegrees());
+    Logger.recordOutput("shotCalculator/shotSpeedInLookupShot", shotSpeed);
+    Logger.recordOutput(
+        "shotCalculator/noninterpolatedturretangle", lookupTable[i][j][k].turretAngle.getDegrees());
+    Logger.recordOutput(
+        "shotCalculator/noninterpolatedhoodangle", lookupTable[i][j][k].hoodAngle.getDegrees());
+    Logger.recordOutput("shotCalculator/noninterpolatedspeed", lookupTable[i][j][k].shotSpeed);
+    Logger.recordOutput("shotCalculator/turretAngleArrayValue",Math.toDegrees(turretAngleTable[i][j][k]));
 
     System.out.println(
         "PARAMS RETURNED FROM TABLE: "
@@ -506,10 +523,14 @@ public class ShotCalculator {
         double radialVelo =
             -ShotCalculatorConditions.MAX_COMPONENT_VELO
                 + ShotCalculatorConditions.VELO_INCREMENT * j;
-        y_values[j] = radialVelo;
+        if(i==0){
+          y_values[j] = radialVelo;
+        }
         for (int k = 0; k < rangeIncrements; k++) {
           double range = ShotCalculatorConditions.RANGE_INCREMENT * k;
-          z_values[k] = range;
+          if(i==0 && j==0){
+            z_values[k]=range;
+          }
           shotSpeedTable[i][j][k] = hubLookupTable[i][j][k].shotSpeed;
           hoodAngleTable[i][j][k] = hubLookupTable[i][j][k].hoodAngle.getRadians();
           turretAngleTable[i][j][k] = hubLookupTable[i][j][k].turretAngle.getRadians();
