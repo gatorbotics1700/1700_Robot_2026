@@ -96,7 +96,8 @@ public final class Constants {
             .withKI(RobotConfigLoader.getDouble("tuner.drive_ki"))
             .withKD(RobotConfigLoader.getDouble("tuner.drive_kd"))
             .withKS(RobotConfigLoader.getDouble("tuner.drive_ks"))
-            .withKV(RobotConfigLoader.getDouble("tuner.drive_kv"));
+            .withKV(RobotConfigLoader.getDouble("tuner.drive_kv"))
+            .withKA(RobotConfigLoader.getDouble("tuner.drive_ka"));
 
     // The closed-loop output type to use for the steer motors;
     // This affects the PID/FF gains for the steer motors
@@ -146,7 +147,7 @@ public final class Constants {
             RobotConfigLoader.getString("tuner.drive_canbus_name").equals("null")
                 ? ""
                 : RobotConfigLoader.getString("tuner.drive_canbus_name"),
-            "");
+            "U/logs");
 
     // Mechanism CAN bus - reuses driveCANBus if they're the same physical bus
     public static final CANBus mechCANBus;
@@ -495,16 +496,16 @@ public final class Constants {
 
   public static final class ClimberConstants {
     public static final int CLIMBER_MOTOR_CAN_ID = 36;
-    public static final int CLIMBER_LIMIT_SWITCH_PORT =
+    public static final int CLIMBER_HALL_EFFECT_PORT =
         7; // TODO is this a limit switch or hall effect
     public static final double L1_EXTENSION_INCHES = 20; // TODO get a real number
 
     public static final int CLIMBER_GEAR_RATIO = 25; // TODO get a real number
     public static final double WINCH_INCHES_PER_REV = (0.75) * Math.PI; // diameter in inches * pi
     // TODO decide if we want to measure climber extension from the floor or from stage 0 of the arm
-    public static final double MAX_EXTENSION_INCHES = 30; // TODO get a real number
-    public static final double RETRACTED_HEIGHT_INCHES = 20; // TODO get a real number
-    public static final double HOMING_VOLTAGE = 10; // TODO get a real number
+    public static final double MAX_EXTENSION_INCHES = 5.58; // TODO get a real number
+    public static final double RETRACTED_HEIGHT_INCHES = 0; // TODO get a real number
+    public static final double HOMING_VOLTAGE = -10; // TODO get a real number
     public static final double POSITION_DEADBAND = 0.5; // TODO get a real number
   }
 

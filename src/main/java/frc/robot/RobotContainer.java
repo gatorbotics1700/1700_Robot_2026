@@ -30,11 +30,13 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.FieldCoordinates;
 import frc.robot.Constants.ShooterConstants;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
+import frc.robot.commands.mech.ClimbCommands;
 import frc.robot.commands.mech.HoodCommands;
 import frc.robot.commands.mech.IntakeCommands;
 import frc.robot.commands.mech.ShootingCommand;
@@ -542,6 +544,13 @@ public class RobotContainer {
                       turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0)));
                     }));
 
+        // TODO CLIMBER TESTING BUTTONS - uncomment for use
+        // controller_two.x().onTrue(new ClimbCommands.HomeClimber(climberSubsystem));
+
+        // controller_two.y().onTrue(ClimbCommands.RetractClimber(climberSubsystem));
+
+        // controller_two.a().onTrue(ClimbCommands.ExtendClimber(climberSubsystem));
+
         // TODO HOOD TESTING BUTTONS - uncomment for use
 
         // controller_two
@@ -568,6 +577,23 @@ public class RobotContainer {
         // controller_two.a().onTrue(RunMechWheels());
         // controller_two.b().onTrue(MechStop());
       }
+    }
+  }
+
+  public void configureSysIdButtons() {
+    if (DriverStation.isJoystickConnected(3)) {
+      if (Constants.currentMode == Constants.Mode.SIM
+          && System.getProperty("os.name").contains("Mac")) {
+        controller_two = new CommandSimMacXboxController(3);
+        // putting this here because it should only run when we're in sim!
+
+      } else {
+        controller_two = new CommandXboxController(3);
+      }
+      controller_two.a().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      controller_two.b().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      controller_two.x().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      controller_two.y().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     }
   }
 

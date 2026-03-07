@@ -25,13 +25,14 @@ public class ClimbCommands {
   }
 
   public static Command RetractClimber(ClimberSubsystem climberSubsystem) {
-    return new ClimberCommand(climberSubsystem, 0.0).withName("RetractClimber");
+    return new ClimberCommand(climberSubsystem, ClimberConstants.RETRACTED_HEIGHT_INCHES)
+        .withName("RetractClimber");
   }
 
   public static class HomeClimber extends Command {
     private final ClimberSubsystem climberSubsystem;
 
-    HomeClimber(ClimberSubsystem climberSubsystem) {
+    public HomeClimber(ClimberSubsystem climberSubsystem) {
       setName("HomeClimber");
       this.climberSubsystem = climberSubsystem;
       addRequirements(climberSubsystem);
@@ -44,15 +45,16 @@ public class ClimbCommands {
 
     @Override
     public boolean isFinished() {
-      return climberSubsystem.limitSwitchPressed();
+      return climberSubsystem.hallEffectTriggered();
     }
 
     @Override
     public void end(boolean interrupted) {
       // TODO return this to its real state!
-      // climberSubsystem.zeroClimber();
-      // climberSubsystem.setDesiredPositionInches(ClimberConstants.RETRACTED_HEIGHT_INCHES + 0.25);
-      climberSubsystem.setDesiredPositionInches(climberSubsystem.getCurrentPositionInches() + 0.1);
+      climberSubsystem.zeroClimber();
+      climberSubsystem.setDesiredPositionInches(ClimberConstants.RETRACTED_HEIGHT_INCHES + 0.1);
+      // climberSubsystem.setDesiredPositionInches(climberSubsystem.getCurrentPositionInches() +
+      // 0.1);
     }
   }
 
@@ -196,5 +198,10 @@ public class ClimbCommands {
       }
       return false;
     }
+  }
+
+  public static Command HomeClimber(ClimberSubsystem climberSubsystem) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'HomeClimber'");
   }
 }
