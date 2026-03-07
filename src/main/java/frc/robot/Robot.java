@@ -198,9 +198,9 @@ public class Robot extends LoggedRobot {
                 robotContainer.getHopperFloorSubsystem(),
                 robotContainer.getHoodSubsystem(),
                 robotContainer.getIntakeSubsystem()));
-    CommandScheduler.getInstance()
-        .schedule(
-            robotContainer.HomeMechanisms()); // TODO we don't want to actually do this in comps
+    // CommandScheduler.getInstance()
+    //     .schedule(
+    //         robotContainer.HomeMechanisms()); // TODO we don't want to actually do this in comps
     Elastic.selectTab("Teleoperated");
 
     // This makes sure that the autonomous stops running when teleop starts

@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.HopperFloorConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.TunerConstants;
@@ -505,8 +506,7 @@ public class RobotContainer {
         //     .onTrue(
         //         new InstantCommand(
         //             () ->
-        //                 CommandScheduler.getInstance()
-        //                     .schedule(IntakeCommands.ToggleIntake(intakeSubsystem))));
+        //               intakeSubsystem.toggleIntake()));
 
         // controller_two.y().onTrue(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem));
 
@@ -564,38 +564,38 @@ public class RobotContainer {
         // controller_two.a().onTrue(RunMechWheels());
         // controller_two.b().onTrue(MechStop());
 
-        controller_two
-            .b()
-            .onTrue(
-                new ShootingCommand(
-                    shooterSubsystem,
-                    hoodSubsystem,
-                    turretSubsystem,
-                    hopperFloorSubsystem,
-                    robotPose,
-                    chassisSpeeds));
+        // controller_two
+        //     .b()
+        //     .onTrue(
+        //         new ShootingCommand(
+        //             shooterSubsystem,
+        //             hoodSubsystem,
+        //             turretSubsystem,
+        //             hopperFloorSubsystem,
+        //             robotPose,
+        //             chassisSpeeds));
 
-        controller_two
-            .a()
-            .onTrue(
-                new InstantCommand(
-                    () ->
-                        hopperFloorSubsystem.setDesiredHopperFloorVoltage(
-                            HopperFloorConstants.HOPPER_FLOOR_VOLTAGE)));
+        // controller_two
+        //     .a()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () ->
+        //                 hopperFloorSubsystem.setDesiredHopperFloorVoltage(
+        //                     HopperFloorConstants.HOPPER_FLOOR_VOLTAGE)));
 
-        controller_two
-            .x()
-            .onTrue(
-                new InstantCommand(
-                    () ->
-                        CommandScheduler.getInstance()
-                            .schedule(
-                                MechStop(
-                                    turretSubsystem,
-                                    shooterSubsystem,
-                                    hopperFloorSubsystem,
-                                    hoodSubsystem,
-                                    intakeSubsystem))));
+        // controller_two
+        //     .x()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () ->
+        //                 CommandScheduler.getInstance()
+        //                     .schedule(
+        //                         MechStop(
+        //                             turretSubsystem,
+        //                             shooterSubsystem,
+        //                             hopperFloorSubsystem,
+        //                             hoodSubsystem,
+        //                             intakeSubsystem))));
 
         controller_two
             .y()
@@ -621,6 +621,15 @@ public class RobotContainer {
                             ShooterConstants.TRANSITION_VOLTAGE)));
       }
     }
+  }
+
+  public void configureSysIdButtonBindings(CommandXboxController controller) {
+    controller.x().whileTrue(hoodSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    controller.y().whileTrue(hoodSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    controller.a().whileTrue(hoodSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    controller.b().whileTrue(hoodSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+
+    controller.rightTrigger().onTrue(new InstantCommand(() -> hoodSubsystem.zeroHood()));
   }
 
   public Command getAutonomousCommand() {
@@ -676,6 +685,10 @@ public class RobotContainer {
     CommandScheduler.getInstance().getActiveButtonLoop().clear();
     configureDriverButtonBindings();
     configureCodriverButtonBindings();
+    // Only configure SysId bindings if controller_two was initialized
+    if (controller_two != null) {
+      configureSysIdButtonBindings(controller_two);
+    }
   }
 
   public void teleopInit() {
@@ -683,6 +696,7 @@ public class RobotContainer {
       drive.enableTargetPointFacing();
     }
     configureButtonBindings();
+    hoodSubsystem.zeroHood();
   }
 
   public void periodic() {
