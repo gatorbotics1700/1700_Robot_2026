@@ -265,8 +265,12 @@ public class HoodSubsystem extends SubsystemBase {
         angleDeg > HoodConstants.RETRACTED_POSITION.getDegrees() - SYSID_LIMIT_MARGIN_DEGREES
             || angleDeg < HoodConstants.MIN_ANGLE.getDegrees() + SYSID_LIMIT_MARGIN_DEGREES;
     Logger.recordOutput("Mech/Hood/SysId Out Of Bounds", outOfBounds);
-    Logger.recordOutput("Mech/Hood/SysId Retracted Limit", HoodConstants.RETRACTED_POSITION.getDegrees() - SYSID_LIMIT_MARGIN_DEGREES);
-    Logger.recordOutput("Mech/Hood/SysId Min Limit", HoodConstants.MIN_ANGLE.getDegrees() + SYSID_LIMIT_MARGIN_DEGREES);
+    Logger.recordOutput(
+        "Mech/Hood/SysId Retracted Limit",
+        HoodConstants.RETRACTED_POSITION.getDegrees() - SYSID_LIMIT_MARGIN_DEGREES);
+    Logger.recordOutput(
+        "Mech/Hood/SysId Min Limit",
+        HoodConstants.MIN_ANGLE.getDegrees() + SYSID_LIMIT_MARGIN_DEGREES);
     return outOfBounds;
   }
 
@@ -278,7 +282,7 @@ public class HoodSubsystem extends SubsystemBase {
     }
     return sysIdRoutine
         .quasistatic(direction)
-        // .until(this::isSysIdOutOfBounds)  // temporarily disabled for testing
+        .until(this::isSysIdOutOfBounds) // temporarily disabled for testing
         .finallyDo(() -> sysIdRunning = false)
         .withName("Hood SysId Quasistatic " + direction);
   }
@@ -291,7 +295,7 @@ public class HoodSubsystem extends SubsystemBase {
     }
     return sysIdRoutine
         .dynamic(direction)
-        // .until(this::isSysIdOutOfBounds)  // temporarily disabled for testing
+        .until(this::isSysIdOutOfBounds) // temporarily disabled for testing
         .finallyDo(() -> sysIdRunning = false)
         .withName("Hood SysId Dynamic " + direction);
   }

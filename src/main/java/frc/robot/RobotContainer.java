@@ -679,6 +679,7 @@ public class RobotContainer {
       drive.enableTargetPointFacing();
     }
     configureButtonBindings();
+    hoodSubsystem.zeroHood();
   }
 
   public void periodic() {
