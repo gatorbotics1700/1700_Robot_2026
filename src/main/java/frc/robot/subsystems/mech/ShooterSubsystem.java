@@ -209,11 +209,11 @@ public class ShooterSubsystem extends SubsystemBase {
     SysIdRoutine.Config config =
         new SysIdRoutine.Config(
             // this is the ramp rate for voltage during a test
-            Volts.per(Second).of(2),
+            Volts.per(Second).of(1),
             // this is the maximum voltage for the test
-            Volts.of(18),
+            Volts.of(10),
             // this is the duration of the test.
-            Seconds.of(15),
+            Seconds.of(10),
             (state) -> Logger.recordOutput("Mech/Right Shooter/SysIdState", state.toString()));
 
     // mechanism for our test. Sets the voltage and logs the motor output
