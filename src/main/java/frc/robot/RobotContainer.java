@@ -17,6 +17,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -27,6 +28,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.HopperFloorConstants;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.drive.DriveCommands;
@@ -35,7 +38,6 @@ import frc.robot.commands.drive.DriveUnderTrenchCommand;
 import frc.robot.commands.mech.HoodCommands;
 import frc.robot.commands.mech.IntakeCommands;
 import frc.robot.commands.mech.ShootingCommand;
-import frc.robot.commands.mech.TurretHomingCommand;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -595,13 +597,28 @@ public class RobotContainer {
         //                             hoodSubsystem,
         //                             intakeSubsystem))));
 
-        // controller_two
-        //     .x()
-        //     .onTrue(new InstantCommand(() -> shooterSubsystem.setDesiredFlywheelVelocity(90)));
+        controller_two
+            .y()
+            .onTrue(
+                new InstantCommand(
+                    () -> {
+                      hoodSubsystem.setDesiredAngle(new Rotation2d(Units.degreesToRadians(25)));
+                      shooterSubsystem.setDesiredFlywheelVelocity(90);
+                      shooterSubsystem.setDesiredTransitionVoltage(
+                          ShooterConstants.TRANSITION_VOLTAGE);
+                    }));
 
-        // controller_two
-        //     .rightBumper()
-        //     .onTrue(new InstantCommand(() -> shooterSubsystem.toggleShouldShoot()));
+        controller_two
+            .rightBumper()
+            .onTrue(new InstantCommand(() -> shooterSubsystem.toggleShouldShoot()));
+
+        controller_two
+            .leftBumper()
+            .onTrue(
+                new InstantCommand(
+                    () ->
+                        shooterSubsystem.setDesiredTransitionVoltage(
+                            ShooterConstants.TRANSITION_VOLTAGE)));
       }
     }
   }
@@ -766,7 +783,8 @@ public class RobotContainer {
   }
 
   public Command HomeMechanisms() { // TODO: add any other homing commands with alongWith
-    return HoodCommands.HomeHood(hoodSubsystem).alongWith(new TurretHomingCommand(turretSubsystem));
+    return HoodCommands.HomeHood(
+        hoodSubsystem); // .alongWith(new TurretHomingCommand(turretSubsystem));
     // .alongWith(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem));
   }
 
