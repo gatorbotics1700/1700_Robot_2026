@@ -14,6 +14,8 @@
 // TODO: add mech commands into auto stuff
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -30,11 +32,15 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.HopperFloorConstants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.FieldCoordinates;
+import frc.robot.Constants.ShooterConstants;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
+import frc.robot.commands.mech.ClimbCommands;
 import frc.robot.commands.mech.HoodCommands;
 import frc.robot.commands.mech.IntakeCommands;
 import frc.robot.commands.mech.ShootingCommand;
@@ -57,6 +63,7 @@ import frc.robot.util.CommandSimMacXboxController;
 import frc.robot.util.GamePieceSimulation;
 import frc.robot.util.MultiStepAutoChooser;
 import frc.robot.util.RobotConfigLoader;
+import frc.robot.util.ShotCalculator;
 import frc.robot.util.ShotParameters;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
@@ -340,148 +347,149 @@ public class RobotContainer {
       }
 
       if (Constants.currentMode == Constants.Mode.SIM) {
-        // controller_two
-        // .a()
-        // .onTrue(
-        // new InstantCommand(
-        // () -> {
-        // // Use current pose and chassis speeds at this instant so all values match.
-        // Pose2d pose = drive.getPose();
-
-        // ChassisSpeeds cs = drive.getChassisSpeeds();
-        // ShotParameters params =
-        // ShotCalculator.calculateShot(pose, cs, FieldCoordinates.BLUE_HUB);
-
-        // gamePieceSimulation.launchFuelBall(
-        // ShotCalculator.getFieldToShooter(pose, ShooterConstants.BOT_TO_SHOOTER),
-        // cs,
-        // drive.getRotation(),
-        // params.shotSpeed,
-        // params.turretAngle,
-        // params.hoodAngle);
-        // }));
-        // controller_two
-        // .b()
-        // .onTrue(
-        // AutoBuilder.pathfindToPose(
-        // new Pose2d(1, FieldCoordinates.BLUE_HUB.getY(), new Rotation2d()),
-        // new PathConstraints(4, 12, Math.toRadians(700), Math.toRadians(1000)))
-        // .andThen(
-        // Commands.parallel(
-        // AutoBuilder.pathfindToPose(
-        // new Pose2d(3, FieldCoordinates.BLUE_HUB.getY(), new Rotation2d()),
-        // new PathConstraints(
-        // 1, 12, Math.toRadians(700), Math.toRadians(1000))),
-        // Commands.waitSeconds(0.2)
-        // .andThen(
-        // Commands.runOnce(
-        // () -> {
-        // // Use current pose and chassis speeds at this instant so
-        // // all
-        // // values
-        // // match.
-        // Pose2d pose = drive.getPose();
-
-        // ChassisSpeeds cs = drive.getChassisSpeeds();
-        // ShotParameters params =
-        // ShotCalculator.calculateShot(
-        // pose, cs, FieldCoordinates.BLUE_HUB);
-
-        // gamePieceSimulation.launchFuelBall(
-        // ShotCalculator.getFieldToShooter(
-        // pose, ShooterConstants.BOT_TO_SHOOTER),
-        // cs,
-        // pose.getRotation(),
-        // params.shotSpeed,
-        // params.turretAngle,
-        // params.hoodAngle);
-        // })))));
-        // controller_two
-        // .x()
-        // .onTrue(
-        // AutoBuilder.pathfindToPose(
-        // new Pose2d(1, FieldCoordinates.BLUE_HUB.getY() + 1, new Rotation2d()),
-        // new PathConstraints(4, 12, Math.toRadians(700), Math.toRadians(1000)))
-        // .andThen(
-        // Commands.parallel(
-        // AutoBuilder.pathfindToPose(
-        // new Pose2d(1, FieldCoordinates.BLUE_HUB.getY() + 2, new
-        // Rotation2d()),
-        // new PathConstraints(
-        // 3, 12, Math.toRadians(700), Math.toRadians(1000))),
-        // Commands.waitSeconds(0.2)
-        // .andThen(
-        // Commands.runOnce(
-        // () -> {
-        // // Use current pose and chassis speeds at this instant so
-        // // all
-        // // values
-        // // match.
-        // Pose2d pose = drive.getPose();
-
-        // ChassisSpeeds cs = drive.getChassisSpeeds();
-        // ShotParameters params =
-        // ShotCalculator.calculateShot(
-        // pose, cs, FieldCoordinates.BLUE_HUB);
-
-        // gamePieceSimulation.launchFuelBall(
-        // ShotCalculator.getFieldToShooter(
-        // pose, ShooterConstants.BOT_TO_SHOOTER),
-        // cs,
-        // pose.getRotation(),
-        // params.shotSpeed,
-        // params.turretAngle,
-        // params.hoodAngle);
-        // })))));
-        // controller_two
-        // .x()
-        // .onTrue(
-        // AutoBuilder.pathfindToPose(
-        // new Pose2d(16.516, 4.281, new Rotation2d()),
-        // new PathConstraints(4, 12, Math.toRadians(700), Math.toRadians(1000)))
-        // .andThen(
-        // Commands.runOnce(
-        // () -> {
-        // // Use current pose and chassis speeds at this instant so
-        // // all
-        // // values
-        // // match.
-        // System.out.println("SHOOTING FROM RED TEST POSE");
-        // Pose2d pose = drive.getPose();
-
-        // ChassisSpeeds cs = drive.getChassisSpeeds();
-        // ShotParameters params =
-        // ShotCalculator.calculateShot(pose, cs, FieldCoordinates.RED_HUB);
-
-        // gamePieceSimulation.launchFuelBall(
-        // ShotCalculator.getFieldToShooter(
-        // pose, ShooterConstants.BOT_TO_SHOOTER),
-        // cs,
-        // pose.getRotation(),
-        // params.shotSpeed,
-        // params.turretAngle,
-        // params.hoodAngle);
-        // })));
-
         controller_two
             .a()
             .onTrue(
                 new InstantCommand(
                     () -> {
-                      shooterSubsystem.toggleShouldShoot();
-                      System.out.println("BUTTON AAAAAAAAA");
-                    }));
+                      // Use current pose and chassis speeds at this instant so all values match.
+                      Pose2d pose = drive.getPose();
 
+                      ChassisSpeeds cs = drive.getChassisSpeeds();
+                      ShotParameters params =
+                          ShotCalculator.calculateShot(pose, cs, FieldCoordinates.BLUE_HUB);
+
+                      gamePieceSimulation.launchFuelBall(
+                          ShotCalculator.getFieldToShooter(pose, ShooterConstants.BOT_TO_SHOOTER),
+                          cs,
+                          drive.getRotation(),
+                          params.shotSpeed,
+                          params.turretAngle,
+                          params.hoodAngle);
+                    }));
+        controller_two
+            .b()
+            .onTrue(
+                AutoBuilder.pathfindToPose(
+                        new Pose2d(1, FieldCoordinates.BLUE_HUB.getY(), new Rotation2d()),
+                        new PathConstraints(4, 12, Math.toRadians(700), Math.toRadians(1000)))
+                    .andThen(
+                        Commands.parallel(
+                            AutoBuilder.pathfindToPose(
+                                new Pose2d(3, FieldCoordinates.BLUE_HUB.getY(), new Rotation2d()),
+                                new PathConstraints(
+                                    0.75, 12, Math.toRadians(700), Math.toRadians(1000))),
+                            Commands.waitSeconds(0.2)
+                                .andThen(
+                                    Commands.runOnce(
+                                        () -> {
+                                          // Use current pose and chassis speeds at this instant so
+                                          // all
+                                          // values
+                                          // match.
+                                          Pose2d pose = drive.getPose();
+
+                                          ChassisSpeeds cs = drive.getChassisSpeeds();
+                                          ShotParameters params =
+                                              ShotCalculator.calculateShot(
+                                                  pose, cs, FieldCoordinates.BLUE_HUB);
+
+                                          gamePieceSimulation.launchFuelBall(
+                                              ShotCalculator.getFieldToShooter(
+                                                  pose, ShooterConstants.BOT_TO_SHOOTER),
+                                              cs,
+                                              pose.getRotation(),
+                                              params.shotSpeed,
+                                              params.turretAngle,
+                                              params.hoodAngle);
+                                        })))));
         controller_two
             .x()
             .onTrue(
-                new ShootingCommand(
-                    shooterSubsystem,
-                    hoodSubsystem,
-                    turretSubsystem,
-                    hopperFloorSubsystem,
-                    robotPose,
-                    chassisSpeeds));
+                AutoBuilder.pathfindToPose(
+                        new Pose2d(1, FieldCoordinates.BLUE_HUB.getY() + 1, new Rotation2d()),
+                        new PathConstraints(4, 12, Math.toRadians(700), Math.toRadians(1000)))
+                    .andThen(
+                        Commands.parallel(
+                            AutoBuilder.pathfindToPose(
+                                new Pose2d(
+                                    1, FieldCoordinates.BLUE_HUB.getY() + 2, new Rotation2d()),
+                                new PathConstraints(
+                                    0.75, 12, Math.toRadians(700), Math.toRadians(1000))),
+                            Commands.waitSeconds(0.2)
+                                .andThen(
+                                    Commands.runOnce(
+                                        () -> {
+                                          // Use current pose and chassis speeds at this instant so
+                                          // all
+                                          // values
+                                          // match.
+                                          Pose2d pose = drive.getPose();
+
+                                          ChassisSpeeds cs = drive.getChassisSpeeds();
+                                          ShotParameters params =
+                                              ShotCalculator.calculateShot(
+                                                  pose, cs, FieldCoordinates.BLUE_HUB);
+
+                                          gamePieceSimulation.launchFuelBall(
+                                              ShotCalculator.getFieldToShooter(
+                                                  pose, ShooterConstants.BOT_TO_SHOOTER),
+                                              cs,
+                                              pose.getRotation(),
+                                              params.shotSpeed,
+                                              params.turretAngle,
+                                              params.hoodAngle);
+                                        })))));
+        // controller_two
+        //     .x()
+        //     .onTrue(
+        //         AutoBuilder.pathfindToPose(
+        //                 new Pose2d(16.516, 4.281, new Rotation2d()),
+        //                 new PathConstraints(4, 12, Math.toRadians(700), Math.toRadians(1000)))
+        //             .andThen(
+        //                 Commands.runOnce(
+        //                     () -> {
+        //                       // Use current pose and chassis speeds at this instant so
+        //                       // all
+        //                       // values
+        //                       // match.
+        //                       System.out.println("SHOOTING FROM RED TEST POSE");
+        //                       Pose2d pose = drive.getPose();
+
+        //                       ChassisSpeeds cs = drive.getChassisSpeeds();
+        //                       ShotParameters params =
+        //                           ShotCalculator.calculateShot(pose, cs,
+        // FieldCoordinates.RED_HUB);
+
+        //                       gamePieceSimulation.launchFuelBall(
+        //                           ShotCalculator.getFieldToShooter(
+        //                               pose, ShooterConstants.BOT_TO_SHOOTER),
+        //                           cs,
+        //                           pose.getRotation(),
+        //                           params.shotSpeed,
+        //                           params.turretAngle,
+        //                           params.hoodAngle);
+        //                     })));
+
+        // controller_two
+        //     .a()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () -> {
+        //               shooterSubsystem.toggleShouldShoot();
+        //               System.out.println("BUTTON AAAAAAAAA");
+        //             }));
+
+        // controller_two
+        //     .x()
+        //     .onTrue(
+        //         new ShootingCommand(
+        //             shooterSubsystem,
+        //             hoodSubsystem,
+        //             turretSubsystem,
+        //             transitionSubsystem,
+        //             robotPose,
+        //             chassisSpeeds));
       } else {
         // TODO INTAKE TESTING BUTTONS - uncomment for use
 
@@ -537,6 +545,13 @@ public class RobotContainer {
         //             () -> {
         //               turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(200)));
         //             }));
+
+        // TODO CLIMBER TESTING BUTTONS - uncomment for use
+        // controller_two.x().onTrue(new ClimbCommands.HomeClimber(climberSubsystem));
+
+        // controller_two.y().onTrue(ClimbCommands.RetractClimber(climberSubsystem));
+
+        // controller_two.a().onTrue(ClimbCommands.ExtendClimber(climberSubsystem));
 
         // TODO HOOD TESTING BUTTONS - uncomment for use
 
@@ -630,6 +645,22 @@ public class RobotContainer {
     controller.b().whileTrue(hoodSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
     controller.rightTrigger().onTrue(new InstantCommand(() -> hoodSubsystem.zeroHood()));
+  }
+  public void configureSysIdButtons() {
+    if (DriverStation.isJoystickConnected(3)) {
+      if (Constants.currentMode == Constants.Mode.SIM
+          && System.getProperty("os.name").contains("Mac")) {
+        controller_two = new CommandSimMacXboxController(3);
+        // putting this here because it should only run when we're in sim!
+
+      } else {
+        controller_two = new CommandXboxController(3);
+      }
+      controller_two.a().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      controller_two.b().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      controller_two.x().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      controller_two.y().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    }
   }
 
   public Command getAutonomousCommand() {

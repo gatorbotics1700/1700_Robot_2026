@@ -8,19 +8,72 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.Filesystem;
+import frc.robot.Constants.FieldCoordinates;
 import frc.robot.Constants.HoodConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.ShotCalculatorConditions;
-import org.littletonrobotics.junction.AutoLog;
+import java.io.IOException;
+import java.nio.file.Path;
 import org.littletonrobotics.junction.Logger;
 
-@AutoLog
+// @AutoLog
 public class ShotCalculator {
   // for testing only, used for logging where the calculator expects the ball to hit the target's
   // height ("land" on the target)
   public static Translation3d landingCoords = new Translation3d();
+  public static ShotParameters[][][] hubLookupTable;
 
-  public ShotCalculator() {}
+  // to regen the lookup table (should only be necessary if you change constants like hood angles or
+  // max speeds), run ./gradlew generateShotTable in terminal!
+  public ShotCalculator() {
+    hubLookupTable =
+        loadLookupTableOrGenerate(
+            FieldCoordinates.BLUE_HUB.getZ() - ShooterConstants.BOT_TO_SHOOTER.getZ());
+  }
+
+  private static String getShotTableName() {
+    String fromProp = System.getProperty("shot.table");
+    if (fromProp != null && !fromProp.isBlank()) {
+      return fromProp.trim();
+    }
+    String fromEnv = System.getenv("SHOT_TABLE");
+    if (fromEnv != null && !fromEnv.isBlank()) {
+      return fromEnv.trim();
+    }
+    // Default profile for this repo right now.
+    return "AlectoHub";
+  }
+
+  private static ShotParameters[][][] loadLookupTableOrGenerate(double elevationMeters) {
+    String tableName = getShotTableName();
+    Path path =
+        Filesystem.getDeployDirectory().toPath().resolve("shot_calculator/" + tableName + ".json");
+    try {
+      ShotTableData data = ShotTableIO.readJson(path);
+      String expectedHash =
+          ShotTableIO.computeConfigHash(
+              elevationMeters,
+              HoodConstants.RETRACTED_POSITION.getRadians(),
+              HoodConstants.MIN_ANGLE.getRadians());
+      if (data.schemaVersion == ShotTableIO.SCHEMA_VERSION
+          && expectedHash.equals(data.configHash)) {
+        System.out.println("ShotCalculator: Loaded lookup table from " + path);
+        return ShotTableIO.toLookupTable(data);
+      }
+      System.err.println(
+          "ShotCalculator: Shot table JSON is out of date (hash/schema mismatch), generating table.");
+    } catch (IOException e) {
+      System.err.println(
+          "ShotCalculator: Unable to load shot table JSON at "
+              + path
+              + " ("
+              + e.getMessage()
+              + ")");
+      System.err.println("ShotCalculator: Generating lookup table at runtime.");
+    }
+    return getShootingLookupTable(elevationMeters);
+  }
 
   // This is the method we use to get shot parameters, which returns a hood angle (from vertical),
   // turret angle (robot relative), and a shotspeed (in mps of the ball, not flywheel rpm)
@@ -41,6 +94,8 @@ public class ShotCalculator {
 
   public static ShotParameters calculateShot(
       Pose2d drivetrainPose, ChassisSpeeds chassisSpeeds, Translation3d target) {
+    System.out.println("CALCULATING SHOT");
+
     // calculate field relative shooter pose
     Translation3d fieldToShooter =
         getFieldToShooter(drivetrainPose, ShooterConstants.BOT_TO_SHOOTER);
@@ -57,12 +112,13 @@ public class ShotCalculator {
 
     Translation2d fieldRelativeShooterVelo =
         rotateFrameOfReference(shooterVelo, drivetrainPose.getRotation().unaryMinus());
+
     // if the robot is turning because the turret isn't the center of the
     // rotation
+
     Translation2d trajectoryRelativeShooterVelo =
-        rotateFrameOfReference(
-            fieldRelativeShooterVelo,
-            uncompTurretToTargetAngle.unaryMinus()); // might not need to be inverted, double check
+        rotateFrameOfReference(fieldRelativeShooterVelo, uncompTurretToTargetAngle.unaryMinus());
+
     // uncomp yaw is the angle from the robot to the hub so
     // long as
     // turret zero is robot zero and uncomp yaw is field relative
@@ -72,58 +128,77 @@ public class ShotCalculator {
 
     double uncompRange = get2dDistance(fieldToShooter, target);
 
-    double shooterToHubHeight = target.getZ() - fieldToShooter.getZ();
+    // double shooterToHubHeight = target.getZ() - fieldToShooter.getZ();
+    Translation3d fieldRelativeShooterToTarget = target.minus(fieldToShooter);
 
-    ShotParameters params =
-        sweepTrajectories(
-            tangentialVelo,
-            radialVelo,
-            uncompRange,
-            drivetrainPose,
-            uncompTurretToTargetAngle,
-            shooterToHubHeight,
-            fieldRelativeShooterVelo,
-            fieldToShooter,
-            target);
+    ShotParameters trajectoryRelativeParams;
 
-    Logger.recordOutput("shotCalculator/turretAngle", params.turretAngle);
+    if (target.equals(FieldCoordinates.BLUE_HUB) || target.equals(FieldCoordinates.RED_HUB)) {
+      trajectoryRelativeParams =
+          lookupShot(hubLookupTable, tangentialVelo, radialVelo, uncompRange);
+    } else {
+      trajectoryRelativeParams =
+          sweepTrajectories(
+              tangentialVelo, radialVelo, uncompRange, fieldRelativeShooterToTarget.getZ());
+    }
+
+    ShotParameters botRelativeParams =
+        new ShotParameters(
+            trajectoryRelativeParams
+                .turretAngle
+                .plus(uncompTurretToTargetAngle)
+                .minus(drivetrainPose.getRotation()),
+            trajectoryRelativeParams.hoodAngle,
+            trajectoryRelativeParams.shotSpeed);
+    Logger.recordOutput("shotCalculator/turretAngle", botRelativeParams.turretAngle);
     Logger.recordOutput("shotCalculator/landingCoords", landingCoords);
+    Logger.recordOutput(
+        "shotCalculator/shooterToTarget + shooter",
+        fieldRelativeShooterToTarget.plus(fieldToShooter));
+    System.out.println("SHOT CALCULATOR DONE");
 
-    return params;
+    return botRelativeParams;
+  }
+
+  public static ShotParameters sweepTrajectories(
+      double tangentialVelo, double radialVelo, double uncompRange, double elevation) {
+    return sweepTrajectories(
+        tangentialVelo,
+        radialVelo,
+        uncompRange,
+        elevation,
+        HoodConstants.MIN_ANGLE,
+        HoodConstants.RETRACTED_POSITION);
   }
 
   public static ShotParameters sweepTrajectories(
       double tangentialVelo,
       double radialVelo,
       double uncompRange,
-      Pose2d drivetrainPose,
-      Rotation2d uncompTurretToTargetAngle,
-      double shooterToHubHeight,
-      Translation2d fieldRelativeShooterVelo,
-      Translation3d fieldToShooter,
-      Translation3d target) {
+      double elevation,
+      Rotation2d hoodMinAngle,
+      Rotation2d hoodRetractedPosition) {
 
     double speedRange = ShotCalculatorConditions.MAX_SHOT_SPEED - 0;
     int speedIterations = (int) (speedRange / 0.5);
     double speedIncrement = speedRange / (double) speedIterations;
-    double hoodAngleRange =
-        HoodConstants.RETRACTED_POSITION.getDegrees() - HoodConstants.MIN_ANGLE.getDegrees();
+    double hoodAngleRange = hoodRetractedPosition.getDegrees() - hoodMinAngle.getDegrees();
     int angleIterations = (int) (hoodAngleRange / 1);
     Rotation2d angleIncrement =
         new Rotation2d(Math.toRadians(hoodAngleRange / (double) angleIterations));
 
     double highestArc = 0;
 
-    Rotation2d testHoodAngle = HoodConstants.MIN_ANGLE;
+    Rotation2d testHoodAngle = hoodMinAngle;
     double testShotSpeed = 0;
-    Rotation2d testTurretAngle = new Rotation2d();
+    Rotation2d testTurretAdjust = new Rotation2d();
 
-    Rotation2d bestTurretAngle = new Rotation2d();
-    Rotation2d bestHoodAngle = new Rotation2d();
+    Rotation2d bestTurretAdjust = new Rotation2d();
+    Rotation2d bestHoodAngle = hoodRetractedPosition;
     double bestShotSpeed = 0;
 
     for (int i = 0; i < speedIterations; i++) {
-      testHoodAngle = HoodConstants.MIN_ANGLE;
+      testHoodAngle = hoodMinAngle;
 
       for (int j = 0; j < angleIterations; j++) {
 
@@ -135,25 +210,22 @@ public class ShotCalculator {
                 * Math.sqrt(
                     tangentialVelo * tangentialVelo + effectiveRadialVelo * effectiveRadialVelo);
 
-        Rotation2d turretAdjust = new Rotation2d(Math.atan2(-tangentialVelo, effectiveRadialVelo));
-        Rotation2d compTurretToTargetAngle =
-            uncompTurretToTargetAngle.plus(turretAdjust); // field relative
-        testTurretAngle =
-            compTurretToTargetAngle.minus(drivetrainPose.getRotation()); // robot relative
+        testTurretAdjust = new Rotation2d(Math.atan2(-tangentialVelo, effectiveRadialVelo));
 
         double error =
             getTrajectoryError(
-                compTurretToTargetAngle,
                 testHoodAngle,
-                fieldRelativeShooterVelo,
-                fieldToShooter,
-                testShotSpeed,
-                target);
+                testTurretAdjust,
+                tangentialVelo,
+                radialVelo,
+                uncompRange,
+                elevation,
+                testShotSpeed);
 
         double apexTime = apexTime(testShotSpeed * Math.sin(testHoodAngle.getRadians()));
         double vertexHeight =
             vertexHeight(
-                fieldToShooter.getZ(),
+                ShooterConstants.BOT_TO_SHOOTER.getZ(),
                 testShotSpeed * Math.sin(testHoodAngle.getRadians()),
                 apexTime);
 
@@ -165,7 +237,7 @@ public class ShotCalculator {
             && testShotSpeed <= ShotCalculatorConditions.MAX_SHOT_SPEED
             && Math.abs(error) <= ShotCalculatorConditions.SHOT_DEADBAND
             && vertexHeight > highestArc) {
-          bestTurretAngle = testTurretAngle;
+          bestTurretAdjust = testTurretAdjust;
           bestHoodAngle = testHoodAngle;
           bestShotSpeed = testShotSpeed;
           highestArc = vertexHeight;
@@ -177,13 +249,7 @@ public class ShotCalculator {
       testShotSpeed += speedIncrement;
     }
 
-    if (bestShotSpeed == 0) {
-      // System.out.println("NO VALID SHOT");
-    } else {
-      // System.out.println("VALID SHOT CALCULATED");
-    }
-
-    return new ShotParameters(bestTurretAngle, bestHoodAngle, bestShotSpeed);
+    return new ShotParameters(bestTurretAdjust, bestHoodAngle, bestShotSpeed);
   }
 
   /** Field-frame 3D position of the shooter exit given the robot pose. */
@@ -214,33 +280,41 @@ public class ShotCalculator {
   }
 
   public static double getTrajectoryError(
-      Rotation2d compTurretToTargetAngle,
       Rotation2d hoodAngle,
-      Translation2d fieldRelativeShooterVelo,
-      Translation3d fieldToShooter,
-      double shotSpeed,
-      Translation3d target) {
+      Rotation2d turretAdjust,
+      double tangentialVelo,
+      double radialVelo,
+      double uncompRange,
+      double elevation,
+      double shotSpeed) {
 
-    double vx = shotSpeed * Math.cos(hoodAngle.getRadians()) * compTurretToTargetAngle.getCos();
-    double vy = shotSpeed * Math.cos(hoodAngle.getRadians()) * compTurretToTargetAngle.getSin();
+    // all of this is in the coordinate space with x pointing from shooter to target (trajectory
+    // relative)
+    double vx = shotSpeed * Math.cos(hoodAngle.getRadians()) * Math.cos(turretAdjust.getRadians());
+    double vy = shotSpeed * Math.cos(hoodAngle.getRadians()) * Math.sin(turretAdjust.getRadians());
     double vz = shotSpeed * Math.sin(hoodAngle.getRadians());
 
-    vx += fieldRelativeShooterVelo.getX();
-    vy += fieldRelativeShooterVelo.getY();
+    vx += radialVelo;
+    vy += tangentialVelo;
 
     Translation3d initialVelocity = new Translation3d(vx, vy, vz);
 
     double t =
         timeToTargetHeight(
-            -0.5 * 9.8, initialVelocity.getZ(), fieldToShooter.getZ() - target.getZ());
+            -0.5 * 9.8,
+            initialVelocity.getZ(),
+            -elevation); // TODO figure out why this is negative? it works but I'm skeptical
 
-    Translation3d fieldToBall =
+    Translation3d trajectoryRelativeShooterToBallLanding =
         new Translation3d(
-            fieldToShooter.getX() + initialVelocity.getX() * t,
-            fieldToShooter.getY() + initialVelocity.getY() * t,
-            fieldToShooter.getZ() + initialVelocity.getZ() * t - 0.5 * 9.8 * t * t);
+            initialVelocity.getX() * t,
+            initialVelocity.getY() * t,
+            initialVelocity.getZ() * t - 0.5 * 9.8 * t * t);
 
-    double error = fieldToBall.minus(target).getNorm();
+    Translation3d trajectoryRelativeShooterToTarget = new Translation3d(uncompRange, 0, elevation);
+
+    double error =
+        trajectoryRelativeShooterToBallLanding.minus(trajectoryRelativeShooterToTarget).getNorm();
     return error;
   }
 
@@ -276,5 +350,123 @@ public class ShotCalculator {
     double vx = chassisSpeeds.vxMetersPerSecond + vxAdjust;
     double vy = chassisSpeeds.vyMetersPerSecond + vyAdjust;
     return new Translation2d(vx, vy);
+  }
+
+  public static ShotParameters[][][] getShootingLookupTable(double elevation) {
+    System.out.println("GENERATING TABLE");
+    double startTime = System.currentTimeMillis();
+    int veloIncrements =
+        (int)
+            (ShotCalculatorConditions.MAX_COMPONENT_VELO
+                * 2
+                / ShotCalculatorConditions.VELO_INCREMENT); // times 2 to account for negative velo
+    int rangeIncrements =
+        (int) (ShotCalculatorConditions.MAX_RANGE / ShotCalculatorConditions.RANGE_INCREMENT);
+    ShotParameters[][][] lookupTable =
+        new ShotParameters[veloIncrements][veloIncrements][rangeIncrements];
+    System.out.println("INCREMENTS: " + veloIncrements + ", " + rangeIncrements);
+    System.out.println("ITERATIONS: " + veloIncrements * veloIncrements * rangeIncrements);
+
+    for (int i = 0; i < veloIncrements; i++) {
+      double tangentialVelo =
+          -ShotCalculatorConditions.MAX_COMPONENT_VELO
+              + ShotCalculatorConditions.VELO_INCREMENT * i;
+      for (int j = 0; j < veloIncrements; j++) {
+        double radialVelo =
+            -ShotCalculatorConditions.MAX_COMPONENT_VELO
+                + ShotCalculatorConditions.VELO_INCREMENT * j;
+        for (int k = 0; k < rangeIncrements; k++) {
+          double range = ShotCalculatorConditions.RANGE_INCREMENT * k;
+          lookupTable[i][j][k] = sweepTrajectories(tangentialVelo, radialVelo, range, elevation);
+          // System.out.println(tangentialVelo + ", " + radialVelo + ", " + range);
+        }
+      }
+    }
+    double endTime = System.currentTimeMillis();
+    System.out.println("TABLE GENERATED IN " + (endTime - startTime) + " MILIS");
+    return lookupTable;
+  }
+
+  /** Variant for desktop/offboard generators that should not depend on {@link HoodConstants}. */
+  public static ShotParameters[][][] getShootingLookupTable(
+      double elevation, Rotation2d hoodMinAngle, Rotation2d hoodRetractedPosition) {
+    System.out.println("GENERATING TABLE");
+    double startTime = System.currentTimeMillis();
+    int veloIncrements =
+        (int)
+            (ShotCalculatorConditions.MAX_COMPONENT_VELO
+                * 2
+                / ShotCalculatorConditions.VELO_INCREMENT); // times 2 to account for negative velo
+    int rangeIncrements =
+        (int) (ShotCalculatorConditions.MAX_RANGE / ShotCalculatorConditions.RANGE_INCREMENT);
+    ShotParameters[][][] lookupTable =
+        new ShotParameters[veloIncrements][veloIncrements][rangeIncrements];
+    System.out.println("INCREMENTS: " + veloIncrements + ", " + rangeIncrements);
+    System.out.println("ITERATIONS: " + veloIncrements * veloIncrements * rangeIncrements);
+
+    for (int i = 0; i < veloIncrements; i++) {
+      double tangentialVelo =
+          -ShotCalculatorConditions.MAX_COMPONENT_VELO
+              + ShotCalculatorConditions.VELO_INCREMENT * i;
+      for (int j = 0; j < veloIncrements; j++) {
+        double radialVelo =
+            -ShotCalculatorConditions.MAX_COMPONENT_VELO
+                + ShotCalculatorConditions.VELO_INCREMENT * j;
+        for (int k = 0; k < rangeIncrements; k++) {
+          double range = ShotCalculatorConditions.RANGE_INCREMENT * k;
+          lookupTable[i][j][k] =
+              sweepTrajectories(
+                  tangentialVelo,
+                  radialVelo,
+                  range,
+                  elevation,
+                  hoodMinAngle,
+                  hoodRetractedPosition);
+        }
+      }
+    }
+    double endTime = System.currentTimeMillis();
+    System.out.println("TABLE GENERATED IN " + (endTime - startTime) + " MILIS");
+    return lookupTable;
+  }
+
+  public static ShotParameters lookupShot(
+      ShotParameters[][][] lookupTable, double tangentialVelo, double radialVelo, double range) {
+    if (range > ShotCalculatorConditions.MAX_RANGE
+        || Math.abs(radialVelo) > ShotCalculatorConditions.MAX_COMPONENT_VELO
+        || Math.abs(tangentialVelo) > ShotCalculatorConditions.MAX_COMPONENT_VELO) {
+      return new ShotParameters(new Rotation2d(), new Rotation2d(), 0);
+    }
+
+    int i =
+        (int)
+            ((tangentialVelo + ShotCalculatorConditions.MAX_COMPONENT_VELO)
+                / ShotCalculatorConditions.VELO_INCREMENT);
+    int j =
+        (int)
+            ((radialVelo + ShotCalculatorConditions.MAX_COMPONENT_VELO)
+                / ShotCalculatorConditions.VELO_INCREMENT);
+    int k = (int) (range / ShotCalculatorConditions.RANGE_INCREMENT);
+
+    Logger.recordOutput(
+        "Mech/ShotCalculator/LookupTable/indexed t velo",
+        i * ShotCalculatorConditions.VELO_INCREMENT - ShotCalculatorConditions.MAX_COMPONENT_VELO);
+    Logger.recordOutput(
+        "Mech/ShotCalculator/LookupTable/indexed r velo",
+        j * ShotCalculatorConditions.VELO_INCREMENT - ShotCalculatorConditions.MAX_COMPONENT_VELO);
+    Logger.recordOutput(
+        "Mech/ShotCalculator/LookupTable/indexed range",
+        k * ShotCalculatorConditions.RANGE_INCREMENT);
+
+    System.out.println("RETURNING TABLE ENTRY " + i + ", " + j + ", " + k);
+    ShotParameters params = lookupTable[i][j][k];
+    System.out.println(
+        "PARAMS RETURNED FROM TABLE: "
+            + params.shotSpeed
+            + ", "
+            + params.hoodAngle
+            + ", "
+            + params.turretAngle);
+    return params;
   }
 }
