@@ -30,17 +30,13 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.HopperFloorConstants;
-import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.FieldCoordinates;
 import frc.robot.Constants.ShooterConstants;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
-import frc.robot.commands.mech.ClimbCommands;
 import frc.robot.commands.mech.HoodCommands;
 import frc.robot.commands.mech.IntakeCommands;
 import frc.robot.commands.mech.ShootingCommand;
@@ -193,18 +189,6 @@ public class RobotContainer {
     // autoChooser.addOption(
     // "Drive Simple FF Characterization",
     // DriveCommands.feedforwardCharacterization(drive));
-    // autoChooser.addOption(
-    // "Drive SysId (Quasistatic Forward)",
-    // drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // autoChooser.addOption(
-    // "Drive SysId (Quasistatic Reverse)",
-    // drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // autoChooser.addOption(
-    // "Drive SysId (Dynamic Forward)",
-    // drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // autoChooser.addOption(
-    // "Drive SysId (Dynamic Reverse)",
-    // drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
 
   /**
@@ -638,14 +622,6 @@ public class RobotContainer {
     }
   }
 
-  public void configureSysIdButtonBindings(CommandXboxController controller) {
-    controller.x().whileTrue(hoodSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    controller.y().whileTrue(hoodSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    controller.a().whileTrue(hoodSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    controller.b().whileTrue(hoodSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-
-    controller.rightTrigger().onTrue(new InstantCommand(() -> hoodSubsystem.zeroHood()));
-  }
   public void configureSysIdButtons() {
     if (DriverStation.isJoystickConnected(3)) {
       if (Constants.currentMode == Constants.Mode.SIM
@@ -656,10 +632,18 @@ public class RobotContainer {
       } else {
         controller_two = new CommandXboxController(3);
       }
+
+      // TODO: drivetrain sysid buttons -- uncomment for use
       controller_two.a().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
       controller_two.b().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
       controller_two.x().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
       controller_two.y().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+      // TODO: hood drivetrain sysid buttons -- uncomment for use
+      // controller.x().whileTrue(hoodSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      // controller.y().whileTrue(hoodSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      // controller.a().whileTrue(hoodSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      // controller.b().whileTrue(hoodSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     }
   }
 
@@ -716,10 +700,6 @@ public class RobotContainer {
     CommandScheduler.getInstance().getActiveButtonLoop().clear();
     configureDriverButtonBindings();
     configureCodriverButtonBindings();
-    // Only configure SysId bindings if controller_two was initialized
-    if (controller_two != null) {
-      configureSysIdButtonBindings(controller_two);
-    }
   }
 
   public void teleopInit() {
@@ -727,7 +707,6 @@ public class RobotContainer {
       drive.enableTargetPointFacing();
     }
     configureButtonBindings();
-    hoodSubsystem.zeroHood();
   }
 
   public void periodic() {

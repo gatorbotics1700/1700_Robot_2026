@@ -103,7 +103,8 @@ public class IntakeSubsystem extends SubsystemBase {
       if (errorDeg > IntakeConstants.POSITION_DEADBAND) {
         deployMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
       } else {
-        deployMotor.setControl(m_request.withPosition(degreesToRevs(getCurrentAngle().getDegrees())));
+        deployMotor.setControl(
+            m_request.withPosition(degreesToRevs(getCurrentAngle().getDegrees())));
       }
     }
 

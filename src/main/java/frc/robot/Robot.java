@@ -230,6 +230,8 @@ public class Robot extends LoggedRobot {
     // robotContainer.configureDriverButtonBindings();
     // robotContainer.configureCodriverButtonBindings();
     robotContainer.configureSysIdButtons();
+    // robotContainer.getHoodSubsystem().zeroHood();
+
   }
 
   /** This function is called periodically during test mode. */
