@@ -32,6 +32,7 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
+import frc.robot.commands.mech.ClimbCommands;
 import frc.robot.commands.mech.HoodCommands;
 import frc.robot.commands.mech.IntakeCommands;
 import frc.robot.commands.mech.ShootingCommand;
@@ -536,6 +537,13 @@ public class RobotContainer {
                     () -> {
                       turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0)));
                     }));
+
+        // TODO CLIMBER TESTING BUTTONS - uncomment for use
+        // controller_two.x().onTrue(new ClimbCommands.HomeClimber(climberSubsystem));
+
+        // controller_two.y().onTrue(ClimbCommands.RetractClimber(climberSubsystem));
+
+        // controller_two.a().onTrue(ClimbCommands.ExtendClimber(climberSubsystem));
 
         // TODO HOOD TESTING BUTTONS - uncomment for use
 
