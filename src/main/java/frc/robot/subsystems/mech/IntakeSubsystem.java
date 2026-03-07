@@ -32,6 +32,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private static MotionMagicExpoVoltage m_request;
 
   private Rotation2d desiredAngle = new Rotation2d();
+  private boolean useDeployPositionControl = false;
   private double desiredIntakeVoltage;
   private double desiredDeployVoltage;
   private BooleanSupplier isDeployed;
@@ -97,7 +98,14 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
 
-    // setDesiredAngle(desiredAngle);
+    if (useDeployPositionControl) {
+      double errorDeg = Math.abs(getCurrentAngle().getDegrees() - desiredAngle.getDegrees());
+      if (errorDeg > IntakeConstants.POSITION_DEADBAND) {
+        deployMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
+      } else {
+        deployMotor.setControl(m_request.withPosition(degreesToRevs(getCurrentAngle().getDegrees())));
+      }
+    }
 
     Logger.recordOutput("Mech/Intake/Current Deploy Angle", getCurrentAngle().getDegrees());
     Logger.recordOutput("Mech/Intake/Desired Deploy Angle", desiredAngle.getDegrees());
@@ -113,31 +121,31 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void retractDeployMotor() {
-    deployMotor.setControl(
-        m_request.withPosition(degreesToRevs(IntakeConstants.RETRACTED_ANGLE_DEGREES)));
+    setDesiredAngle(IntakeConstants.RETRACTED_POSITION);
   }
 
   public void extendDeployMotor() {
-    deployMotor.setControl(
-        m_request.withPosition(degreesToRevs(IntakeConstants.EXTENDED_ANGLE_DEGREES)));
+    setDesiredAngle(IntakeConstants.EXTENDED_POSITION);
   }
 
   public void setDesiredAngle(Rotation2d angle) {
+    useDeployPositionControl = true;
     if (angle.getDegrees() < IntakeConstants.RETRACTED_POSITION.getDegrees()) {
       desiredAngle = IntakeConstants.RETRACTED_POSITION;
     } else if (angle.getDegrees() > IntakeConstants.EXTENDED_POSITION.getDegrees()) {
       desiredAngle = IntakeConstants.EXTENDED_POSITION;
     } else {
-      if (Math.abs(angle.getDegrees() - getCurrentAngle().getDegrees())
-          > IntakeConstants.POSITION_DEADBAND) {
-        desiredAngle = angle;
-      }
-      desiredAngle = getCurrentAngle();
+      desiredAngle = angle;
     }
-    deployMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
+  }
+
+  /** Returns the stored desired angle (always the true target, independent of deadband). */
+  public Rotation2d getDesiredAngle() {
+    return desiredAngle;
   }
 
   public void setDeployVoltage(double voltage) {
+    useDeployPositionControl = false;
     desiredDeployVoltage = voltage;
     deployMotor.setVoltage(desiredDeployVoltage);
   }
