@@ -825,8 +825,8 @@ public class RobotContainer {
 
   public Command HomeMechanisms() { // TODO: add any other homing commands with alongWith
     return HoodCommands.HomeHood(
-            hoodSubsystem); // .alongWith(new TurretHomingCommand(turretSubsystem));
-        //.alongWith(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem));
+        hoodSubsystem); // .alongWith(new TurretHomingCommand(turretSubsystem));
+    // .alongWith(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem));
   }
 
   public TurretSubsystem getTurretSubsystem() {

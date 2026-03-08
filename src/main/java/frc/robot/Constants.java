@@ -538,7 +538,7 @@ public final class Constants {
 
   public static final class HopperFloorConstants {
     public static final int HOPPER_MOTOR_CAN_ID = 35;
-    public static final double HOPPER_FLOOR_VOLTAGE = 6;
+    public static final double HOPPER_FLOOR_VOLTAGE = 8;
     public static final double HOPPER_FLOOR_VELOCITY = 0.5; // TODO find a real number
   }
 
@@ -638,6 +638,7 @@ public final class Constants {
     public static final double MAX_SHOT_HEIGHT = 4; // 2 meters for MSLL
     public static final double MAX_SHOT_SPEED =
         30; // in mps, so calculate using flywheel rps * 2 * Math.PI * flywheel radius * flywheel
+    // slip
 
     public static final double VELO_INCREMENT = 0.25; // mps
     public static final double RANGE_INCREMENT = 0.05; // m
