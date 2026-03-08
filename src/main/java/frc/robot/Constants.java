@@ -635,7 +635,7 @@ public final class Constants {
     // shot height measures the highest point of the arc in meters, max should be ceiling height
     // minus a bit, and min should be just over the target height
     public static final double MIN_SHOT_HEIGHT = 2; // 1 for MSLL
-    public static final double MAX_SHOT_HEIGHT = 4; // 2 meters for MSLL
+    public static final double MAX_SHOT_HEIGHT = 3.35; // 2 meters for MSLL
     public static final double MAX_SHOT_SPEED =
         30; // in mps, so calculate using flywheel rps * 2 * Math.PI * flywheel radius * flywheel
     // slip

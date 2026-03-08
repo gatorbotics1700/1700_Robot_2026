@@ -493,13 +493,13 @@ public class RobotContainer {
         //               intakeSubsystem.setDesiredAngle(IntakeConstants.RETRACTED_POSITION);
         //             }));
 
-        // controller_two
-        //     .a()
-        //     .onTrue(
-        //         new InstantCommand(
-        //             () ->
-        //                 CommandScheduler.getInstance()
-        //                     .schedule(IntakeCommands.RunIntake(intakeSubsystem))));
+        controller_two
+            .a()
+            .onTrue(
+                new InstantCommand(
+                    () ->
+                        CommandScheduler.getInstance()
+                            .schedule(IntakeCommands.RunIntake(intakeSubsystem))));
         // controller_two.x().onTrue(new InstantCommand(() -> intakeSubsystem.toggleIntake()));
 
         // controller_two.y().onTrue(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem));
@@ -649,19 +649,29 @@ public class RobotContainer {
       // controller.a().whileTrue(hoodSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
       // controller.b().whileTrue(hoodSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
       // climber
-      controller_two.x().whileTrue(intakeSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-      controller_two.y().whileTrue(intakeSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      // controller_two.x().whileTrue(intakeSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      // controller_two.y().whileTrue(intakeSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      // controller_two
+      //     .a()
+      //     .whileTrue(intakeSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      // controller_two
+      //     .b()
+      //     .whileTrue(intakeSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+
+      // controller_two
+      //     .rightBumper()
+      //     .onTrue(
+      //         new InstantCommand(() ->
+      // intakeSubsystem.zeroIntakeDeploy()).ignoringDisable(true));
+
+      controller_two.x().whileTrue(shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      controller_two.y().whileTrue(shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
       controller_two
           .a()
-          .whileTrue(intakeSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+          .whileTrue(shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
       controller_two
           .b()
-          .whileTrue(intakeSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-
-      controller_two
-          .rightBumper()
-          .onTrue(
-              new InstantCommand(() -> intakeSubsystem.zeroIntakeDeploy()).ignoringDisable(true));
+          .whileTrue(shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     }
   }
 
@@ -792,7 +802,7 @@ public class RobotContainer {
 
   public Command LineupCommand() {
     return AutoBuilder.pathfindToPose(
-            new Pose2d(2.685, 4.44, new Rotation2d()),
+            new Pose2d(3.037, 3.6, new Rotation2d()),
             new PathConstraints(4, 12, Math.toRadians(700), Math.toRadians(1000)))
         .andThen(
             new InstantCommand(

@@ -94,7 +94,6 @@ public class DynamicAutoBuilder {
                 chassisSpeeds));
   }
 
-
   private Command getActionForDestination(String destination) {
     if (destination == null || destination.equals("None")) {
       return Commands.none();

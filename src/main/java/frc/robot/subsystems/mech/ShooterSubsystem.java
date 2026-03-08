@@ -130,6 +130,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
     Logger.recordOutput("Mech/Shooter/Should Be Shooting", shouldShoot);
     Logger.recordOutput("Mech/Shooter/SysId Running", sysIdRunning);
+    Logger.recordOutput(
+        "Mech/Shooter/Flywheel Position", leftFlywheelMotor.getPosition().getValueAsDouble());
+    Logger.recordOutput(
+        "Mech/Shooter/Flywheel Voltage", leftFlywheelMotor.getMotorVoltage().getValueAsDouble());
 
     // Only control motors if SysID is not running
     if (!sysIdRunning) {
