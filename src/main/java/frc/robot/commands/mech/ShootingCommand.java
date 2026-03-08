@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.FieldCoordinates;
+import frc.robot.Constants.HopperFloorConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.mech.HoodSubsystem;
 import frc.robot.subsystems.mech.HopperFloorSubsystem;
@@ -103,8 +104,8 @@ public class ShootingCommand extends Command {
         System.out.println("VALID SHOT VALID SHOT");
         shooterSubsystem.setDesiredFlywheelVelocity(
             desiredFlywheelSpeed); // set velocity to our desired velocity
-        // hopperFloorSubsystem.setDesiredHopperFloorVoltage(
-        // HopperFloorConstants.HOPPER_FLOOR_VOLTAGE);
+        hopperFloorSubsystem.setDesiredHopperFloorVoltage(
+            HopperFloorConstants.HOPPER_FLOOR_VOLTAGE);
         if (Math.abs(shooterSubsystem.getFlywheelVelocity() - desiredFlywheelSpeed)
             < ShooterConstants
                 .FLYWHEEL_SPEED_DEADBAND) { // once flywheel is running close to our desired

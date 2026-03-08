@@ -280,7 +280,7 @@ public final class Constants {
         RobotConfigLoader.getBoolean("tuner.back_left_steer_encoder_inverted");
 
     private static final Distance kBackLeftXPos =
-        Inches.of(RobotConfigLoader.getDouble("tuner.back_left_pos.y_inches"));
+        Inches.of(RobotConfigLoader.getDouble("tuner.back_left_pos.x_inches"));
     private static final Distance kBackLeftYPos =
         Inches.of(RobotConfigLoader.getDouble("tuner.back_left_pos.y_inches"));
 
@@ -552,7 +552,7 @@ public final class Constants {
     public static final double DEPLOY_PULLEY_TWO_GEAR_RATIO = 36.0 / 18.0;
 
     public static final double EXTENDED_ANGLE_DEGREES =
-        80; // TODO figure out if this is from vertical or from retracted position?
+        96; // 80; // TODO figure out if this is from vertical or from retracted position?
     public static final double RETRACTED_ANGLE_DEGREES = 0; // TODO measure?
 
     public static final Rotation2d EXTENDED_POSITION =
@@ -635,11 +635,11 @@ public final class Constants {
     // shot height measures the highest point of the arc in meters, max should be ceiling height
     // minus a bit, and min should be just over the target height
     public static final double MIN_SHOT_HEIGHT = 2; // 1 for MSLL
-    public static final double MAX_SHOT_HEIGHT = 5; // 2 meters for MSLL
+    public static final double MAX_SHOT_HEIGHT = 4; // 2 meters for MSLL
     public static final double MAX_SHOT_SPEED =
         30; // in mps, so calculate using flywheel rps * 2 * Math.PI * flywheel radius * flywheel
 
-    public static final double VELO_INCREMENT = 0.1; // mps
+    public static final double VELO_INCREMENT = 0.25; // mps
     public static final double RANGE_INCREMENT = 0.05; // m
     public static final double MAX_COMPONENT_VELO = 1.5; // mps
     public static final double MAX_RANGE =

@@ -48,10 +48,10 @@ public class HoodSubsystem extends SubsystemBase {
 
     if (RobotConfigLoader.getSerialNumber().equals(RobotConfigLoader.NILE_SERIAL)) {
       talonFXConfigs.withMotorOutput(
-          new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive));
+          new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
     } else {
       talonFXConfigs.withMotorOutput(
-          new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
+          new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive));
     }
 
     Slot0Configs slot0Configs = talonFXConfigs.Slot0;
@@ -110,7 +110,7 @@ public class HoodSubsystem extends SubsystemBase {
     Logger.recordOutput("Mech/Hood/Current velocity", hoodMotor.getVelocity().getValueAsDouble());
     Logger.recordOutput("Mech/Hood/Limit switch", isRetractedLimitSwitchPressed());
     Logger.recordOutput(
-        "Mech/Climber/Control Mode", positionControl ? "position control" : "voltage control");
+        "Mech/Hood/Control Mode", positionControl ? "position control" : "voltage control");
   }
 
   public void setDesiredAngle(Rotation2d desiredAngle) {

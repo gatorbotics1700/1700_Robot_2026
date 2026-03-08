@@ -71,7 +71,7 @@ public class IntakeSubsystem extends SubsystemBase {
     // and 0.2)
     slot0Configs.kA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
 
-    slot0Configs.kP = 4.8; // A position error of 2.5 rotations results in 12V output
+    slot0Configs.kP = 1; // A position error of 2.5 rotations results in 12V output
     slot0Configs.kI = 0; // no output for integrated error
     slot0Configs.kD = 0.1; // a velocity error of 1 rps results in 0.1 V output
 
@@ -246,8 +246,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private boolean isSysIdOutOfBounds() {
     double angleDeg = getCurrentAngle().getDegrees();
-    return angleDeg >= IntakeConstants.EXTENDED_ANGLE_DEGREES - SYSID_LIMIT_MARGIN_DEGREES
-        || angleDeg <= IntakeConstants.RETRACTED_ANGLE_DEGREES + SYSID_LIMIT_MARGIN_DEGREES;
+    boolean isSysIdOutOfBounds =
+        angleDeg >= IntakeConstants.EXTENDED_ANGLE_DEGREES + SYSID_LIMIT_MARGIN_DEGREES
+            || angleDeg <= IntakeConstants.RETRACTED_ANGLE_DEGREES - SYSID_LIMIT_MARGIN_DEGREES;
+    Logger.recordOutput("Mech/Intake/Outofbounds", isSysIdOutOfBounds);
+
+    return isSysIdOutOfBounds;
   }
 
   // run under a series of "flat" voltages to measure velocity behavior

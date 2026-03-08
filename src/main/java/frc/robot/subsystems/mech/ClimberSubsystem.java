@@ -28,6 +28,7 @@ public class ClimberSubsystem extends SubsystemBase {
   private static MotionMagicExpoVoltage m_request;
 
   private double desiredPositionInches;
+  private static boolean settingPosition;
 
   private static final double SYSID_LIMIT_MARGIN_INCHES = 1;
 
@@ -75,12 +76,15 @@ public class ClimberSubsystem extends SubsystemBase {
         "Mech/Climber/Control Mode", positionControl ? "position control" : "voltage control");
     Logger.recordOutput(
         "Mech/Climber/Hall Effect Triggered (!halleffect.get)", hallEffectTriggered());
+    Logger.recordOutput("Mech/Climber/SEtting Positions", settingPosition);
     if (positionControl
         && (!hallEffectTriggered()
             || desiredPositionInches > ClimberConstants.RETRACTED_HEIGHT_INCHES)) {
       motor.setControl(m_request.withPosition(inchesToRevs(desiredPositionInches)));
-    } else {
+      settingPosition = true;
+    } else if (hallEffectTriggered()) {
       setClimberVoltage(0); // TODO figure out if this actually works?
+      settingPosition = false;
     }
   }
 
