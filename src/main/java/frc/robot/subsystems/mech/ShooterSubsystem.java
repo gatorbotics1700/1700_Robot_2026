@@ -129,7 +129,32 @@ public class ShooterSubsystem extends SubsystemBase {
         "Mech/Shooter/Kicker", (transitionMotor.getMotorVoltage().getValueAsDouble() != 0));
 
     Logger.recordOutput("Mech/Shooter/Should Be Shooting", shouldShoot);
-    Logger.recordOutput("Mech/Shooter/SysId Running", sysIdRunning);
+
+    Logger.recordOutput("Mech/Shooter/SysID/shooterSysIDRunning", sysIdRunning);
+    if (sysIdRunning) {
+      // Left flywheel
+      Logger.recordOutput(
+          "Mech/Shooter/SysID/leftShooterVoltage",
+          leftFlywheelMotor.getMotorVoltage().getValueAsDouble());
+      Logger.recordOutput(
+          "Mech/Shooter/SysID/leftShooterPosition",
+          leftFlywheelMotor.getPosition().getValueAsDouble()); // rotations
+      Logger.recordOutput(
+          "Mech/Shooter/SysID/leftShooterVelocity",
+          leftFlywheelMotor.getVelocity().getValueAsDouble()
+              / ShooterConstants.FLYWHEEL_GEAR_RATIO); // output rot/s
+      // Right flywheel
+      Logger.recordOutput(
+          "Mech/Shooter/SysID/rightShooterVoltage",
+          rightFlywheelMotor.getMotorVoltage().getValueAsDouble());
+      Logger.recordOutput(
+          "Mech/Shooter/SysID/rightShooterPosition",
+          rightFlywheelMotor.getPosition().getValueAsDouble()); // rotations
+      Logger.recordOutput(
+          "Mech/Shooter/SysID/rightShooterVelocity",
+          rightFlywheelMotor.getVelocity().getValueAsDouble()
+              / ShooterConstants.FLYWHEEL_GEAR_RATIO); // output rot/s
+    }
     Logger.recordOutput(
         "Mech/Shooter/Flywheel Position", leftFlywheelMotor.getPosition().getValueAsDouble());
     Logger.recordOutput(
@@ -203,11 +228,6 @@ public class ShooterSubsystem extends SubsystemBase {
     return shouldShoot;
   }
 
-  private double getVelocityRadPerSec() {
-    double motorRPS = getFlywheelVelocity();
-    return motorRPS / ShooterConstants.FLYWHEEL_GEAR_RATIO * 2 * Math.PI;
-  }
-
   private void initSysIdRoutine() {
     // config for our test. Sets voltage ramps, limits, and a logging callback
     SysIdRoutine.Config config =
@@ -218,23 +238,20 @@ public class ShooterSubsystem extends SubsystemBase {
             Volts.of(10),
             // this is the duration of the test.
             Seconds.of(10),
-            (state) -> Logger.recordOutput("Mech/Right Shooter/SysIdState", state.toString()));
+            (state) -> Logger.recordOutput("Mech/Shooter/SysID/SysIdState", state.toString()));
 
-    // mechanism for our test. Sets the voltage and logs the motor output
+    // mechanism for our test. Drives both flywheels; we log voltage/position/velocity for each in
+    // periodic()
     SysIdRoutine.Mechanism mechanism =
         new SysIdRoutine.Mechanism(
             (voltage) -> {
               sysIdRunning = true;
+              leftFlywheelMotor.setControl(sysIdVoltageRequest.withOutput(voltage.in(Volts)));
               rightFlywheelMotor.setControl(sysIdVoltageRequest.withOutput(voltage.in(Volts)));
             },
-            (log) ->
-                log.motor("right shooter")
-                    .voltage(Volts.of(rightFlywheelMotor.getMotorVoltage().getValueAsDouble()))
-                    .angularVelocity(RadiansPerSecond.of(getVelocityRadPerSec())),
-            // the subsystem to test (which is us)
+            null, // Log via AdvantageKit in periodic() so data goes to the same log file
             this,
-            // name for the task
-            "right shooter");
+            "shooter");
     System.out.println("CREATING NEW SYSID ROUTINE");
     sysIdRoutine = new SysIdRoutine(config, mechanism);
   }

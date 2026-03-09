@@ -28,8 +28,18 @@ public class TurretSubsystem extends SubsystemBase {
   private static MotionMagicExpoVoltage m_request;
 
   private static final double SYSID_LIMIT_MARGIN_DEGREES = 10.0;
+  private boolean sysIdRunning = false;
 
   private final int TURRET_GEARBOX_RATIO = 9;
+
+  /**
+   * Called by SysId commands to indicate test is running; we log voltage/position/velocity in
+   * periodic().
+   */
+  public void setSysIdRunning(boolean running) {
+    sysIdRunning = running;
+  }
+
   private final int GEAR_REVS_PER_TURRET_REV = 10;
   private final int ENCODER_REVS_PER_TURRET_REV = 10;
   private DutyCycleEncoder boreEncoder =
@@ -78,7 +88,21 @@ public class TurretSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    turretMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
+    if (!sysIdRunning) {
+      turretMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
+    }
+
+    Logger.recordOutput("Mech/Turret/SysID/turretSysIDRunning", sysIdRunning);
+    // SysId tool expects these keys; log when SysId command is running
+    if (sysIdRunning) {
+      Logger.recordOutput(
+          "Mech/Turret/SysID/turretVoltage", turretMotor.getMotorVoltage().getValueAsDouble());
+      Logger.recordOutput(
+          "Mech/Turret/SysID/turretPosition",
+          getCurrentAngle().getRadians() / (2.0 * Math.PI)); // rotations
+      Logger.recordOutput(
+          "Mech/Turret/SysID/turretVelocity", getVelocityRadPerSec() / (2.0 * Math.PI)); // rot/s
+    }
     Logger.recordOutput("Mech/Turret/boreEncoder", boreEncoder.get());
     Logger.recordOutput("Mech/Turret/boreEncoder isConnected", boreEncoder.isConnected());
     Logger.recordOutput("Mech/Turret/currentAngle", getCurrentAngle().getDegrees());
@@ -158,43 +182,47 @@ public class TurretSubsystem extends SubsystemBase {
             // Note we use `until` when we return the command to abort if we hit turret
             // limits
             Seconds.of(10),
-            (state) -> Logger.recordOutput("Mech/Turret/SysIdState", state.toString()));
+            (state) -> Logger.recordOutput("Mech/Turret/SysID/SysIdState", state.toString()));
 
-    // mechanism for our test. Sets the voltage and logs the motor output
+    // mechanism for our test. Sets the voltage; we log voltage/position/velocity ourselves in
+    // periodic()
     SysIdRoutine.Mechanism mechanism =
         new SysIdRoutine.Mechanism(
             (voltage) -> turretMotor.setVoltage(voltage.in(Volts)),
-            (log) ->
-                log.motor("turret")
-                    .voltage(Volts.of(turretMotor.getMotorVoltage().getValueAsDouble()))
-                    .angularPosition(Radians.of(getCurrentAngle().getRadians()))
-                    .angularVelocity(RadiansPerSecond.of(getVelocityRadPerSec())),
-            // the subsystem to test (which is us)
+            null, // Log via AdvantageKit in periodic() so data goes to the same log file
             this,
-            // name for the task
             "turret");
     return new SysIdRoutine(config, mechanism);
   }
 
   private boolean isSysIdOutOfBounds() {
     double angleDeg = getCurrentAngle().getDegrees();
-    return angleDeg >= TurretConstants.MAX_TURRET_ANGLE - SYSID_LIMIT_MARGIN_DEGREES
-        || angleDeg <= TurretConstants.MIN_TURRET_ANGLE + SYSID_LIMIT_MARGIN_DEGREES;
+    boolean isSysIdOutOfBounds =
+        angleDeg >= TurretConstants.MAX_TURRET_ANGLE - SYSID_LIMIT_MARGIN_DEGREES
+            || angleDeg <= TurretConstants.MIN_TURRET_ANGLE + SYSID_LIMIT_MARGIN_DEGREES;
+    Logger.recordOutput("Mech/Shooter/SysID/Outofbounds", isSysIdOutOfBounds);
+    return isSysIdOutOfBounds;
   }
 
   // run under a series of "flat" voltages to measure velocity behavior
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return sysIdRoutine()
-        .quasistatic(direction)
-        .until(this::isSysIdOutOfBounds)
+    return runOnce(() -> setSysIdRunning(true))
+        .andThen(
+            sysIdRoutine()
+                .quasistatic(direction)
+                .until(this::isSysIdOutOfBounds)
+                .finallyDo(() -> setSysIdRunning(false)))
         .withName("Turret SysId Quasistatic " + direction);
   }
 
   // measure accelaration behavior
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return sysIdRoutine()
-        .dynamic(direction)
-        .until(this::isSysIdOutOfBounds)
+    return runOnce(() -> setSysIdRunning(true))
+        .andThen(
+            sysIdRoutine()
+                .dynamic(direction)
+                .until(this::isSysIdOutOfBounds)
+                .finallyDo(() -> setSysIdRunning(false)))
         .withName("Turret SysId Dynamic " + direction);
   }
 }

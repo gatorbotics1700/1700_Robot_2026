@@ -103,7 +103,17 @@ public class HoodSubsystem extends SubsystemBase {
       setHoodPosition(desiredAngle);
     }
 
-    Logger.recordOutput("Mech/Hood/SysId Running", sysIdRunning);
+    Logger.recordOutput("Mech/Hood/SysID/hoodSysIDRunning", sysIdRunning);
+    // SysId tool expects these keys (voltage/position/velocity-{motor}-{name}); log when running
+    if (sysIdRunning) {
+      Logger.recordOutput(
+          "Mech/Hood/SysID/hoodVoltage", hoodMotor.getMotorVoltage().getValueAsDouble());
+      Logger.recordOutput(
+          "Mech/Hood/SysID/hoodPosition",
+          getCurrentAngle().getRadians() / (2.0 * Math.PI)); // rotations
+      Logger.recordOutput(
+          "Mech/Hood/SysID/hoodVelocity", getVelocityRadPerSec() / (2.0 * Math.PI)); // rot/s
+    }
     Logger.recordOutput("Mech/Hood/Desired Angle", desiredAngle.getDegrees());
     Logger.recordOutput("Mech/Hood/Current Angle", getCurrentAngle().getDegrees());
     Logger.recordOutput("Mech/Hood/Motor Output", hoodMotor.get());
@@ -173,60 +183,10 @@ public class HoodSubsystem extends SubsystemBase {
         * Math.PI;
   }
 
-  // private SysIdRoutine sysIdRoutine() {
-  //   // config for our test. Sets voltage ramps, limits, and a logging callback
-  //   SysIdRoutine.Config config =
-  //       new SysIdRoutine.Config(
-  //           // this is the ramp rate for voltage during a test
-  //           Volts.per(Second).of(2),
-  //           // this is the maximum voltage for the test
-  //           Volts.of(8),
-  //           // this is the duration of the test.
-  //           // Note we use `until` when we return the command to abort if we hit hood min
-  // position
-  //           Seconds.of(100),
-  //           (state) -> Logger.recordOutput("Mech/Hood/SysIdState", state.toString()));
-
-  //   // mechanism for our test. Sets the voltage and logs the motor output
-  //   SysIdRoutine.Mechanism mechanism =
-  //       new SysIdRoutine.Mechanism(
-  //           (voltage) -> hoodMotor.setVoltage(voltage.in(Volts)),
-  //           (log) ->
-  //               log.motor("hood")
-  //                   .voltage(Volts.of(hoodMotor.getMotorVoltage().getValueAsDouble()))
-  //                   .angularPosition(Radians.of(getCurrentAngle().getRadians()))
-  //                   .angularVelocity(RadiansPerSecond.of(getVelocityRadPerSec())),
-  //           // the subsystem to test (which is us)
-  //           this,
-  //           // name for the task
-  //           "hood");
-  //   System.out.println("CREATING NEW SYSID ROUTINE");
-  //   return new SysIdRoutine(config, mechanism);
-  // }
-
-  // private boolean isSysIdOutOfBounds() {
-  //   double angleDeg = getCurrentAngle().getDegrees();
-  //   return angleDeg <= HoodConstants.RETRACTED_POSITION.getDegrees() - SYSID_LIMIT_MARGIN_DEGREES
-  //       || angleDeg >= HoodConstants.MIN_ANGLE.getDegrees() + SYSID_LIMIT_MARGIN_DEGREES;
-  // }
-
-  // // run under a series of "flat" voltages to measure velocity behavior
-  // public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-  //   System.out.println("RUNNING SYSID QUASISTATIC");
-  //   return sysIdRoutine()
-  //       .quasistatic(direction)
-  //       .until(this::isSysIdOutOfBounds)
-  //       .withName("Hood SysId Quasistatic " + direction);
-  // }
-
-  // // measure accelaration behavior
-  // public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-  //   System.out.println("RUNNING SYSID DYNAMIC");
-  //   return sysIdRoutine()
-  //       .dynamic(direction)
-  //       .until(this::isSysIdOutOfBounds)
-  //       .withName("Hood SysId Dynamic " + direction);
-  // }
+  // TODO: fix this to actually be closer to right
+  public double convertLaunchAngleToHoodAngle() {
+    return 0.0;
+  }
 
   private void initSysIdRoutine() {
     // config for our test. Sets voltage ramps, limits, and a logging callback
@@ -238,22 +198,18 @@ public class HoodSubsystem extends SubsystemBase {
             Volts.of(4),
             // this is the duration of the test.
             Seconds.of(1.5),
-            (state) -> Logger.recordOutput("Mech/Hood/SysIdState", state.toString()));
+            (state) -> Logger.recordOutput("Mech/Hood/SysID/SysIdState", state.toString()));
 
-    // mechanism for our test. Sets the voltage and logs the motor output
+    // mechanism for our test. Sets the voltage; we log voltage/position/velocity ourselves in
+    // periodic()
     SysIdRoutine.Mechanism mechanism =
         new SysIdRoutine.Mechanism(
             (voltage) -> {
               sysIdRunning = true;
               hoodMotor.setControl(sysIdVoltageRequest.withOutput(voltage.in(Volts)));
             },
-            (log) ->
-                log.motor("hood")
-                    .voltage(Volts.of(hoodMotor.getMotorVoltage().getValueAsDouble()))
-                    .angularVelocity(RadiansPerSecond.of(getVelocityRadPerSec())),
-            // the subsystem to test (which is us)
+            null, // Log via AdvantageKit in periodic() so data goes to the same log file
             this,
-            // name for the task
             "hood");
     System.out.println("CREATING NEW SYSID ROUTINE");
     sysIdRoutine = new SysIdRoutine(config, mechanism);
@@ -261,16 +217,16 @@ public class HoodSubsystem extends SubsystemBase {
 
   private boolean isSysIdOutOfBounds() {
     double angleDeg = getCurrentAngle().getDegrees();
-    Logger.recordOutput("Mech/Hood/SysID Current Angle", angleDeg);
+    Logger.recordOutput("Mech/Hood/SysID/SysID Current Angle", angleDeg);
     boolean outOfBounds =
         angleDeg > HoodConstants.RETRACTED_POSITION.getDegrees() + SYSID_LIMIT_MARGIN_DEGREES
             || angleDeg < HoodConstants.MIN_ANGLE.getDegrees() - SYSID_LIMIT_MARGIN_DEGREES;
-    Logger.recordOutput("Mech/Hood/SysId Out Of Bounds", outOfBounds);
+    Logger.recordOutput("Mech/Hood/SysID/SysId Out Of Bounds", outOfBounds);
     Logger.recordOutput(
-        "Mech/Hood/SysId Retracted Limit",
+        "Mech/Hood/SysID/SysId Retracted Limit",
         HoodConstants.RETRACTED_POSITION.getDegrees() + SYSID_LIMIT_MARGIN_DEGREES);
     Logger.recordOutput(
-        "Mech/Hood/SysId Min Limit",
+        "Mech/Hood/SysID/SysId Min Limit",
         HoodConstants.MIN_ANGLE.getDegrees() - SYSID_LIMIT_MARGIN_DEGREES);
     return outOfBounds;
   }

@@ -637,8 +637,13 @@ public final class Constants {
     public static final double MIN_SHOT_HEIGHT = 2; // 1 for MSLL
     public static final double MAX_SHOT_HEIGHT = 3.35; // 2 meters for MSLL
     public static final double MAX_SHOT_SPEED =
-        30; // in mps, so calculate using flywheel rps * 2 * Math.PI * flywheel radius * flywheel
-    // slip
+        100
+            * ShooterConstants.FLYWHEEL_GEAR_RATIO
+            * 2
+            * Math.PI
+            * ShooterConstants.FLYWHEEL_RADIUS_METERS
+            * ShooterConstants.FLYWHEEL_SLIP;
+    // in mps, so calculate using flywheel rps * 2 * Math.PI * flywheel radius * flywheel slip
 
     public static final double VELO_INCREMENT = 0.25; // mps
     public static final double RANGE_INCREMENT = 0.05; // m

@@ -10,6 +10,7 @@ import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -29,8 +30,17 @@ public class ClimberSubsystem extends SubsystemBase {
 
   private double desiredPositionInches;
   private static boolean settingPosition;
+  private boolean sysIdRunning = false;
 
   private static final double SYSID_LIMIT_MARGIN_INCHES = 1;
+
+  /**
+   * Called by SysId commands to indicate test is running; we log voltage/position/velocity in
+   * periodic().
+   */
+  public void setSysIdRunning(boolean running) {
+    sysIdRunning = running;
+  }
 
   public ClimberSubsystem() {
     hallEffect = new DigitalInput(ClimberConstants.CLIMBER_HALL_EFFECT_PORT);
@@ -76,15 +86,30 @@ public class ClimberSubsystem extends SubsystemBase {
         "Mech/Climber/Control Mode", positionControl ? "position control" : "voltage control");
     Logger.recordOutput(
         "Mech/Climber/Hall Effect Triggered (!halleffect.get)", hallEffectTriggered());
-    Logger.recordOutput("Mech/Climber/SEtting Positions", settingPosition);
-    if (positionControl
-        && (!hallEffectTriggered()
-            || desiredPositionInches > ClimberConstants.RETRACTED_HEIGHT_INCHES)) {
-      motor.setControl(m_request.withPosition(inchesToRevs(desiredPositionInches)));
-      settingPosition = true;
-    } else if (hallEffectTriggered()) {
-      setClimberVoltage(0); // TODO figure out if this actually works?
-      settingPosition = false;
+    Logger.recordOutput("Mech/Climber/Setting Positions", settingPosition);
+
+    Logger.recordOutput("Mech/Climber/SysID/climberSysIDRunning", sysIdRunning);
+    if (sysIdRunning) {
+      Logger.recordOutput(
+          "Mech/Climber/SysID/climberVoltage", motor.getMotorVoltage().getValueAsDouble());
+      Logger.recordOutput(
+          "Mech/Climber/SysID/climberPosition",
+          Units.inchesToMeters(getCurrentPositionInches())); // meters
+      Logger.recordOutput(
+          "Mech/Climber/SysID/climberVelocity",
+          Units.inchesToMeters(1) * getVelocityInchesPerSec()); // m/s
+    }
+
+    if (!sysIdRunning) {
+      if (positionControl
+          && (!hallEffectTriggered()
+              || desiredPositionInches > ClimberConstants.RETRACTED_HEIGHT_INCHES)) {
+        motor.setControl(m_request.withPosition(inchesToRevs(desiredPositionInches)));
+        settingPosition = true;
+      } else if (hallEffectTriggered()) {
+        setClimberVoltage(0); // TODO figure out if this actually works?
+        settingPosition = false;
+      }
     }
   }
 
@@ -100,8 +125,7 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   public boolean hallEffectTriggered() {
-    return !hallEffect
-        .get(); // TODO confirm that normally closed limit switch is true when pressed?
+    return !hallEffect.get();
   }
 
   public double getCurrentPositionInches() {
@@ -129,7 +153,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public void setClimberVoltage(double voltage) {
     positionControl = false;
-    motor.setVoltage(voltage); // TODO figure out if this actually works?
+    motor.setVoltage(voltage);
   }
 
   private double getVelocityInchesPerSec() {
@@ -149,25 +173,15 @@ public class ClimberSubsystem extends SubsystemBase {
             // Note we use `until` when we return the command to abort if we hit turret
             // limits
             Seconds.of(10),
-            (state) -> Logger.recordOutput("Mech/Climber/SysIdState", state.toString()));
+            (state) -> Logger.recordOutput("Mech/Climber/SysID/SysIdState", state.toString()));
 
-    // mechanism for our test. Sets the voltage and logs the motor output
+    // mechanism for our test. Sets the voltage; we log voltage/position/velocity ourselves in
+    // periodic()
     SysIdRoutine.Mechanism mechanism =
         new SysIdRoutine.Mechanism(
             (voltage) -> motor.setVoltage(voltage.in(Volts)),
-            (log) ->
-                log.motor("climber")
-                    .voltage(Volts.of(motor.getMotorVoltage().getValueAsDouble()))
-                    .linearPosition(
-                        Meters.of(
-                            getCurrentPositionInches())) // TODO the linear position and linear
-                    // velocity return in units with metters,
-                    // check if the Meters.of part does
-                    // conversion
-                    .linearVelocity(MetersPerSecond.of(getVelocityInchesPerSec())),
-            // the subsystem to test (which is us)
+            null, // Log via AdvantageKit in periodic() so data goes to the same log file
             this,
-            // name for the task
             "climber");
     return new SysIdRoutine(config, mechanism);
   }
@@ -179,17 +193,23 @@ public class ClimberSubsystem extends SubsystemBase {
 
   // run under a series of "flat" voltages to measure velocity behavior
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return sysIdRoutine()
-        .quasistatic(direction)
-        .until(this::isSysIdOutOfBounds)
+    return runOnce(() -> setSysIdRunning(true))
+        .andThen(
+            sysIdRoutine()
+                .quasistatic(direction)
+                .until(this::isSysIdOutOfBounds)
+                .finallyDo(() -> setSysIdRunning(false)))
         .withName("Climber SysId Quasistatic " + direction);
   }
 
   // measure accelaration behavior
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return sysIdRoutine()
-        .dynamic(direction)
-        .until(this::isSysIdOutOfBounds)
+    return runOnce(() -> setSysIdRunning(true))
+        .andThen(
+            sysIdRoutine()
+                .dynamic(direction)
+                .until(this::isSysIdOutOfBounds)
+                .finallyDo(() -> setSysIdRunning(false)))
         .withName("Climber SysId Dynamic " + direction);
   }
 }

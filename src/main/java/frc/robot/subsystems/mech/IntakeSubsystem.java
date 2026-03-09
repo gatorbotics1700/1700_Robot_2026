@@ -27,8 +27,18 @@ public class IntakeSubsystem extends SubsystemBase {
   private final DigitalInput hallEffect;
 
   private static final double SYSID_LIMIT_MARGIN_DEGREES = 3;
+  private boolean sysIdRunning = false;
 
   private final TalonFXConfiguration deployTalonFXConfigs;
+
+  /**
+   * Called by SysId commands to indicate test is running; we log voltage/position/velocity in
+   * periodic().
+   */
+  public void setSysIdRunning(boolean running) {
+    sysIdRunning = running;
+  }
+
   private static MotionMagicExpoVoltage m_request;
 
   private Rotation2d desiredAngle = new Rotation2d();
@@ -98,7 +108,7 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
 
-    if (useDeployPositionControl) {
+    if (!sysIdRunning && useDeployPositionControl) {
       double errorDeg = Math.abs(getCurrentAngle().getDegrees() - desiredAngle.getDegrees());
       if (errorDeg > IntakeConstants.POSITION_DEADBAND) {
         deployMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
@@ -106,6 +116,18 @@ public class IntakeSubsystem extends SubsystemBase {
         deployMotor.setControl(
             m_request.withPosition(degreesToRevs(getCurrentAngle().getDegrees())));
       }
+    }
+
+    Logger.recordOutput("Mech/Intake/SysID/intakeSysIDRunning", sysIdRunning);
+    // SysId tool expects these keys; log when SysId command is running
+    if (sysIdRunning) {
+      Logger.recordOutput(
+          "Mech/Intake/SysID/intakeVoltage", deployMotor.getMotorVoltage().getValueAsDouble());
+      Logger.recordOutput(
+          "Mech/Intake/SysID/intakePosition",
+          getCurrentAngle().getRadians() / (2.0 * Math.PI)); // rotations
+      Logger.recordOutput(
+          "Mech/Intake/SysID/intakeVelocity", getVelocityRadPerSec() / (2.0 * Math.PI)); // rot/s
     }
 
     Logger.recordOutput("Mech/Intake/Current Deploy Angle", getCurrentAngle().getDegrees());
@@ -181,7 +203,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public boolean isHallEffectTriggered() {
-    return !hallEffect.get(); // TODO figure out what this actually returns
+    return !hallEffect.get();
   }
 
   public void toggleIntake() {
@@ -226,20 +248,15 @@ public class IntakeSubsystem extends SubsystemBase {
             // Note we use `until` when we return the command to abort if we hit intake deployed or
             // retracted positions
             Seconds.of(10),
-            (state) -> Logger.recordOutput("Mech/Intake/SysIdState", state.toString()));
+            (state) -> Logger.recordOutput("Mech/Intake/SysID/SysIdState", state.toString()));
 
-    // mechanism for our test. Sets the voltage and logs the motor output
+    // mechanism for our test. Sets the voltage; we log voltage/position/velocity ourselves in
+    // periodic()
     SysIdRoutine.Mechanism mechanism =
         new SysIdRoutine.Mechanism(
             (voltage) -> deployMotor.setVoltage(voltage.in(Volts)),
-            (log) ->
-                log.motor("intake")
-                    .voltage(Volts.of(deployMotor.getMotorVoltage().getValueAsDouble()))
-                    .angularPosition(Radians.of(getCurrentAngle().getRadians()))
-                    .angularVelocity(RadiansPerSecond.of(getVelocityRadPerSec())),
-            // the subsystem to test (which is us)
+            null, // Log via AdvantageKit in periodic() so data goes to the same log file
             this,
-            // name for the task
             "intake");
     return new SysIdRoutine(config, mechanism);
   }
@@ -249,24 +266,30 @@ public class IntakeSubsystem extends SubsystemBase {
     boolean isSysIdOutOfBounds =
         angleDeg >= IntakeConstants.EXTENDED_ANGLE_DEGREES + SYSID_LIMIT_MARGIN_DEGREES
             || angleDeg <= IntakeConstants.RETRACTED_ANGLE_DEGREES - SYSID_LIMIT_MARGIN_DEGREES;
-    Logger.recordOutput("Mech/Intake/Outofbounds", isSysIdOutOfBounds);
+    Logger.recordOutput("Mech/Intake/SysID/Outofbounds", isSysIdOutOfBounds);
 
     return isSysIdOutOfBounds;
   }
 
   // run under a series of "flat" voltages to measure velocity behavior
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return sysIdRoutine()
-        .quasistatic(direction)
-        .until(this::isSysIdOutOfBounds)
+    return runOnce(() -> setSysIdRunning(true))
+        .andThen(
+            sysIdRoutine()
+                .quasistatic(direction)
+                .until(this::isSysIdOutOfBounds)
+                .finallyDo(() -> setSysIdRunning(false)))
         .withName("Intake SysId Quasistatic " + direction);
   }
 
   // measure accelaration behavior
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return sysIdRoutine()
-        .dynamic(direction)
-        .until(this::isSysIdOutOfBounds)
+    return runOnce(() -> setSysIdRunning(true))
+        .andThen(
+            sysIdRoutine()
+                .dynamic(direction)
+                .until(this::isSysIdOutOfBounds)
+                .finallyDo(() -> setSysIdRunning(false)))
         .withName("Intake SysId Dynamic " + direction);
   }
 }
