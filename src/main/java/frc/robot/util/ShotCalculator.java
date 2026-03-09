@@ -46,7 +46,48 @@ public class ShotCalculator {
     hoodAngleInterpolator =
         new TricubicInterpolator().interpolate(x_values, y_values, z_values, hoodAngleTable);
     turretAngleInterpolator =
-        new TricubicInterpolator().interpolate(x_values, y_values, z_values, shotSpeedTable);
+        new TricubicInterpolator().interpolate(x_values, y_values, z_values, turretAngleTable);
+  }
+  
+  private void createInterpolationHelperArrays() {
+    int veloIncrements =
+        (int)
+            (ShotCalculatorConditions.MAX_COMPONENT_VELO
+                * 2
+                / ShotCalculatorConditions.VELO_INCREMENT); // times 2 to account for negative velo
+    int rangeIncrements =
+        (int) (ShotCalculatorConditions.MAX_RANGE / ShotCalculatorConditions.RANGE_INCREMENT);
+
+    x_values = new double[veloIncrements];
+    y_values = new double[veloIncrements];
+    z_values = new double[rangeIncrements];
+
+    shotSpeedTable = new double[veloIncrements][veloIncrements][rangeIncrements];
+    hoodAngleTable = new double[veloIncrements][veloIncrements][rangeIncrements];
+    turretAngleTable = new double[veloIncrements][veloIncrements][rangeIncrements];
+    for (int i = 0; i < veloIncrements; i++) {
+      double tangentialVelo =
+          -ShotCalculatorConditions.MAX_COMPONENT_VELO
+              + ShotCalculatorConditions.VELO_INCREMENT * i;
+      x_values[i] = tangentialVelo;
+      for (int j = 0; j < veloIncrements; j++) {
+        double radialVelo =
+            -ShotCalculatorConditions.MAX_COMPONENT_VELO
+                + ShotCalculatorConditions.VELO_INCREMENT * j;
+        if (i == 0) {
+          y_values[j] = radialVelo;
+        }
+        for (int k = 0; k < rangeIncrements; k++) {
+          double range = ShotCalculatorConditions.RANGE_INCREMENT * k;
+          if (i == 0 && j == 0) {
+            z_values[k] = range;
+          }
+          shotSpeedTable[i][j][k] = hubLookupTable[i][j][k].shotSpeed;
+          hoodAngleTable[i][j][k] = hubLookupTable[i][j][k].hoodAngle.getRadians();
+          turretAngleTable[i][j][k] = hubLookupTable[i][j][k].turretAngle.getRadians();
+        }
+      }
+    }
   }
 
   private static String getShotTableName() {
@@ -486,7 +527,8 @@ public class ShotCalculator {
     Logger.recordOutput(
         "shotCalculator/noninterpolatedhoodangle", lookupTable[i][j][k].hoodAngle.getDegrees());
     Logger.recordOutput("shotCalculator/noninterpolatedspeed", lookupTable[i][j][k].shotSpeed);
-    Logger.recordOutput("shotCalculator/turretAngleArrayValue",Math.toDegrees(turretAngleTable[i][j][k]));
+    Logger.recordOutput(
+        "shotCalculator/turretAngleArrayValue", Math.toDegrees(turretAngleTable[i][j][k]));
 
     System.out.println(
         "PARAMS RETURNED FROM TABLE: "
@@ -496,46 +538,5 @@ public class ShotCalculator {
             + ", "
             + params.turretAngle);
     return params;
-  }
-
-  private void createInterpolationHelperArrays() {
-    int veloIncrements =
-        (int)
-            (ShotCalculatorConditions.MAX_COMPONENT_VELO
-                * 2
-                / ShotCalculatorConditions.VELO_INCREMENT); // times 2 to account for negative velo
-    int rangeIncrements =
-        (int) (ShotCalculatorConditions.MAX_RANGE / ShotCalculatorConditions.RANGE_INCREMENT);
-
-    x_values = new double[veloIncrements];
-    y_values = new double[veloIncrements];
-    z_values = new double[rangeIncrements];
-
-    shotSpeedTable = new double[veloIncrements][veloIncrements][rangeIncrements];
-    hoodAngleTable = new double[veloIncrements][veloIncrements][rangeIncrements];
-    turretAngleTable = new double[veloIncrements][veloIncrements][rangeIncrements];
-    for (int i = 0; i < veloIncrements; i++) {
-      double tangentialVelo =
-          -ShotCalculatorConditions.MAX_COMPONENT_VELO
-              + ShotCalculatorConditions.VELO_INCREMENT * i;
-      x_values[i] = tangentialVelo;
-      for (int j = 0; j < veloIncrements; j++) {
-        double radialVelo =
-            -ShotCalculatorConditions.MAX_COMPONENT_VELO
-                + ShotCalculatorConditions.VELO_INCREMENT * j;
-        if(i==0){
-          y_values[j] = radialVelo;
-        }
-        for (int k = 0; k < rangeIncrements; k++) {
-          double range = ShotCalculatorConditions.RANGE_INCREMENT * k;
-          if(i==0 && j==0){
-            z_values[k]=range;
-          }
-          shotSpeedTable[i][j][k] = hubLookupTable[i][j][k].shotSpeed;
-          hoodAngleTable[i][j][k] = hubLookupTable[i][j][k].hoodAngle.getRadians();
-          turretAngleTable[i][j][k] = hubLookupTable[i][j][k].turretAngle.getRadians();
-        }
-      }
-    }
   }
 }
