@@ -118,7 +118,7 @@ public class ShootingCommand extends Command {
         hopperFloorSubsystem.setDesiredHopperFloorVoltage(0);
         shooterSubsystem.setDesiredTransitionVoltage(0);
       }
-      hoodSubsystem.setDesiredAngle(params.hoodAngle);
+      hoodSubsystem.setDesiredAngle(hoodSubsystem.convertLaunchAngleToHoodAngle(params.hoodAngle));
       turretSubsystem.setDesiredAngle(params.turretAngle);
     } else {
       System.out.println("WE DONT WANT TO SHOOT");

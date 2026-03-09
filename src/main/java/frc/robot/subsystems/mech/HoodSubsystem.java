@@ -43,12 +43,9 @@ public class HoodSubsystem extends SubsystemBase {
   private Rotation2d desiredAngle = getCurrentAngle(); // HoodConstants.RETRACTED_POSITION;
 
   // Tunable PID gains for hood control
-  public static final LoggedNetworkNumber hoodKp =
-      new LoggedNetworkNumber("/Tuning/Hood/kP", 4.8);
-  public static final LoggedNetworkNumber hoodKi =
-      new LoggedNetworkNumber("/Tuning/Hood/kI", 0.0);
-  public static final LoggedNetworkNumber hoodKd =
-      new LoggedNetworkNumber("/Tuning/Hood/kD", 0.1);
+  public static final LoggedNetworkNumber hoodKp = new LoggedNetworkNumber("/Tuning/Hood/kP", 4.8);
+  public static final LoggedNetworkNumber hoodKi = new LoggedNetworkNumber("/Tuning/Hood/kI", 0.0);
+  public static final LoggedNetworkNumber hoodKd = new LoggedNetworkNumber("/Tuning/Hood/kD", 0.1);
 
   public HoodSubsystem() {
     hoodMotor.setNeutralMode(NeutralModeValue.Brake);
@@ -205,9 +202,8 @@ public class HoodSubsystem extends SubsystemBase {
         * Math.PI;
   }
 
-  // TODO: fix this to actually be closer to right
-  public double convertLaunchAngleToHoodAngle() {
-    return 0.0;
+  public Rotation2d convertLaunchAngleToHoodAngle(Rotation2d launchAngle) {
+    return launchAngle; // TODO: fix this to actually be right
   }
 
   private void initSysIdRoutine() {
