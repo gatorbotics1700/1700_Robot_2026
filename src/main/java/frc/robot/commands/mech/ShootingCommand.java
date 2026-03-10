@@ -106,7 +106,9 @@ public class ShootingCommand extends Command {
             desiredFlywheelSpeed); // set velocity to our desired velocity
         hopperFloorSubsystem.setDesiredHopperFloorVoltage(
             HopperFloorConstants.HOPPER_FLOOR_VOLTAGE);
-        if (Math.abs(shooterSubsystem.getFlywheelRotorVelocity() - desiredFlywheelSpeed)
+        if (Math.abs(
+                shooterSubsystem.getFlywheelRotorVelocity()
+                    - ShooterSubsystem.flywheelSpeedToRotorSpeed(desiredFlywheelSpeed))
             < ShooterConstants
                 .FLYWHEEL_SPEED_DEADBAND) { // once flywheel is running close to our desired
           // velocity

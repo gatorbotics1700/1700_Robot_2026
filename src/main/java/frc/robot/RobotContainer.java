@@ -590,6 +590,9 @@ public class RobotContainer {
                                     hopperFloorSubsystem,
                                     hoodSubsystem,
                                     intakeSubsystem))));
+        controller_two
+            .y()
+            .onTrue(new InstantCommand(() -> shooterSubsystem.setDesiredFlywheelVelocity(60)));
 
         // controller_two
         //     .y()
