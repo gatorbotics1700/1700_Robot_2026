@@ -3,6 +3,7 @@ package frc.robot.commands.mech;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.mech.IntakeSubsystem;
@@ -56,10 +57,8 @@ public class IntakeCommands {
   }
 
   public static Command RunIntake(IntakeSubsystem intakeSubsystem) {
-    return new InstantCommand(
-            () -> {
-              intakeSubsystem.setIntakeVoltage(IntakeConstants.INTAKING_VOLTAGE);
-            })
+    return Commands.run(() -> intakeSubsystem.setIntakeVoltage(IntakeConstants.INTAKING_VOLTAGE))
+        .finallyDo(() -> intakeSubsystem.setIntakeVoltage(0))
         .withName("Run Intake");
   }
 
