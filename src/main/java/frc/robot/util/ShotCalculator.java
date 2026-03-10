@@ -15,6 +15,7 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.ShotCalculatorConditions;
 import java.io.IOException;
 import java.nio.file.Path;
+import org.apache.commons.math3.analysis.interpolation.*;
 import org.littletonrobotics.junction.Logger;
 
 // @AutoLog
@@ -23,6 +24,15 @@ public class ShotCalculator {
   // height ("land" on the target)
   public static Translation3d landingCoords = new Translation3d();
   public static ShotParameters[][][] hubLookupTable;
+  private static double[] x_values;
+  private static double[] y_values;
+  private static double[] z_values;
+  private static double[][][] turretAngleTable;
+  private static double[][][] hoodAngleTable;
+  private static double[][][] shotSpeedTable;
+  private static TricubicInterpolatingFunction shotSpeedInterpolator;
+  private static TricubicInterpolatingFunction hoodAngleInterpolator;
+  private static TricubicInterpolatingFunction turretAngleInterpolator;
 
   // to regen the lookup table (should only be necessary if you change constants like hood angles or
   // max speeds), run ./gradlew generateShotTable in terminal!
