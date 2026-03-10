@@ -83,7 +83,7 @@ public final class ShotTableGenerator {
 
     System.out.println("Generating shot table...");
     ShotParameters[][][] table =
-        ShotCalculator.getShootingLookupTable(elevationMeters, hoodMin, hoodRetracted);
+        ShotCalculator.getShootingLookupTable(elevationMeters); // , hoodMin, hoodRetracted);
     ShotTableData data =
         ShotTableIO.fromLookupTable(
             table,
