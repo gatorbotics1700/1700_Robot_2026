@@ -36,19 +36,6 @@ public class ShotCalculator {
 
   // to regen the lookup table (should only be necessary if you change constants like hood angles or
   // max speeds), run ./gradlew generateShotTable in terminal!
-  public ShotCalculator() {
-    hubLookupTable =
-        loadLookupTableOrGenerate(
-            FieldCoordinates.BLUE_HUB.getZ() - ShooterConstants.BOT_TO_SHOOTER.getZ());
-    createInterpolationHelperArrays();
-    shotSpeedInterpolator =
-        new TricubicInterpolator().interpolate(x_values, y_values, z_values, shotSpeedTable);
-    hoodAngleInterpolator =
-        new TricubicInterpolator().interpolate(x_values, y_values, z_values, hoodAngleTable);
-    turretAngleInterpolator =
-        new TricubicInterpolator().interpolate(x_values, y_values, z_values, turretAngleTable);
-  }
-  
   private void createInterpolationHelperArrays() {
     int veloIncrements =
         (int)
@@ -88,6 +75,19 @@ public class ShotCalculator {
         }
       }
     }
+  }
+
+  public ShotCalculator() {
+    hubLookupTable =
+        loadLookupTableOrGenerate(
+            FieldCoordinates.BLUE_HUB.getZ() - ShooterConstants.BOT_TO_SHOOTER.getZ());
+    createInterpolationHelperArrays();
+    shotSpeedInterpolator =
+        new TricubicInterpolator().interpolate(x_values, y_values, z_values, shotSpeedTable);
+    hoodAngleInterpolator =
+        new TricubicInterpolator().interpolate(x_values, y_values, z_values, hoodAngleTable);
+    turretAngleInterpolator =
+        new TricubicInterpolator().interpolate(x_values, y_values, z_values, turretAngleTable);
   }
 
   private static String getShotTableName() {
