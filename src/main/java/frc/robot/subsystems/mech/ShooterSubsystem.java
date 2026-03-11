@@ -136,9 +136,9 @@ public class ShooterSubsystem extends SubsystemBase {
     double newFlywheelKP = flywheelKP.get();
     double newFlywheelKI = flywheelKI.get();
     double newFlywheelKD = flywheelKD.get();
-    if (newFlywheelKP != rightFlywheelSlot0Configs.kP
-        || newFlywheelKI != rightFlywheelSlot0Configs.kI
-        || newFlywheelKD != rightFlywheelSlot0Configs.kD) {
+    if (newFlywheelKP != leftFlywheelSlot0Configs.kP
+        || newFlywheelKI != leftFlywheelSlot0Configs.kI
+        || newFlywheelKD != leftFlywheelSlot0Configs.kD) {
       leftFlywheelSlot0Configs.kP = newFlywheelKP;
       leftFlywheelSlot0Configs.kI = newFlywheelKI;
       leftFlywheelSlot0Configs.kD = newFlywheelKD;
@@ -205,7 +205,7 @@ public class ShooterSubsystem extends SubsystemBase {
     if (!sysIdRunning) {
       leftFlywheelMotor.setControl(m_request.withVelocity(desiredRotorVelocity));
       // rightFlywheelMotor.setControl(m_request.withVelocity(desiredRotorVelocity));
-      System.out.println("SETTING ROTOR VELO TO " + desiredRotorVelocity);
+
     }
 
     transitionMotor.setVoltage(desiredTransitionVoltage);

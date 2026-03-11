@@ -40,6 +40,7 @@ public class ClimbCommands {
 
     @Override
     public void initialize() {
+
       climberSubsystem.setClimberVoltage(ClimberConstants.HOMING_VOLTAGE);
     }
 
@@ -51,6 +52,7 @@ public class ClimbCommands {
     @Override
     public void end(boolean interrupted) {
       // TODO return this to its real state!
+      System.out.println("HOMING CLIMBER");
       climberSubsystem.zeroClimber();
       climberSubsystem.setDesiredPositionInches(ClimberConstants.RETRACTED_HEIGHT_INCHES + 0.1);
       // climberSubsystem.setDesiredPositionInches(climberSubsystem.getCurrentPositionInches() +
@@ -198,10 +200,5 @@ public class ClimbCommands {
       }
       return false;
     }
-  }
-
-  public static Command HomeClimber(ClimberSubsystem climberSubsystem) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'HomeClimber'");
   }
 }

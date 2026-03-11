@@ -36,6 +36,7 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
+import frc.robot.commands.mech.ClimbCommands;
 import frc.robot.commands.mech.HoodCommands;
 import frc.robot.commands.mech.IntakeCommands;
 import frc.robot.commands.mech.ShootingCommand;
@@ -205,25 +206,15 @@ public class RobotContainer {
                   Math.abs(controller.getLeftY()) > 0.1
                       || Math.abs(controller.getLeftX()) > 0.1
                       || Math.abs(controller.getRightX()) > 0.1);
-      if (RobotConfigLoader.getSerialNumber().equals(RobotConfigLoader.NILE_SERIAL)) {
-        driverControl
-            .whileTrue(
-                DriveCommands.joystickDriveWithAutoRotation(
-                    drive,
-                    () -> modifyJoystickAxis(controller.getLeftY()), // Changed to raw values
-                    () -> modifyJoystickAxis(controller.getLeftX()), // Changed to raw values
-                    () -> modifyJoystickAxis(-controller.getRightX()))) // Changed to raw values
-            .onFalse(DriveCommands.stopDriveCommand(drive));
-      } else {
-        driverControl
-            .whileTrue(
-                DriveCommands.joystickDrive(
-                    drive,
-                    () -> modifyJoystickAxis(controller.getLeftY()), // Changed to raw values
-                    () -> modifyJoystickAxis(controller.getLeftX()), // Changed to raw values
-                    () -> modifyJoystickAxis(-controller.getRightX()))) // Changed to raw values
-            .onFalse(DriveCommands.stopDriveCommand(drive));
-      }
+
+      driverControl
+          .whileTrue(
+              DriveCommands.joystickDrive(
+                  drive,
+                  () -> modifyJoystickAxis(controller.getLeftY()), // Changed to raw values
+                  () -> modifyJoystickAxis(controller.getLeftX()), // Changed to raw values
+                  () -> modifyJoystickAxis(-controller.getRightX()))) // Changed to raw values
+          .onFalse(DriveCommands.stopDriveCommand(drive));
 
       // drive over bump
       controller
@@ -234,17 +225,7 @@ public class RobotContainer {
                     try {
                       CommandScheduler.getInstance()
                           .schedule(
-                              HoodCommands.RetractHood(hoodSubsystem)
-                                  .andThen(
-                                      DriveOverBumpCommand.driveOverBump(drive, shooterSubsystem))
-                                  .andThen(
-                                      new ShootingCommand(
-                                          shooterSubsystem,
-                                          hoodSubsystem,
-                                          turretSubsystem,
-                                          hopperFloorSubsystem,
-                                          robotPose,
-                                          chassisSpeeds))
+                              DriveOverBumpCommand.driveOverBump(drive, shooterSubsystem)
                                   .withName("DriveOverBump"));
                     } catch (Exception e) {
                       e.printStackTrace();
@@ -262,7 +243,7 @@ public class RobotContainer {
                           drive.setPose(
                               new Pose2d(
                                   drive.getPose().getTranslation(),
-                                  new Rotation2d(Math.toRadians(0))));
+                                  new Rotation2d(Math.toRadians(180))));
                         } else {
                           drive.setPose(
                               new Pose2d(
@@ -283,22 +264,31 @@ public class RobotContainer {
                       CommandScheduler.getInstance()
                           .schedule(
                               HoodCommands.RetractHood(hoodSubsystem)
+                                  .alongWith(new ClimbCommands.HomeClimber(climberSubsystem))
                                   .andThen(
                                       DriveUnderTrenchCommand.driveUnderTrench(
                                           drive, shooterSubsystem))
-                                  .andThen(
-                                      new ShootingCommand(
-                                          shooterSubsystem,
-                                          hoodSubsystem,
-                                          turretSubsystem,
-                                          hopperFloorSubsystem,
-                                          robotPose,
-                                          chassisSpeeds))
+                                  // .andThen(
+                                  //     new ShootingCommand(
+                                  //         shooterSubsystem,
+                                  //         hoodSubsystem,
+                                  //         turretSubsystem,
+                                  //         hopperFloorSubsystem,
+                                  //         robotPose,
+                                  //         chassisSpeeds))
                                   .withName("DriveUnderTrench"));
                     } catch (Exception e) {
                       e.printStackTrace();
                     }
                   }));
+
+      controller.y().onTrue(HoodCommands.RetractHood(hoodSubsystem));
+
+      controller
+          .leftBumper()
+          .onTrue(
+              new InstantCommand(
+                  () -> hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(60)))));
 
       controller
           .rightBumper()
@@ -829,8 +819,10 @@ public class RobotContainer {
   }
 
   public Command HomeMechanisms() { // TODO: add any other homing commands with alongWith
-    return HoodCommands.HomeHood(
-        hoodSubsystem); // .alongWith(new TurretHomingCommand(turretSubsystem));
+    return HoodCommands.HomeHood(hoodSubsystem)
+        .alongWith(
+            new ClimbCommands.HomeClimber(
+                climberSubsystem)); // .alongWith(new TurretHomingCommand(turretSubsystem));
     // .alongWith(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem));
   }
 
