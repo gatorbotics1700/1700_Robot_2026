@@ -598,7 +598,7 @@ public class RobotContainer {
 
         controller_two
             .y()
-            .onTrue(new InstantCommand(() -> shooterSubsystem.setDesiredFlywheelVelocity(90)));
+            .onTrue(new InstantCommand(() -> shooterSubsystem.setDesiredFlywheelVelocity(80)));
 
         // controller_two
         //     .rightBumper()
