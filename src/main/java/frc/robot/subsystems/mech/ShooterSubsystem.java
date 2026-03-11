@@ -63,8 +63,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     leftFlywheelSlot0Configs = leftFlywheelTalonFXConfigs.Slot0;
 
-    leftFlywheelSlot0Configs.kS =
-        0.25; // 0.12621; // 0.25; // Add _ V output to overcome static friction
+    leftFlywheelSlot0Configs.kS = 0.25; // 0.12621; // Add _ V output to overcome static friction
     leftFlywheelSlot0Configs.kV =
         0.1135; // 0.12; // A velocity target of 1 rps results in 0.12-0.2 V output
     leftFlywheelSlot0Configs.kA =
@@ -113,9 +112,8 @@ public class ShooterSubsystem extends SubsystemBase {
     transitionMotor.getConfigurator().apply(transitionMotorConfigs);
 
     m_request = new MotionMagicVelocityVoltage(0);
-    m_torqueRequest = new MotionMagicVelocityTorqueCurrentFOC(0);
-    // m_torqueRequest = new MotionMagicVelocityTorqueCurrentFOC(0.0, 400.0, true, feedforward, 0,
-    // true);
+    // m_torqueRequest = new MotionMagicVelocityTorqueCurrentFOC(0);
+    m_torqueRequest = new MotionMagicVelocityTorqueCurrentFOC(0).withAcceleration(400).withSlot(0);
 
     shouldShoot =
         () -> {
