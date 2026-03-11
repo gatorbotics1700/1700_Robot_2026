@@ -20,7 +20,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -212,8 +211,8 @@ public class RobotContainer {
           .whileTrue(
               DriveCommands.joystickDrive(
                   drive,
-                  () -> modifyJoystickAxis(controller.getLeftY()), // Changed to raw values
-                  () -> modifyJoystickAxis(controller.getLeftX()), // Changed to raw values
+                  () -> modifyJoystickAxis(-controller.getLeftY()), // Changed to raw values
+                  () -> modifyJoystickAxis(-controller.getLeftX()), // Changed to raw values
                   () -> modifyJoystickAxis(-controller.getRightX()))) // Changed to raw values
           .onFalse(DriveCommands.stopDriveCommand(drive));
 
@@ -808,7 +807,13 @@ public class RobotContainer {
   public Command LineupCommand() {
     return AutoBuilder.pathfindToPose(
             // new Pose2d(3.037, 3.6, new Rotation2d()),
-            DriverStation.getAlliance().get() == DriverStation.Alliance.Red ? new Pose2d(13.3, 7.2, new Rotation2d(-116)) : new Pose2d(FieldCoordinates.FIELD_CENTER.getX() - Math.abs(FieldCoordinates.FIELD_CENTER.getX()-13.3), 7.2, new Rotation2d(-116 - 90)),
+            DriverStation.getAlliance().get() == DriverStation.Alliance.Red
+                ? new Pose2d(13.3, 7.2, new Rotation2d(-116))
+                : new Pose2d(
+                    FieldCoordinates.FIELD_CENTER.getX()
+                        - Math.abs(FieldCoordinates.FIELD_CENTER.getX() - 13.3),
+                    7.2,
+                    new Rotation2d(-116 - 90)),
             new PathConstraints(4, 12, Math.toRadians(700), Math.toRadians(1000)))
         .andThen(
             new InstantCommand(
