@@ -573,13 +573,13 @@ public final class Constants {
     public static final double TRANSITION_VOLTAGE = 10;
     public static final double FLYWHEEL_SPEED_DEADBAND = 2;
     public static final double FLYWHEEL_GEAR_RATIO = 30.0 / 14.0;
-    public static final double FLYWHEEL_SLIP = 0.27; // 0.7; // TODO TUNE!!!
+    public static final double FLYWHEEL_SLIP = 0.17; // 0.7; // TODO TUNE!!!
     public static final double FLYWHEEL_RADIUS_METERS = 0.0508;
 
     public static final Translation3d BOT_TO_SHOOTER =
         new Translation3d(
-            0.146, 0,
-            0.368); // TODO figure out what part of the shooter to measure from (this is the center
+            0.152, 0,
+            0.495); // TODO figure out what part of the shooter to measure from (this is the center
     // of the turret plate)
   }
 
@@ -631,7 +631,7 @@ public final class Constants {
     // shot height measures the highest point of the arc in meters, max should be ceiling height
     // minus a bit, and min should be just over the target height
     public static final double MIN_SHOT_HEIGHT = 2; // 1 for MSLL
-    public static final double MAX_SHOT_HEIGHT = 3.35; // 2 meters for MSLL
+    public static final double MAX_SHOT_HEIGHT = 2.85; // 3.35; // 2 meters for MSLL
     public static final double MAX_SHOT_SPEED =
         80
             * ShooterConstants.FLYWHEEL_GEAR_RATIO

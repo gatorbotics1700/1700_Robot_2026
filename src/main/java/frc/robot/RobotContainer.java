@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.FieldCoordinates;
+import frc.robot.Constants.HopperFloorConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.VisionConstants;
@@ -789,14 +790,16 @@ public class RobotContainer {
 
   public Command LineupCommand() {
     return AutoBuilder.pathfindToPose(
-            new Pose2d(3.037, 3.6, new Rotation2d()),
+            // new Pose2d(3.037, 3.6, new Rotation2d()),
+            new Pose2d(13.3, 7.2, new Rotation2d(-116)),
             new PathConstraints(4, 12, Math.toRadians(700), Math.toRadians(1000)))
         .andThen(
             new InstantCommand(
                 () -> {
-                  shooterSubsystem.setDesiredRotorVelocity(3);
-                  hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(57)));
+                  shooterSubsystem.setDesiredRotorVelocity(62.2);
+                  hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(64)));
                   shooterSubsystem.setDesiredTransitionVoltage(ShooterConstants.TRANSITION_VOLTAGE);
+                  hopperFloorSubsystem.setDesiredHopperFloorVoltage(HopperFloorConstants.HOPPER_FLOOR_VOLTAGE);
                 }));
   }
 
@@ -823,8 +826,8 @@ public class RobotContainer {
     return HoodCommands.HomeHood(hoodSubsystem)
         .alongWith(
             new ClimbCommands.HomeClimber(
-                climberSubsystem)) // .alongWith(new TurretHomingCommand(turretSubsystem));
-        .alongWith(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem));
+                climberSubsystem)); // .alongWith(new TurretHomingCommand(turretSubsystem));
+    // .alongWith(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem));
   }
 
   public TurretSubsystem getTurretSubsystem() {
