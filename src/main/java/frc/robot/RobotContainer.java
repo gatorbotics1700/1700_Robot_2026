@@ -218,6 +218,7 @@ public class RobotContainer {
           .onFalse(DriveCommands.stopDriveCommand(drive));
 
       // drive over bump
+
       controller
           .a()
           .onTrue(
@@ -228,6 +229,21 @@ public class RobotContainer {
                           .schedule(
                               DriveOverBumpCommand.driveOverBump(drive, shooterSubsystem)
                                   .withName("DriveOverBump"));
+                    } catch (Exception e) {
+                      e.printStackTrace();
+                    }
+                  }));
+
+      controller
+          .x()
+          .onTrue(
+              new InstantCommand(
+                  () -> {
+                    try {
+                      CommandScheduler.getInstance()
+                          .schedule(
+                              DriveUnderTrenchCommand.driveUnderTrench(drive, shooterSubsystem)
+                                  .withName("DriveUnderTrench"));
                     } catch (Exception e) {
                       e.printStackTrace();
                     }
@@ -256,33 +272,33 @@ public class RobotContainer {
                   .ignoringDisable(true));
 
       // drive under trench
-      controller
-          .x()
-          .onTrue(
-              new InstantCommand(
-                  () -> {
-                    try {
-                      CommandScheduler.getInstance()
-                          .schedule(
-                              HoodCommands.RetractHood(hoodSubsystem)
-                                  .alongWith(new ClimbCommands.HomeClimber(climberSubsystem))
-                                  .andThen(
-                                      DriveUnderTrenchCommand.driveUnderTrench(
-                                          drive, shooterSubsystem))
-                                  // .andThen(
-                                  //     new ShootingCommand(
-                                  //         shooterSubsystem,
-                                  //         hoodSubsystem,
-                                  //         turretSubsystem,
-                                  //         hopperFloorSubsystem,
-                                  //         robotPose,
-                                  //         chassisSpeeds))
-                                  .withName("DriveUnderTrench"));
-                    } catch (Exception e) {
-                      e.printStackTrace();
-                    }
-                  }));
-
+      /* controller
+                .x()
+                .onTrue(
+                    new InstantCommand(
+                        () -> {
+                          try {
+                            CommandScheduler.getInstance()
+                                .schedule(
+                                    HoodCommands.RetractHood(hoodSubsystem)
+                                        .alongWith(new ClimbCommands.HomeClimber(climberSubsystem))
+                                        .andThen(
+                                            DriveUnderTrenchCommand.driveUnderTrench(
+                                                drive, shooterSubsystem))
+                                        // .andThen(
+                                        //     new ShootingCommand(
+                                        //         shooterSubsystem,
+                                        //         hoodSubsystem,
+                                        //         turretSubsystem,
+                                        //         hopperFloorSubsystem,
+                                        //         robotPose,
+                                        //         chassisSpeeds))
+                                        .withName("DriveUnderTrench"));
+                          } catch (Exception e) {
+                            e.printStackTrace();
+                          }
+                        }));
+      */
       controller.y().onTrue(HoodCommands.RetractHood(hoodSubsystem));
 
       controller

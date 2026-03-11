@@ -8,7 +8,7 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.352490596064816,
+        "x": 3.352490596064817,
         "y": 4.674702690972222
       },
       "isLocked": false,
@@ -48,7 +48,7 @@
   "folder": "Blue Outpost & DC",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -90.42595668556531
   },
   "useDefaultConstraints": true
 }
