@@ -48,7 +48,7 @@
   "folder": "Blue Outpost & DC",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -90.32730299914301
   },
   "useDefaultConstraints": true
 }
