@@ -63,9 +63,12 @@ public class ShooterSubsystem extends SubsystemBase {
 
     leftFlywheelSlot0Configs = leftFlywheelTalonFXConfigs.Slot0;
 
-    leftFlywheelSlot0Configs.kS = 0.25; // Add _ V output to overcome static friction
-    leftFlywheelSlot0Configs.kV = 0.12; // A velocity target of 1 rps results in 0.12-0.2 V output
-    leftFlywheelSlot0Configs.kA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
+    leftFlywheelSlot0Configs.kS =
+        0.25; // 0.12621; // 0.25; // Add _ V output to overcome static friction
+    leftFlywheelSlot0Configs.kV =
+        0.1135; // 0.12; // A velocity target of 1 rps results in 0.12-0.2 V output
+    leftFlywheelSlot0Configs.kA =
+        0.075863; // 0.01; // An acceleration of 1 rps/s requires 0.01 V output
 
     leftFlywheelSlot0Configs.kP = 0.11; // A position error of 1 rps results in 0.11 V output
     leftFlywheelSlot0Configs.kI = 0; // no output for integrated error
@@ -127,7 +130,8 @@ public class ShooterSubsystem extends SubsystemBase {
         "Mech/Shooter/Flywheel Voltage", leftFlywheelMotor.getMotorVoltage().getValueAsDouble());
     Logger.recordOutput(
         "Mech/Shooter/Flywheel Current", leftFlywheelMotor.getStatorCurrent().getValueAsDouble());
-
+    Logger.recordOutput(
+        "Mech/Shooter/Flywheel position", leftFlywheelMotor.getPosition().getValueAsDouble());
     Logger.recordOutput(
         "Mech/Shooter/Transition Voltage", transitionMotor.getMotorVoltage().getValueAsDouble());
     Logger.recordOutput("Mech/Shooter/Desired Transition Voltage", desiredTransitionVoltage);
@@ -227,7 +231,10 @@ public class ShooterSubsystem extends SubsystemBase {
             (log) ->
                 log.motor("right shooter")
                     .voltage(Volts.of(leftFlywheelMotor.getMotorVoltage().getValueAsDouble()))
-                    .angularVelocity(RadiansPerSecond.of(getVelocityRadPerSec())),
+                    .angularVelocity(RadiansPerSecond.of(getVelocityRadPerSec()))
+                    .angularPosition(
+                        Radians.of(
+                            leftFlywheelMotor.getPosition().getValueAsDouble() * 2 * Math.PI)),
             // the subsystem to test (which is us)
             this,
             // name for the task

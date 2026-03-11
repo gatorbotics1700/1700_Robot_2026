@@ -596,9 +596,9 @@ public class RobotContainer {
         //                             hoodSubsystem,
         //                             intakeSubsystem))));
 
-        // controller_two
-        //     .y()
-        //     .onTrue(new InstantCommand(() -> shooterSubsystem.setDesiredFlywheelVelocity(90)));
+        controller_two
+            .y()
+            .onTrue(new InstantCommand(() -> shooterSubsystem.setDesiredFlywheelVelocity(90)));
 
         // controller_two
         //     .rightBumper()
@@ -667,7 +667,7 @@ public class RobotContainer {
     CommandScheduler.getInstance().getActiveButtonLoop().clear();
     configureDriverButtonBindings();
     configureCodriverButtonBindings();
-    configureSysIdButtonBindings(controller_two);
+    // configureSysIdButtonBindings(controller_two);
   }
 
   public void teleopInit() {
