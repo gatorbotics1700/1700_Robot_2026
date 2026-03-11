@@ -37,7 +37,6 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
-import frc.robot.commands.mech.ClimbCommands;
 import frc.robot.commands.mech.HoodCommands;
 import frc.robot.commands.mech.IntakeCommands;
 import frc.robot.commands.mech.ShootingCommand;
@@ -617,6 +616,7 @@ public class RobotContainer {
             .rightBumper()
             .onTrue(new InstantCommand(() -> shooterSubsystem.toggleShouldShoot()));
 
+        controller_two.leftBumper().onTrue(LineupCommand());
         // controller_two
         //     .leftBumper()
         //     .onTrue(
@@ -815,7 +815,8 @@ public class RobotContainer {
                   shooterSubsystem.setDesiredRotorVelocity(62.2);
                   hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(64)));
                   shooterSubsystem.setDesiredTransitionVoltage(ShooterConstants.TRANSITION_VOLTAGE);
-                  hopperFloorSubsystem.setDesiredHopperFloorVoltage(HopperFloorConstants.HOPPER_FLOOR_VOLTAGE);
+                  hopperFloorSubsystem.setDesiredHopperFloorVoltage(
+                      HopperFloorConstants.HOPPER_FLOOR_VOLTAGE);
                 }));
   }
 
@@ -840,10 +841,10 @@ public class RobotContainer {
 
   public Command HomeMechanisms() { // TODO: add any other homing commands with alongWith
     return HoodCommands.HomeHood(hoodSubsystem)
-        .alongWith(
-            new ClimbCommands.HomeClimber(
-                climberSubsystem)); // .alongWith(new TurretHomingCommand(turretSubsystem));
-    // .alongWith(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem));
+        // .alongWith(
+        //     new ClimbCommands.HomeClimber(
+        //         climberSubsystem)); // .alongWith(new TurretHomingCommand(turretSubsystem));
+        .alongWith(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem));
   }
 
   public TurretSubsystem getTurretSubsystem() {
