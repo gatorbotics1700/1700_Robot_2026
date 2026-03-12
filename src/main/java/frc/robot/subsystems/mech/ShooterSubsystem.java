@@ -63,13 +63,15 @@ public class ShooterSubsystem extends SubsystemBase {
 
     leftFlywheelSlot0Configs = leftFlywheelTalonFXConfigs.Slot0;
 
-    leftFlywheelSlot0Configs.kS = 0.12621; // Add _ V output to overcome static friction
-    leftFlywheelSlot0Configs.kV = 0.1135; // 0.12; // A velocity target of 1 rps results in 0.12-0.2 V output
-    leftFlywheelSlot0Configs.kA = 0.075863; // 0.01; // An acceleration of 1 rps/s requires 0.01 V output
-
-    leftFlywheelSlot0Configs.kP = 0.4; // 0.11;// A position error of 1 rps results in 0.11 V output
+    leftFlywheelSlot0Configs.kS = 1.9; // 0.12621; // Add _ V output to overcome static friction
+    leftFlywheelSlot0Configs.kV =
+        0.1135; // 0.12; // A velocity target of 1 rps results in 0.12-0.2 V output
+    leftFlywheelSlot0Configs.kA =
+        0.075863; // 0.01; // An acceleration of 1 rps/s requires 0.01 V output
+    leftFlywheelSlot0Configs.kP =
+        0.95; // 0.4; // 0.11;// A position error of 1 rps results in 0.11 V output
     leftFlywheelSlot0Configs.kI = 0; // no output for integrated error
-    leftFlywheelSlot0Configs.kD = 0; // no output for error derivative
+    leftFlywheelSlot0Configs.kD = 0.25; // no output for error derivative
 
     // MOTION MAGIC EXPO
     MotionMagicConfigs leftMotionMagicConfigs = leftFlywheelTalonFXConfigs.MotionMagic;
