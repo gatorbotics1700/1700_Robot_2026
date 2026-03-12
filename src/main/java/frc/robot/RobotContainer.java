@@ -35,6 +35,7 @@ import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveOverBumpCommand;
+import frc.robot.commands.drive.DriveToFuelCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
 import frc.robot.commands.mech.ClimbCommands;
 import frc.robot.commands.mech.HoodCommands;
@@ -677,6 +678,7 @@ public class RobotContainer {
   }
 
     public void configureCompDriverButtonBindings() {
+    //TODO actually call this method
     if (DriverStation.isJoystickConnected(0)) {
       if (Constants.currentMode == Constants.Mode.SIM
           && System.getProperty("os.name").contains("Mac")) {
@@ -721,6 +723,7 @@ public class RobotContainer {
                     drive.setSlowDrive();
                   },
                   drive));
+
       controller
           .b()
           .onTrue(
@@ -741,6 +744,17 @@ public class RobotContainer {
                       },
                       drive)
                   .ignoringDisable(true));
+
+      controller
+          .a()
+          .onTrue(
+              Commands.runOnce(
+                  () ->
+                      CommandScheduler.getInstance()
+                          .schedule(new DriveToFuelCommand(drive, vision,robotPose)),
+                  drive,
+                  vision));
+
       controller
           .rightBumper()
           .onTrue(
@@ -755,6 +769,7 @@ public class RobotContainer {
                       e.printStackTrace();
                     }
                   }));
+
       controller
           .leftBumper()
           .onTrue(
@@ -770,8 +785,6 @@ public class RobotContainer {
                     }
                   }));
     }
-
-
   }
   
   public void configureCompCodriverButtonBindings() {
