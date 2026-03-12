@@ -39,6 +39,7 @@ import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
 import frc.robot.commands.mech.HoodCommands;
 import frc.robot.commands.mech.IntakeCommands;
+import frc.robot.commands.mech.ShootingCommands;
 import frc.robot.commands.mech.ShootingCommands.ShootOnTheMoveCommand;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -325,6 +326,17 @@ public class RobotContainer {
                     drive.setSlowDrive();
                   },
                   drive));
+
+      controller
+          .rightTrigger()
+          .onTrue(
+              new InstantCommand(
+                  () -> {
+                    CommandScheduler.getInstance()
+                        .schedule(
+                            ShootingCommands.StationaryShootingCommand(
+                                shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
+                  }));
     }
   }
 

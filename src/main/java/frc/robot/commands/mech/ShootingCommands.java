@@ -215,6 +215,14 @@ public class ShootingCommands {
       HopperFloorSubsystem hopperFloorSubsystem,
       Supplier<Pose2d> drivetrainPose) {
     ValidStationaryShot closestShot = null;
+    Logger.recordOutput("Stationary/RED_RIGHT", ShooterConstants.RED_RIGHT.pose);
+    Logger.recordOutput("Stationary/BLUE_LEFT", ShooterConstants.BLUE_LEFT.pose);
+    Logger.recordOutput(
+        "Stationary/RED_RIGHT distance",
+        Calculations.distanceToPoseInMeters(drivetrainPose.get(), ShooterConstants.RED_RIGHT.pose));
+    Logger.recordOutput(
+        "Stationary/BLUE_LEFT distance",
+        Calculations.distanceToPoseInMeters(drivetrainPose.get(), ShooterConstants.BLUE_LEFT.pose));
     for (ValidStationaryShot shot : ShooterConstants.STATIONARY_SHOT_ARRAY) {
       if (closestShot == null
           || Calculations.distanceToPoseInMeters(drivetrainPose.get(), shot.pose)
