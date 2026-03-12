@@ -49,13 +49,16 @@ public class IntakeSubsystem extends SubsystemBase {
       new LoggedNetworkNumber("/Tuning/Intake/kI", 0.0);
   public static final LoggedNetworkNumber intakeKd =
       new LoggedNetworkNumber("/Tuning/Intake/kD", 0.0);
-  
-  // Tunable Feedfoward gains for intake deploy
-  public static final LoggedNetworkNumber intakeKg = new LoggedNetworkNumber("/Tuning/Intake/kG", 0.0);
-  public static final LoggedNetworkNumber intakeKs = new LoggedNetworkNumber("/Tuning/Intake/kS", 0.0);
-  public static final LoggedNetworkNumber intakeKv = new LoggedNetworkNumber("/Tuning/Intake/kV", 0.0);
-  public static final LoggedNetworkNumber intakeKa = new LoggedNetworkNumber("/Tuning/Intake/kA", 0.0);
 
+  // Tunable Feedfoward gains for intake deploy
+  public static final LoggedNetworkNumber intakeKg =
+      new LoggedNetworkNumber("/Tuning/Intake/kG", 0.0);
+  public static final LoggedNetworkNumber intakeKs =
+      new LoggedNetworkNumber("/Tuning/Intake/kS", 0.0);
+  public static final LoggedNetworkNumber intakeKv =
+      new LoggedNetworkNumber("/Tuning/Intake/kV", 0.0);
+  public static final LoggedNetworkNumber intakeKa =
+      new LoggedNetworkNumber("/Tuning/Intake/kA", 0.0);
 
   private Rotation2d desiredAngle = new Rotation2d();
   private boolean useDeployPositionControl = false;
