@@ -45,7 +45,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   // Tunable PID gains for intake deploy
   public static final LoggedNetworkNumber intakeKp =
-      new LoggedNetworkNumber("/Tuning/Intake/kP", 1.0);
+      new LoggedNetworkNumber("/Tuning/Intake/kP", 3.0);
   public static final LoggedNetworkNumber intakeKi =
       new LoggedNetworkNumber("/Tuning/Intake/kI", 0.0);
   public static final LoggedNetworkNumber intakeKd =
@@ -173,10 +173,13 @@ public class IntakeSubsystem extends SubsystemBase {
       // double errorDeg = Math.abs(getCurrentAngle().getDegrees() - desiredAngle.getDegrees());
       // if (errorDeg > IntakeConstants.POSITION_DEADBAND) {
       deployMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
-      if (isDeployed.getAsBoolean() && currentLimitConfigs.StatorCurrentLimit != 10) {
-        currentLimitConfigs.StatorCurrentLimit = 10;
+      if (isDeployed.getAsBoolean()
+          && currentLimitConfigs.StatorCurrentLimit != 20
+          && getCurrentAngle().getDegrees() > 30) {
+        currentLimitConfigs.StatorCurrentLimit = 20;
         deployMotor.getConfigurator().apply(deployTalonFXConfigs);
-      } else if (!isDeployed.getAsBoolean() && currentLimitConfigs.StatorCurrentLimit != 60) {
+      } else if ((!isDeployed.getAsBoolean() || getCurrentAngle().getDegrees() < 30)
+          && currentLimitConfigs.StatorCurrentLimit != 60) {
         currentLimitConfigs.StatorCurrentLimit = 60;
         deployMotor.getConfigurator().apply(deployTalonFXConfigs);
       }

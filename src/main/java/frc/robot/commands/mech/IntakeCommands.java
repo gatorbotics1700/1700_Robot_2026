@@ -12,7 +12,7 @@ public class IntakeCommands {
   public IntakeCommands() {}
 
   public static Command ToggleIntake(IntakeSubsystem intakeSubsystem) {
-    if (intakeSubsystem.getIsDeployed().getAsBoolean()) {
+    if (!intakeSubsystem.getIsDeployed().getAsBoolean()) {
       return new DeployIntakeCommand(intakeSubsystem)
           .withName("Deploy Intake")
           .andThen(new WaitCommand(0.75))
@@ -89,7 +89,7 @@ public class IntakeCommands {
 
     @Override
     public void initialize() {
-      intakeSubsystem.setDesiredAngle(IntakeConstants.RETRACTED_POSITION);
+      intakeSubsystem.setDesiredAngle(IntakeConstants.EXTENDED_POSITION);
     }
 
     @Override
