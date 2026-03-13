@@ -44,7 +44,8 @@ public class DriveUnderTrenchCommand {
         pathToFollow =
             AutoBuilder.pathfindThenFollowPath(
                 PathPlannerPath.fromPathFile("B TL A to N" + pathRotation), constraints);
-                // System.out.println(PathPlannerPath.fromPathFile("B TL A to N" + pathRotation), constraints).toString())
+        // System.out.println(PathPlannerPath.fromPathFile("B TL A to N" + pathRotation),
+        // constraints).toString())
         shooterSubsystem.setShouldShoot(false);
       } else if ((pose.getY() > FieldCoordinates.FIELD_CENTER.getY())
           && (pose.getX() > FieldCoordinates.BLUE_BUMP_AND_TRENCH_X)) {
@@ -84,7 +85,7 @@ public class DriveUnderTrenchCommand {
         shooterSubsystem.setShouldShoot(false);
       }
     }
-    //System.out.println("drive under trench:"+pathRotation);
+    // System.out.println("drive under trench:"+pathRotation);
     return pathToFollow.withName("DriveUnderTrench");
   }
 }

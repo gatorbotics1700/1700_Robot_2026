@@ -212,6 +212,8 @@ public class Robot extends LoggedRobot {
         .schedule(HoodCommands.HomeHood(robotContainer.getHoodSubsystem()));
     CommandScheduler.getInstance()
         .schedule(new InstantCommand(() -> robotContainer.getTurretSubsystem().homeTurret()));
+    CommandScheduler.getInstance()
+        .schedule(new InstantCommand(() -> robotContainer.getIntakeSubsystem().zeroIntakeDeploy()));
     // CommandScheduler.getInstance()
     //     .schedule(
     //         robotContainer.HomeMechanisms()); // TODO we don't want to actually do this in comps

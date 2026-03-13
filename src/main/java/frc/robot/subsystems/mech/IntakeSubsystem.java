@@ -49,7 +49,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   // Tunable PID gains for intake deploy
   public static final LoggedNetworkNumber intakeKp =
-      new LoggedNetworkNumber("/Tuning/Intake/kP", 3.0);
+      new LoggedNetworkNumber("/Tuning/Intake/kP", 4.4);
   public static final LoggedNetworkNumber intakeKi =
       new LoggedNetworkNumber("/Tuning/Intake/kI", 0.0);
   public static final LoggedNetworkNumber intakeKd =
