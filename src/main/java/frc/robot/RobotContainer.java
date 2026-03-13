@@ -15,6 +15,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -57,13 +58,14 @@ import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.util.CommandSimMacXboxController;
 import frc.robot.util.GamePieceSimulation;
-import frc.robot.util.MultiStepAutoChooser;
+// import frc.robot.util.MultiStepAutoChooser; // COMMENTED OUT - using PathPlanner pre-made autos
 import frc.robot.util.RobotConfigLoader;
 import frc.robot.util.ShotCalculator;
 import frc.robot.util.ShotParameters;
 import java.util.Optional;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
   // Subsystems
@@ -85,7 +87,8 @@ public class RobotContainer {
   private CommandXboxController controller_two = null; // port 3
 
   // Dashboard inputs
-  private final MultiStepAutoChooser multiStepAutoChooser;
+  // private final MultiStepAutoChooser multiStepAutoChooser; // COMMENTED OUT - using PathPlanner pre-made autos
+  private final LoggedDashboardChooser<Command> autoChooser;
   private Supplier<Pose2d> robotPose;
   private Supplier<ChassisSpeeds> chassisSpeeds;
 
@@ -162,18 +165,38 @@ public class RobotContainer {
           return drive.getChassisSpeeds();
         };
 
-    // Set up auto routines with multi-step chooser
-    multiStepAutoChooser =
-        new MultiStepAutoChooser(
-            intakeSubsystem,
-            drive,
-            climberSubsystem,
-            hoodSubsystem,
+    // Register named commands for PathPlanner autos
+    NamedCommands.registerCommand("Shooter Command",
+        new ShootingCommand(
             shooterSubsystem,
+            hoodSubsystem,
             turretSubsystem,
             hopperFloorSubsystem,
             robotPose,
-            chassisSpeeds);
+            chassisSpeeds));
+    NamedCommands.registerCommand("Intaking Command", IntakeCommands.RunIntake(intakeSubsystem));
+    NamedCommands.registerCommand("Stop Shooter Command",
+        new InstantCommand(() -> {
+          shooterSubsystem.setDesiredRotorVelocity(0);
+          shooterSubsystem.setDesiredTransitionVoltage(0);
+          hopperFloorSubsystem.setDesiredHopperFloorVoltage(0);
+        }));
+
+    // Set up auto routines with PathPlanner's auto chooser (using pre-made .auto files)
+    autoChooser = new LoggedDashboardChooser<>("Auto/PathPlanner Auto", AutoBuilder.buildAutoChooser());
+
+    // COMMENTED OUT - using PathPlanner pre-made autos instead of DynamicAutoBuilder
+    // multiStepAutoChooser =
+    //     new MultiStepAutoChooser(
+    //         intakeSubsystem,
+    //         drive,
+    //         climberSubsystem,
+    //         hoodSubsystem,
+    //         shooterSubsystem,
+    //         turretSubsystem,
+    //         hopperFloorSubsystem,
+    //         robotPose,
+    //         chassisSpeeds);
 
     // Set up SysId routines
     // autoChooser.addOption(
@@ -680,16 +703,25 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    try {
-      return multiStepAutoChooser.getAutonomousCommand();
-    } catch (Exception ioe) {
-      System.out.println("bad io error");
-      return Commands.none();
-    }
+    // Using PathPlanner pre-made autos
+    Command selected = autoChooser.get();
+    return selected != null ? selected : Commands.none();
+
+    // COMMENTED OUT - using PathPlanner pre-made autos instead of DynamicAutoBuilder
+    // try {
+    //   return multiStepAutoChooser.getAutonomousCommand();
+    // } catch (Exception ioe) {
+    //   System.out.println("bad io error");
+    //   return Commands.none();
+    // }
   }
 
   public Optional<Pose2d> getAutoStartPose() {
-    return multiStepAutoChooser.getAutoStartPose();
+    // TODO: Implement start pose extraction from PathPlanner auto if needed
+    return Optional.empty();
+
+    // COMMENTED OUT - using PathPlanner pre-made autos instead of DynamicAutoBuilder
+    // return multiStepAutoChooser.getAutoStartPose();
   }
 
   public Drive getDriveSubsystem() {
@@ -746,7 +778,8 @@ public class RobotContainer {
       gamePieceSimulation.updateBalls();
     }
 
-    multiStepAutoChooser.updateChooserOptions();
+    // COMMENTED OUT - using PathPlanner pre-made autos instead of DynamicAutoBuilder
+    // multiStepAutoChooser.updateChooserOptions();
 
     // Print path name to console me thinks
     // String selectedPathName = multiStepAutoChooser.getSelectedPathName();

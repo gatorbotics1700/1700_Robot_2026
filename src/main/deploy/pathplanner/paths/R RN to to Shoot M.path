@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.126,
-        "y": 7.43
+        "x": 12.931394,
+        "y": 7.65
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.180722222222222,
-        "y": 7.451366666666667
+        "x": 13.536623046875,
+        "y": 4.060653718171296
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.126,
-        "y": 7.43
+        "x": 13.541,
+        "y": 4.034663
       },
       "prevControl": {
-        "x": 6.083122222222222,
-        "y": 7.441288888888889
+        "x": 12.886816333912039,
+        "y": 7.576197265625
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 179.6753365995862
+    "rotation": 179.56851013573586
   },
   "reversed": false,
-  "folder": "under DA trench ",
+  "folder": "Shoot",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 179.56691083118227
+    "rotation": -179.6581801959773
   },
   "useDefaultConstraints": true
 }
