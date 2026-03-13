@@ -54,11 +54,18 @@ public class TurretSubsystem extends SubsystemBase {
 
   // Tunable PID gains for turret
   public static final LoggedNetworkNumber turretKp =
-      new LoggedNetworkNumber("/Tuning/Turret/kP", 2.0);
+      new LoggedNetworkNumber("/Tuning/Turret/kP", 0.0);
   public static final LoggedNetworkNumber turretKi =
       new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
   public static final LoggedNetworkNumber turretKd =
-      new LoggedNetworkNumber("/Tuning/Turret/kD", 0.1);
+      new LoggedNetworkNumber("/Tuning/Turret/kD", 0.0);
+
+  public static final LoggedNetworkNumber turretKs =
+      new LoggedNetworkNumber("/Tuning/Turret/kS", 0.0);
+  public static final LoggedNetworkNumber turretKv =
+      new LoggedNetworkNumber("/Tuning/Turret/kV", 0.0);
+  public static final LoggedNetworkNumber turretKa =
+      new LoggedNetworkNumber("/Tuning/Turret/kA", 0.0);
 
   public TurretSubsystem() {
     turretMotor = new TalonFX(TurretConstants.TURRET_MOTOR_CAN_ID, TunerConstants.mechCANBus);
@@ -74,13 +81,13 @@ public class TurretSubsystem extends SubsystemBase {
 
     slot0Configs = talonFXConfigs.Slot0;
 
-    slot0Configs.kG =
-        0; // Add 0.2128 V output to overcome gravity (tuned in early feedforward testing)
     slot0Configs.kS =
-        0.25; // Add 0.01 V output to overcome static friction (just a guesstimate, but this might
+        turretKs
+            .get(); // Add 0.01 V output to overcome static friction (just a guesstimate, but this
+    // might
     // just be 0
-    slot0Configs.kV = 0.16; // A velocity target of 1 rps results in 0.12 V output
-    slot0Configs.kA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
+    slot0Configs.kV = turretKv.get(); // A velocity target of 1 rps results in 0.12 V output
+    slot0Configs.kA = turretKa.get(); // An acceleration of 1 rps/s requires 0.01 V output
 
     // Initial PID gains come from tunable LoggedNetworkNumbers
     slot0Configs.kP = turretKp.get(); // A position error of 2.5 rotations results in 12V output
@@ -174,13 +181,13 @@ public class TurretSubsystem extends SubsystemBase {
     SysIdRoutine.Config config =
         new SysIdRoutine.Config(
             // this is the ramp rate for voltage during a test
-            Volts.per(Second).of(2),
+            Volts.per(Second).of(1),
             // this is the maximum voltage for the test
             Volts.of(4),
             // this is the duration of the test.
             // Note we use `until` when we return the command to abort if we hit turret
             // limits
-            Seconds.of(10),
+            Seconds.of(5),
             (state) -> Logger.recordOutput("Mech/Turret/SysID/SysIdState", state.toString()));
 
     // mechanism for our test. Sets the voltage; we log voltage/position/velocity ourselves in
@@ -229,10 +236,21 @@ public class TurretSubsystem extends SubsystemBase {
     double newKp = turretKp.get();
     double newKi = turretKi.get();
     double newKd = turretKd.get();
-    if (newKp != slot0Configs.kP || newKi != slot0Configs.kI || newKd != slot0Configs.kD) {
+    double newKs = turretKs.get();
+    double newKv = turretKv.get();
+    double newKa = turretKa.get();
+    if (newKp != slot0Configs.kP
+        || newKi != slot0Configs.kI
+        || newKd != slot0Configs.kD
+        || newKa != slot0Configs.kA
+        || newKv != slot0Configs.kV
+        || newKs != slot0Configs.kS) {
       slot0Configs.kP = newKp;
       slot0Configs.kI = newKi;
       slot0Configs.kD = newKd;
+      slot0Configs.kS = newKs;
+      slot0Configs.kV = newKv;
+      slot0Configs.kA = newKa;
       turretMotor.getConfigurator().apply(talonFXConfigs);
     }
   }

@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.FieldCoordinates;
+import frc.robot.Constants.HopperFloorConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.VisionConstants;
@@ -664,6 +665,32 @@ public class RobotContainer {
             .onTrue(
                 ShootingCommands.StationaryShootingCommand(
                     shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
+
+        // controller_two
+        //     .leftTrigger()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () -> turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(36)))));
+
+        // controller_two
+        //     .rightTrigger()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () -> turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0)))));
+
+        // controller_two
+        //     .rightTrigger()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () -> turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(-36)))));
+
+        // controller_two
+        //     .povDown()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () ->
+        //                 hopperFloorSubsystem.setDesiredHopperFloorVoltage(
+        //                     HopperFloorConstants.HOPPER_FLOOR_VOLTAGE)));
         // controller_two
         //     .leftBumper()
         //     .onTrue(
@@ -677,8 +704,8 @@ public class RobotContainer {
     }
   }
 
-    public void configureCompDriverButtonBindings() {
-    //TODO actually call this method
+  public void configureCompDriverButtonBindings() {
+    // TODO actually call this method
     if (DriverStation.isJoystickConnected(0)) {
       if (Constants.currentMode == Constants.Mode.SIM
           && System.getProperty("os.name").contains("Mac")) {
@@ -751,12 +778,12 @@ public class RobotContainer {
               Commands.runOnce(
                   () ->
                       CommandScheduler.getInstance()
-                          .schedule(new DriveToFuelCommand(drive, vision,robotPose)),
+                          .schedule(new DriveToFuelCommand(drive, vision, robotPose)),
                   drive,
                   vision));
 
       controller
-          .rightBumper()
+          .rightTrigger()
           .onTrue(
               new InstantCommand(
                   () -> {
@@ -771,7 +798,7 @@ public class RobotContainer {
                   }));
 
       controller
-          .leftBumper()
+          .leftTrigger()
           .onTrue(
               new InstantCommand(
                   () -> {
@@ -786,9 +813,9 @@ public class RobotContainer {
                   }));
     }
   }
-  
+
   public void configureCompCodriverButtonBindings() {
-    //TODO actually call this method
+    // TODO actually call this method
     if (DriverStation.isJoystickConnected(1)) {
       if (Constants.currentMode == Constants.Mode.SIM
           && System.getProperty("os.name").contains("Mac")) {
@@ -798,38 +825,36 @@ public class RobotContainer {
       } else {
         controller_two = new CommandXboxController(1);
       }
-    controller_two
-            .x()
-            .onTrue(
-                new InstantCommand(
-                    () ->
-                        CommandScheduler.getInstance()
-                            .schedule(
-                                MechStop(
-                                    turretSubsystem,
-                                    shooterSubsystem,
-                                    hopperFloorSubsystem,
-                                    hoodSubsystem,
-                                    intakeSubsystem))));
-     controller_two
-            .y()
-            .onTrue(new InstantCommand(() -> shooterSubsystem.toggleShouldShoot()));
-    controller_two
-            .b()
-            .onTrue(
-                ShootingCommands.StationaryShootingCommand(
-                    shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
       controller_two
-            .leftBumper()
-            .onTrue(
-                new InstantCommand(
-                    () ->
-                        CommandScheduler.getInstance()
-                            .schedule(IntakeCommands.ToggleIntake(intakeSubsystem))));
-      //I am making the assumption that we are not using pathfinding to climb
+          .x()
+          .onTrue(
+              new InstantCommand(
+                  () ->
+                      CommandScheduler.getInstance()
+                          .schedule(
+                              MechStop(
+                                  turretSubsystem,
+                                  shooterSubsystem,
+                                  hopperFloorSubsystem,
+                                  hoodSubsystem,
+                                  intakeSubsystem))));
+      controller_two.y().onTrue(new InstantCommand(() -> shooterSubsystem.toggleShouldShoot()));
+      controller_two
+          .b()
+          .onTrue(
+              ShootingCommands.StationaryShootingCommand(
+                  shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
+      controller_two
+          .leftBumper()
+          .onTrue(
+              new InstantCommand(
+                  () ->
+                      CommandScheduler.getInstance()
+                          .schedule(IntakeCommands.ToggleIntake(intakeSubsystem))));
+      // I am making the assumption that we are not using pathfinding to climb
       controller_two.rightBumper().onTrue(ClimbCommands.ClimbWithoutDrive(climberSubsystem));
     }
-    }
+  }
 
   public void configureSysIdButtons() {
     if (DriverStation.isJoystickConnected(1)) {
@@ -854,19 +879,20 @@ public class RobotContainer {
       // controller.a().whileTrue(hoodSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
       // controller.b().whileTrue(hoodSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
       // TODO: intake
-      controller_two.x().whileTrue(intakeSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-      controller_two.y().whileTrue(intakeSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
-      controller_two
-          .a()
-          .whileTrue(intakeSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-      controller_two
-          .b()
-          .whileTrue(intakeSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      // controller_two.x().whileTrue(intakeSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      // controller_two.y().whileTrue(intakeSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      // controller_two
+      //     .a()
+      //     .whileTrue(intakeSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      // controller_two
+      //     .b()
+      //     .whileTrue(intakeSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
-      controller_two
-          .rightBumper()
-          .onTrue(
-              new InstantCommand(() -> intakeSubsystem.zeroIntakeDeploy()).ignoringDisable(true));
+      // controller_two
+      //     .rightBumper()
+      //     .onTrue(
+      //         new InstantCommand(() ->
+      // intakeSubsystem.zeroIntakeDeploy()).ignoringDisable(true));
 
       // TODO: shooter
       // controller_two.x().whileTrue(shooterSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
@@ -877,6 +903,16 @@ public class RobotContainer {
       // controller_two
       //     .b()
       //     .whileTrue(shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+
+      // TODO: turret
+      controller_two.x().whileTrue(turretSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      controller_two.y().whileTrue(turretSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      controller_two
+          .a()
+          .whileTrue(turretSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      controller_two
+          .b()
+          .whileTrue(turretSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     }
   }
 
@@ -1012,7 +1048,7 @@ public class RobotContainer {
             // .alongWith(new TurretHomingCommand(turretSubsystem))
             // TODO: this line would make it so the turret doesn't run the homing command since no
             // limit switch and we assume it's in the right sector on init
-            // .alongWith(new InstantCommand(()-> turretSubsystem.homeTurret()))
+            .alongWith(new InstantCommand(() -> turretSubsystem.homeTurret()))
             .alongWith(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem)))
         .withName("Home Mechansims");
   }

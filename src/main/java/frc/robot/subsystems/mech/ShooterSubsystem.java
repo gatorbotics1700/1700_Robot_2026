@@ -42,15 +42,15 @@ public class ShooterSubsystem extends SubsystemBase {
   private double desiredRotorVelocity = 0;
 
   public static LoggedNetworkNumber flyWheelSlip =
-      new LoggedNetworkNumber("/Tuning/Shooter/flywheelSlip", 0.18);
+      new LoggedNetworkNumber("/Tuning/Shooter/flywheelSlip", 0.17);
 
   // Tunable PID gains flywheel
   public static final LoggedNetworkNumber flywheelKP =
-      new LoggedNetworkNumber("/Tuning/Shooter/Flywheel kP", 0.3);
+      new LoggedNetworkNumber("/Tuning/Shooter/Flywheel kP", 0.02);
   public static final LoggedNetworkNumber flywheelKI =
       new LoggedNetworkNumber("/Tuning/Shooter/Flywheel kI", 0.0);
   public static final LoggedNetworkNumber flywheelKD =
-      new LoggedNetworkNumber("/Tuning/Shooter/Flywheel kD", 0.0);
+      new LoggedNetworkNumber("/Tuning/Shooter/Flywheel kD", 0.002);
 
   public ShooterSubsystem() {
     leftFlywheelMotor =
@@ -67,9 +67,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
     leftFlywheelSlot0Configs = leftFlywheelTalonFXConfigs.Slot0;
 
-    leftFlywheelSlot0Configs.kS = 0.66106; // Add _ V output to overcome static friction
-    leftFlywheelSlot0Configs.kV = 0.18; // A velocity target of 1 rps results in 0.12-0.2 V output
-    leftFlywheelSlot0Configs.kA = 0.049587;
+    leftFlywheelSlot0Configs.kS = 0.33676; // Add _ V output to overcome static friction
+    leftFlywheelSlot0Configs.kV =
+        0.12305; // A velocity target of 1 rps results in 0.12-0.2 V output
+    leftFlywheelSlot0Configs.kA = 0.027318;
     leftFlywheelSlot0Configs.kP = flywheelKP.get();
     leftFlywheelSlot0Configs.kI = flywheelKI.get();
     leftFlywheelSlot0Configs.kD = flywheelKD.get();
