@@ -40,8 +40,6 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.util.Calculations;
 import frc.robot.util.RobotConfigLoader;
@@ -686,11 +684,6 @@ public final class Constants {
     // trying to phase through walls)
     // hub
     public static final Translation3d RED_HUB = new Translation3d(11.915394, 4.034663, 1.80);
-    public static final Translation3d OUR_ALLIANCE_HUB =
-        DriverStation.getAlliance().get() != null
-                && DriverStation.getAlliance().get() == Alliance.Red
-            ? RED_HUB
-            : BLUE_HUB;
     public static final Translation3d BLUE_LEFT_FUNNELING = new Translation3d(2.482, 6.653, 0);
     public static final Translation3d BLUE_RIGHT_FUNNELING = new Translation3d(2.482, 1.511, 0);
     public static final Translation3d RED_LEFT_FUNNELING = new Translation3d(14.858, 6.653, 0);

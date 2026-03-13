@@ -835,17 +835,33 @@ public class RobotContainer {
                           .schedule(new DriveToFuelCommand(drive, vision, robotPose)),
                   drive,
                   vision));
-      controller
-          .x()
-          .onTrue(
-              AutoBuilder.pathfindToPose(
-                  new Pose2d(
-                      robotPose.get().getX(),
-                      robotPose.get().getY(),
-                      Calculations.angleToPoint(
-                          FieldCoordinates.OUR_ALLIANCE_HUB.getX() - robotPose.get().getX(),
-                          FieldCoordinates.OUR_ALLIANCE_HUB.getY() - robotPose.get().getY())),
-                  new PathConstraints(0, 0, 10, 10)));
+      if (DriverStation.getAlliance().isPresent()
+          && DriverStation.getAlliance().get() == DriverStation.Alliance.Red) {
+        controller
+            .x()
+            .onTrue(
+                AutoBuilder.pathfindToPose(
+                    new Pose2d(
+                        robotPose.get().getX(),
+                        robotPose.get().getY(),
+                        Calculations.angleToPoint(
+                            FieldCoordinates.RED_HUB.getX() - robotPose.get().getX(),
+                            FieldCoordinates.RED_HUB.getY() - robotPose.get().getY())),
+                    new PathConstraints(0, 0, 10, 10)));
+
+      } else {
+        controller
+            .x()
+            .onTrue(
+                AutoBuilder.pathfindToPose(
+                    new Pose2d(
+                        robotPose.get().getX(),
+                        robotPose.get().getY(),
+                        Calculations.angleToPoint(
+                            FieldCoordinates.BLUE_HUB.getX() - robotPose.get().getX(),
+                            FieldCoordinates.BLUE_HUB.getY() - robotPose.get().getY())),
+                    new PathConstraints(0, 0, 10, 10)));
+      }
 
       controller
           .rightTrigger()
@@ -1042,7 +1058,8 @@ public class RobotContainer {
 
   public void configureButtonBindings() {
     CommandScheduler.getInstance().getActiveButtonLoop().clear();
-    configureDriverButtonBindings();
+    configureCompDriverButtonBindings();
+    // configureDriverButtonBindings();
     configureCodriverButtonBindings();
   }
 
