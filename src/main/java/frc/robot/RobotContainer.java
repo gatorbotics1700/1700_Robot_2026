@@ -677,8 +677,8 @@ public class RobotContainer {
     }
   }
 
-    public void configureCompDriverButtonBindings() {
-    //TODO actually call this method
+  public void configureCompDriverButtonBindings() {
+    // TODO actually call this method
     if (DriverStation.isJoystickConnected(0)) {
       if (Constants.currentMode == Constants.Mode.SIM
           && System.getProperty("os.name").contains("Mac")) {
@@ -751,7 +751,7 @@ public class RobotContainer {
               Commands.runOnce(
                   () ->
                       CommandScheduler.getInstance()
-                          .schedule(new DriveToFuelCommand(drive, vision,robotPose)),
+                          .schedule(new DriveToFuelCommand(drive, vision, robotPose)),
                   drive,
                   vision));
 
@@ -786,9 +786,9 @@ public class RobotContainer {
                   }));
     }
   }
-  
+
   public void configureCompCodriverButtonBindings() {
-    //TODO actually call this method
+    // TODO actually call this method
     if (DriverStation.isJoystickConnected(1)) {
       if (Constants.currentMode == Constants.Mode.SIM
           && System.getProperty("os.name").contains("Mac")) {
@@ -798,38 +798,36 @@ public class RobotContainer {
       } else {
         controller_two = new CommandXboxController(1);
       }
-    controller_two
-            .x()
-            .onTrue(
-                new InstantCommand(
-                    () ->
-                        CommandScheduler.getInstance()
-                            .schedule(
-                                MechStop(
-                                    turretSubsystem,
-                                    shooterSubsystem,
-                                    hopperFloorSubsystem,
-                                    hoodSubsystem,
-                                    intakeSubsystem))));
-     controller_two
-            .y()
-            .onTrue(new InstantCommand(() -> shooterSubsystem.toggleShouldShoot()));
-    controller_two
-            .b()
-            .onTrue(
-                ShootingCommands.StationaryShootingCommand(
-                    shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
       controller_two
-            .leftBumper()
-            .onTrue(
-                new InstantCommand(
-                    () ->
-                        CommandScheduler.getInstance()
-                            .schedule(IntakeCommands.ToggleIntake(intakeSubsystem))));
-      //I am making the assumption that we are not using pathfinding to climb
+          .x()
+          .onTrue(
+              new InstantCommand(
+                  () ->
+                      CommandScheduler.getInstance()
+                          .schedule(
+                              MechStop(
+                                  turretSubsystem,
+                                  shooterSubsystem,
+                                  hopperFloorSubsystem,
+                                  hoodSubsystem,
+                                  intakeSubsystem))));
+      controller_two.y().onTrue(new InstantCommand(() -> shooterSubsystem.toggleShouldShoot()));
+      controller_two
+          .b()
+          .onTrue(
+              ShootingCommands.StationaryShootingCommand(
+                  shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
+      controller_two
+          .leftBumper()
+          .onTrue(
+              new InstantCommand(
+                  () ->
+                      CommandScheduler.getInstance()
+                          .schedule(IntakeCommands.ToggleIntake(intakeSubsystem))));
+      // I am making the assumption that we are not using pathfinding to climb
       controller_two.rightBumper().onTrue(ClimbCommands.ClimbWithoutDrive(climberSubsystem));
     }
-    }
+  }
 
   public void configureSysIdButtons() {
     if (DriverStation.isJoystickConnected(1)) {
