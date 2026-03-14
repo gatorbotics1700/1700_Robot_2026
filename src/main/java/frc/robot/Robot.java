@@ -240,8 +240,15 @@ public class Robot extends LoggedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
-    // robotContainer.configureDriverButtonBindings();
-    // robotContainer.configureCodriverButtonBindings();
+    CommandScheduler.getInstance()
+        .schedule(
+            robotContainer.MechStop(
+                robotContainer.getTurretSubsystem(),
+                robotContainer.getShooterSubsystem(),
+                robotContainer.getHopperFloorSubsystem(),
+                robotContainer.getHoodSubsystem(),
+                robotContainer.getIntakeSubsystem()));
+
     robotContainer.configureSysIdButtons();
     // robotContainer.configureSystemCheckButtons();
     // robotContainer.getHoodSubsystem().zeroHood();

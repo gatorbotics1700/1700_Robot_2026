@@ -11,7 +11,6 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-// TODO: add mech commands into auto stuff
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -1033,6 +1032,7 @@ public class RobotContainer {
   public void configureButtonBindings() {
     CommandScheduler.getInstance().getActiveButtonLoop().clear();
     configureCompDriverButtonBindings();
+    // configureCompCodriverButtonBindings(); // TODO: IMPORTANT SWITCH THIS BEFORE MATCHES
     // configureDriverButtonBindings();
     configureCodriverButtonBindings();
   }
@@ -1054,7 +1054,6 @@ public class RobotContainer {
           .onTrue(
               new InstantCommand(
                   () -> {
-                    drive.runVelocity(new ChassisSpeeds(0.2, 0.0, 0.0));
                     shooterSubsystem.setDesiredRotorVelocity(80);
                     shooterSubsystem.setDesiredTransitionVoltage(
                         ShooterConstants.TRANSITION_VOLTAGE);
@@ -1095,6 +1094,10 @@ public class RobotContainer {
                   .andThen(IntakeCommands.RetractIntake(intakeSubsystem)));
 
       controller_two
+          .leftBumper()
+          .onTrue(new InstantCommand(() -> drive.runVelocity(new ChassisSpeeds(0.2, 0.0, 0.0))));
+
+      controller_two
           .rightBumper()
           .onTrue(
               new InstantCommand(
@@ -1107,6 +1110,20 @@ public class RobotContainer {
                                   hopperFloorSubsystem,
                                   hoodSubsystem,
                                   intakeSubsystem))));
+
+      controller_two
+          .leftTrigger()
+          .onTrue(
+              new InstantCommand(() -> turretSubsystem.homeTurret())
+                  .andThen(
+                      new InstantCommand(
+                          () ->
+                              turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(36)))))
+                  .andThen(new WaitCommand(1.5))
+                  .andThen(
+                      new InstantCommand(
+                          () ->
+                              turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0))))));
     }
   }
 
@@ -1129,7 +1146,7 @@ public class RobotContainer {
 
     // shotParameters =
     // ShotCalculator.calculateShot(
-    // drive.getPose(), drive.getChassisSpeeds(), Constants.BLUE_HUB, 10);\
+    // drive.getPose(), drive.getChassisSpeeds(), Constants.BLUE_HUB, 10);
   }
 
   public void robotContainerLogs() {
@@ -1179,10 +1196,10 @@ public class RobotContainer {
         .withName("Mech Stop");
   }
 
-  public Command HomeMechanisms() { // TODO: uncomment these other homing commands
+  public Command HomeMechanisms() {
     return (HoodCommands.HomeHood(hoodSubsystem)
             .alongWith(new ClimbCommands.HomeClimber(climberSubsystem))
-            // .alongWith(new InstantCommand(() -> turretSubsystem.homeTurret()))
+            .alongWith(new InstantCommand(() -> turretSubsystem.homeTurret()))
             .alongWith(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem)))
         .withName("Home Mechansims");
   }
