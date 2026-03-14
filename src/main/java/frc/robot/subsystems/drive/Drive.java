@@ -147,7 +147,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
   private boolean slowDrive;
 
   private static final double TRANSLATION_kP = 2.5;
-  private static final double ROTATION_kP = 0.1;
+  private static final double ROTATION_kP = 1;
   private final double TRANSLATION_MIN_SPEED = 0.5;
   private final double ROTATION_MIN_SPEED = 0.3;
   private final double TRANSLATION_MAX_SPEED = 1.8;
@@ -589,7 +589,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     double error = desiredRotation - currentRotation;
     error = MathUtil.inputModulus(error, -180, 180); // sets the value between -180 and 180
 
-    if (Math.abs(error) < VisionConstants.ROTATION_DEADBAND_DEGREES) { // Stop if within deadband
+    if (Math.abs(error) < 5) { // Stop if within deadband
       error = 0.0;
     }
     return error;

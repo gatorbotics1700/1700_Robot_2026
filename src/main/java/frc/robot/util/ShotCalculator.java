@@ -152,7 +152,7 @@ public class ShotCalculator {
 
   public static ShotParameters calculateShot(
       Pose2d drivetrainPose, ChassisSpeeds chassisSpeeds, Translation3d target) {
-    System.out.println("CALCULATING SHOT");
+    //System.out.println("CALCULATING SHOT");
 
     // calculate field relative shooter pose
     Translation3d fieldToShooter =
@@ -220,7 +220,7 @@ public class ShotCalculator {
     Logger.recordOutput(
         "shotCalculator/shooterToTarget + shooter",
         fieldRelativeShooterToTarget.plus(fieldToShooter));
-    System.out.println("SHOT CALCULATOR DONE");
+    //System.out.println("SHOT CALCULATOR DONE");
 
     return botRelativeParams;
   }

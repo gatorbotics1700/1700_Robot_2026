@@ -180,8 +180,26 @@ public class RobotContainer {
     // Register named commands for PathPlanner autos
     NamedCommands.registerCommand(
         "Shooter Command",
-        ShootingCommands.StationaryShootingCommand(
-            shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
+        Commands.runOnce(
+            () ->
+                CommandScheduler.getInstance()
+                    .schedule(
+                        new InstantCommand(
+                                () -> {
+                                  shooterSubsystem.setDesiredRotorVelocity(80);
+                                })
+                            .andThen(new WaitCommand(1))
+                            .andThen(
+                                new InstantCommand(
+                                    () -> {
+                                      hopperFloorSubsystem.setDesiredHopperFloorVoltage(
+                                          HopperFloorConstants.HOPPER_FLOOR_VOLTAGE);
+                                      shooterSubsystem.setDesiredTransitionVoltage(
+                                          ShooterConstants.TRANSITION_VOLTAGE);
+                                      shooterSubsystem.setDesiredRotorVelocity(80);
+                                      hoodSubsystem.setDesiredAngle(
+                                          new Rotation2d(Math.toRadians(65)));
+                                    })))));
     NamedCommands.registerCommand("Intaking Command", IntakeCommands.RunIntake(intakeSubsystem));
     NamedCommands.registerCommand(
         "Stop Shooter Command",
@@ -829,12 +847,6 @@ public class RobotContainer {
                           .schedule(new DriveToFuelCommand(drive, vision, robotPose)),
                   drive,
                   vision));
-      controller
-          .x()
-          .onTrue(
-              Commands.runOnce(
-                  () -> CommandScheduler.getInstance().schedule(new PointAtHubCommand(drive)),
-                  drive));
 
       controller
           .rightTrigger()
@@ -892,21 +904,55 @@ public class RobotContainer {
                                   hopperFloorSubsystem,
                                   hoodSubsystem,
                                   intakeSubsystem))));
-      controller_two.y().onTrue(new InstantCommand(() -> shooterSubsystem.toggleShouldShoot()));
       controller_two
-          .b()
+          .rightBumper()
+          .onTrue(new InstantCommand(() -> shooterSubsystem.toggleShouldShoot()));
+      controller_two
+          .rightTrigger()
           .onTrue(
-              ShootingCommands.StationaryShootingCommand(
-                  shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
+              Commands.runOnce(
+                  () -> CommandScheduler.getInstance().schedule((new PointAtHubCommand(drive)))));
+      controller
+          .x()
+          .onTrue(
+              Commands.runOnce(
+                  () ->
+                      CommandScheduler.getInstance()
+                          .schedule(
+                              new InstantCommand(
+                                      () -> {
+                                        shooterSubsystem.setDesiredRotorVelocity(80);
+                                      })
+                                  .andThen(new WaitCommand(1))
+                                  .andThen(
+                                      new InstantCommand(
+                                          () -> {
+                                            hopperFloorSubsystem.setDesiredHopperFloorVoltage(
+                                                HopperFloorConstants.HOPPER_FLOOR_VOLTAGE);
+                                            shooterSubsystem.setDesiredTransitionVoltage(
+                                                ShooterConstants.TRANSITION_VOLTAGE);
+                                            shooterSubsystem.setDesiredRotorVelocity(80);
+                                            hoodSubsystem.setDesiredAngle(
+                                                new Rotation2d(Math.toRadians(65)));
+                                          })))));
+
       controller_two
-          .leftBumper()
+          .y()
           .onTrue(
               new InstantCommand(
                   () ->
                       CommandScheduler.getInstance()
                           .schedule(IntakeCommands.ToggleIntake(intakeSubsystem))));
+
+      controller_two
+          .b()
+          .onTrue(
+              new InstantCommand(
+                  () ->
+                      CommandScheduler.getInstance()
+                          .schedule(IntakeCommands.RunIntake(intakeSubsystem))));
       // I am making the assumption that we are not using pathfinding to climb
-      controller_two.rightBumper().onTrue(ClimbCommands.ClimbWithoutDrive(climberSubsystem));
+      controller_two.leftBumper().onTrue(ClimbCommands.ClimbWithoutDrive(climberSubsystem));
     }
   }
 
@@ -1032,9 +1078,9 @@ public class RobotContainer {
   public void configureButtonBindings() {
     CommandScheduler.getInstance().getActiveButtonLoop().clear();
     configureCompDriverButtonBindings();
-    // configureCompCodriverButtonBindings(); // TODO: IMPORTANT SWITCH THIS BEFORE MATCHES
+    configureCompCodriverButtonBindings(); // TODO: IMPORTANT SWITCH THIS BEFORE MATCHES
     // configureDriverButtonBindings();
-    configureCodriverButtonBindings();
+    // configureCodriverButtonBindings();
   }
 
   public void configureSystemCheckButtons() {
