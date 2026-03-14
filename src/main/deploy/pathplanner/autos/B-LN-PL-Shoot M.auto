@@ -7,38 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "B LN to Fuel Pile L"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "B Fuel Pile L To ML"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intaking Command"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "B Fuel Pile ML to BP"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "BP L to Shoot M"
+            "pathName": "B LN to Shoot M"
           }
         },
         {
@@ -70,6 +39,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Round About Autos",
+  "folder": null,
   "choreoAuto": false
 }

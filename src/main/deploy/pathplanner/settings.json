@@ -18,8 +18,9 @@
   "autoFolders": [
     "Center Autos",
     "DC + Outpost Paths + T",
-    "Right Autos",
+    "Left Autos",
     "Over Bump Commands (8)",
+    "Right Autos",
     "Round About Autos"
   ],
   "defaultMaxVel": 5.0,

@@ -7,38 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "B LN to Fuel Pile L"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "B Fuel Pile L To ML"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intaking Command"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "B Fuel Pile ML to BP"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "BP L to Shoot M"
+            "pathName": "B LN to Shoot M"
           }
         },
         {
@@ -69,13 +38,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "B Shoot M to LN"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "B LN to Fuel Pile L"
+            "pathName": "B Shoot M to DC"
           }
         },
         {
@@ -83,15 +46,15 @@
           "data": {
             "commands": [
               {
-                "type": "path",
-                "data": {
-                  "pathName": "B Fuel Pile L To ML"
-                }
-              },
-              {
                 "type": "named",
                 "data": {
                   "name": "Intaking Command"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
                 }
               }
             ]
@@ -100,13 +63,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "B Fuel Pile ML to BP"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "BP L to Shoot M"
+            "pathName": "B DC to Shoot M"
           }
         },
         {
@@ -138,6 +95,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Round About Autos",
+  "folder": "Left Autos",
   "choreoAuto": false
 }
