@@ -42,6 +42,7 @@ import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveToFuelCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
+import frc.robot.commands.drive.PointAtHubCommand;
 import frc.robot.commands.mech.ClimbCommands;
 import frc.robot.commands.mech.HoodCommands;
 import frc.robot.commands.mech.IntakeCommands;
@@ -62,7 +63,6 @@ import frc.robot.subsystems.mech.TurretSubsystem;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
-import frc.robot.util.Calculations;
 import frc.robot.util.CommandSimMacXboxController;
 import frc.robot.util.GamePieceSimulation;
 // import frc.robot.util.MultiStepAutoChooser; // COMMENTED OUT - using PathPlanner pre-made autos
@@ -72,6 +72,7 @@ import frc.robot.util.ShotParameters;
 import java.util.Optional;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
   // Subsystems
@@ -95,7 +96,7 @@ public class RobotContainer {
   // Dashboard inputs
   // private final MultiStepAutoChooser multiStepAutoChooser; // COMMENTED OUT - using PathPlanner
   // pre-made autos
-  // private final LoggedDashboardChooser<Command> autoChooser;
+  private final LoggedDashboardChooser<Command> autoChooser;
   private Supplier<Pose2d> robotPose;
   private Supplier<ChassisSpeeds> chassisSpeeds;
 
@@ -120,8 +121,6 @@ public class RobotContainer {
                 new VisionIOPhotonVision(
                     VisionConstants.CAMERA_0_NAME, VisionConstants.ROBOT_TO_CAMERA_0),
                 new VisionIOPhotonVision(
-                    VisionConstants.CAMERA_1_NAME, VisionConstants.ROBOT_TO_CAMERA_1),
-                new VisionIOPhotonVision(
                     VisionConstants.CAMERA_2_NAME, VisionConstants.ROBOT_TO_CAMERA_2),
                 new VisionIOPhotonVision(
                     VisionConstants.CAMERA_3_NAME, VisionConstants.ROBOT_TO_CAMERA_3));
@@ -143,10 +142,6 @@ public class RobotContainer {
                 new VisionIOPhotonVisionSim(
                     VisionConstants.CAMERA_0_NAME,
                     VisionConstants.ROBOT_TO_CAMERA_0,
-                    drive::getPose),
-                new VisionIOPhotonVisionSim(
-                    VisionConstants.CAMERA_1_NAME,
-                    VisionConstants.ROBOT_TO_CAMERA_1,
                     drive::getPose),
                 new VisionIOPhotonVisionSim(
                     VisionConstants.CAMERA_2_NAME,
@@ -199,8 +194,8 @@ public class RobotContainer {
             }));
 
     // Set up auto routines with PathPlanner's auto chooser (using pre-made .auto files)
-    // autoChooser =
-    //     new LoggedDashboardChooser<>("Auto/PathPlanner Auto", AutoBuilder.buildAutoChooser());
+    autoChooser =
+        new LoggedDashboardChooser<>("Auto/PathPlanner Auto", AutoBuilder.buildAutoChooser());
 
     // COMMENTED OUT - using PathPlanner pre-made autos instead of DynamicAutoBuilder
     // multiStepAutoChooser =
@@ -838,14 +833,9 @@ public class RobotContainer {
       controller
           .x()
           .onTrue(
-              AutoBuilder.pathfindToPose(
-                  new Pose2d(
-                      robotPose.get().getX(),
-                      robotPose.get().getY(),
-                      Calculations.angleToPoint(
-                          FieldCoordinates.OUR_ALLIANCE_HUB.getX() - robotPose.get().getX(),
-                          FieldCoordinates.OUR_ALLIANCE_HUB.getY() - robotPose.get().getY())),
-                  new PathConstraints(0, 0, 10, 10)));
+              Commands.runOnce(
+                  () -> CommandScheduler.getInstance().schedule(new PointAtHubCommand(drive)),
+                  drive));
 
       controller
           .rightTrigger()
@@ -984,15 +974,15 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     // Using PathPlanner pre-made autos
-    // Command selected = autoChooser.get();
-    // return selected != null ? selected : Commands.none();
+    Command selected = autoChooser.get();
+    return selected != null ? selected : Commands.none();
 
     // COMMENTED OUT - using PathPlanner pre-made autos instead of DynamicAutoBuilder
     // try {
     //   return multiStepAutoChooser.getAutonomousCommand();
     // } catch (Exception ioe) {
     //   System.out.println("bad io error");
-    return Commands.none();
+    // return Commands.none();
     // }
   }
 
@@ -1042,7 +1032,8 @@ public class RobotContainer {
 
   public void configureButtonBindings() {
     CommandScheduler.getInstance().getActiveButtonLoop().clear();
-    configureDriverButtonBindings();
+    configureCompDriverButtonBindings();
+    // configureDriverButtonBindings();
     configureCodriverButtonBindings();
   }
 
