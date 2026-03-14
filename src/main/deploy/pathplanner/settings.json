@@ -5,13 +5,15 @@
   "pathFolders": [
     "BLUE 1P RB",
     "Blue Non-starters",
-    "Shoot",
     "Blue Starters",
     "Fuel Pile Inner Paths",
+    "under DA trench",
     "RED 1P RB",
     "Red Non-starters",
     "Red Starters",
-    "field elements"
+    "Shoot",
+    "field elements",
+    "over DA bump"
   ],
   "autoFolders": [
     "Center Autos",

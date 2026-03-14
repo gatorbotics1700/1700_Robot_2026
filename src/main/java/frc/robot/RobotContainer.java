@@ -72,6 +72,7 @@ import frc.robot.util.ShotParameters;
 import java.util.Optional;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
   // Subsystems
@@ -95,7 +96,7 @@ public class RobotContainer {
   // Dashboard inputs
   // private final MultiStepAutoChooser multiStepAutoChooser; // COMMENTED OUT - using PathPlanner
   // pre-made autos
-  // private final LoggedDashboardChooser<Command> autoChooser;
+  private final LoggedDashboardChooser<Command> autoChooser;
   private Supplier<Pose2d> robotPose;
   private Supplier<ChassisSpeeds> chassisSpeeds;
 
@@ -193,8 +194,8 @@ public class RobotContainer {
             }));
 
     // Set up auto routines with PathPlanner's auto chooser (using pre-made .auto files)
-    // autoChooser =
-    //     new LoggedDashboardChooser<>("Auto/PathPlanner Auto", AutoBuilder.buildAutoChooser());
+    autoChooser =
+        new LoggedDashboardChooser<>("Auto/PathPlanner Auto", AutoBuilder.buildAutoChooser());
 
     // COMMENTED OUT - using PathPlanner pre-made autos instead of DynamicAutoBuilder
     // multiStepAutoChooser =
@@ -973,15 +974,15 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     // Using PathPlanner pre-made autos
-    // Command selected = autoChooser.get();
-    // return selected != null ? selected : Commands.none();
+    Command selected = autoChooser.get();
+    return selected != null ? selected : Commands.none();
 
     // COMMENTED OUT - using PathPlanner pre-made autos instead of DynamicAutoBuilder
     // try {
     //   return multiStepAutoChooser.getAutonomousCommand();
     // } catch (Exception ioe) {
     //   System.out.println("bad io error");
-    return Commands.none();
+    // return Commands.none();
     // }
   }
 
