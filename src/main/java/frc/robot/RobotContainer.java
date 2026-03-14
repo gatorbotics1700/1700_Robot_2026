@@ -120,8 +120,6 @@ public class RobotContainer {
                 new VisionIOPhotonVision(
                     VisionConstants.CAMERA_0_NAME, VisionConstants.ROBOT_TO_CAMERA_0),
                 new VisionIOPhotonVision(
-                    VisionConstants.CAMERA_1_NAME, VisionConstants.ROBOT_TO_CAMERA_1),
-                new VisionIOPhotonVision(
                     VisionConstants.CAMERA_2_NAME, VisionConstants.ROBOT_TO_CAMERA_2),
                 new VisionIOPhotonVision(
                     VisionConstants.CAMERA_3_NAME, VisionConstants.ROBOT_TO_CAMERA_3));
@@ -143,10 +141,6 @@ public class RobotContainer {
                 new VisionIOPhotonVisionSim(
                     VisionConstants.CAMERA_0_NAME,
                     VisionConstants.ROBOT_TO_CAMERA_0,
-                    drive::getPose),
-                new VisionIOPhotonVisionSim(
-                    VisionConstants.CAMERA_1_NAME,
-                    VisionConstants.ROBOT_TO_CAMERA_1,
                     drive::getPose),
                 new VisionIOPhotonVisionSim(
                     VisionConstants.CAMERA_2_NAME,
@@ -840,27 +834,39 @@ public class RobotContainer {
         controller
             .x()
             .onTrue(
-                AutoBuilder.pathfindToPose(
-                    new Pose2d(
-                        robotPose.get().getX(),
-                        robotPose.get().getY(),
-                        Calculations.angleToPoint(
-                            FieldCoordinates.RED_HUB.getX() - robotPose.get().getX(),
-                            FieldCoordinates.RED_HUB.getY() - robotPose.get().getY())),
-                    new PathConstraints(0, 0, 10, 10)));
+                new InstantCommand(
+                    () -> {
+                      CommandScheduler.getInstance()
+                          .schedule(
+                              AutoBuilder.pathfindToPose(
+                                  new Pose2d(
+                                      robotPose.get().getX(),
+                                      robotPose.get().getY(),
+                                      Calculations.angleToPoint(
+                                          FieldCoordinates.RED_HUB.getX() - robotPose.get().getX(),
+                                          FieldCoordinates.RED_HUB.getY()
+                                              - robotPose.get().getY())),
+                                  new PathConstraints(0, 0, 10, 10)));
+                    }));
 
       } else {
         controller
             .x()
             .onTrue(
-                AutoBuilder.pathfindToPose(
-                    new Pose2d(
-                        robotPose.get().getX(),
-                        robotPose.get().getY(),
-                        Calculations.angleToPoint(
-                            FieldCoordinates.BLUE_HUB.getX() - robotPose.get().getX(),
-                            FieldCoordinates.BLUE_HUB.getY() - robotPose.get().getY())),
-                    new PathConstraints(0, 0, 10, 10)));
+                new InstantCommand(
+                    () -> {
+                      CommandScheduler.getInstance()
+                          .schedule(
+                              AutoBuilder.pathfindToPose(
+                                  new Pose2d(
+                                      robotPose.get().getX(),
+                                      robotPose.get().getY(),
+                                      Calculations.angleToPoint(
+                                          FieldCoordinates.BLUE_HUB.getX() - robotPose.get().getX(),
+                                          FieldCoordinates.BLUE_HUB.getY()
+                                              - robotPose.get().getY())),
+                                  new PathConstraints(0, 0, 10, 10)));
+                    }));
       }
 
       controller
