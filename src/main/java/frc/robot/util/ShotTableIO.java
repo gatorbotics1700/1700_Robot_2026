@@ -12,6 +12,8 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
+
+import org.apache.commons.math3.analysis.integration.MidPointIntegrator;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -55,7 +57,7 @@ public final class ShotTableIO {
             + ShotCalculatorConditions.MAX_SHOT_HEIGHT
             + "\n"
             + "MAX_SHOT_SPEED="
-            + ShotCalculatorConditions.MAX_SHOT_SPEED
+            + String.format("%.2f", ShotCalculatorConditions.MAX_SHOT_SPEED)
             + "\n"
             + "VELO_INCREMENT="
             + ShotCalculatorConditions.VELO_INCREMENT
@@ -67,22 +69,22 @@ public final class ShotTableIO {
             + ShotCalculatorConditions.MAX_COMPONENT_VELO
             + "\n"
             + "MAX_RANGE="
-            + ShotCalculatorConditions.MAX_RANGE
+            + String.format("%.2f", ShotCalculatorConditions.MAX_RANGE)
             + "\n"
             + "HOOD_RETRACTED_RAD="
-            + hoodRetractedRad
+            + String.format("%.2f", hoodRetractedRad)
             + "\n"
             + "HOOD_MIN_RAD="
-            + hoodMinRad
+            + String.format("%.2f", hoodMinRad)
             + "\n"
             + "BOT_TO_SHOOTER_X="
-            + ShooterConstants.BOT_TO_SHOOTER.getX()
+            + String.format("%.2f", ShooterConstants.BOT_TO_SHOOTER.getX())
             + "\n"
             + "BOT_TO_SHOOTER_Y="
-            + ShooterConstants.BOT_TO_SHOOTER.getY()
+            + String.format("%.2f", ShooterConstants.BOT_TO_SHOOTER.getY())
             + "\n"
             + "BOT_TO_SHOOTER_Z="
-            + ShooterConstants.BOT_TO_SHOOTER.getZ()
+            + String.format("%.2f", ShooterConstants.BOT_TO_SHOOTER.getZ())
             + "\n";
 
     try {
