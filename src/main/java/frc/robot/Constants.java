@@ -657,9 +657,17 @@ public final class Constants {
             Calculations.mirrorPoseAcrossXAxis(BLUE_LEFT.pose),
             new Rotation2d(Math.toRadians(64.4)),
             62.2);
-    public static final ValidStationaryShot[] STATIONARY_SHOT_ARRAY = {
-      RED_LEFT, RED_RIGHT, BLUE_LEFT, BLUE_RIGHT
-    };
+    public static final ValidStationaryShot RED_SHOT =
+        new ValidStationaryShot(
+            new Pose2d(13.541, 4.035, new Rotation2d(Math.toRadians(180))),
+            new Rotation2d(Math.toRadians(68)),
+            53);
+    public static final ValidStationaryShot BLUE_SHOT =
+        new ValidStationaryShot(
+            Calculations.mirrorPoseAcrossAlliance(RED_SHOT.pose),
+            new Rotation2d(Math.toRadians(68)),
+            53);
+    public static final ValidStationaryShot[] STATIONARY_SHOT_ARRAY = {RED_SHOT, BLUE_SHOT};
   }
 
   public static final class TurretConstants {

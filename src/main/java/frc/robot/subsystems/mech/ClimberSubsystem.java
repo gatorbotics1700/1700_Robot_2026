@@ -54,12 +54,13 @@ public class ClimberSubsystem extends SubsystemBase {
   public ClimberSubsystem() {
     hallEffect = new DigitalInput(ClimberConstants.CLIMBER_HALL_EFFECT_PORT);
     motor = new TalonFX(ClimberConstants.CLIMBER_MOTOR_CAN_ID, TunerConstants.mechCANBus);
-    motor.setNeutralMode(NeutralModeValue.Brake);
 
     // MOTION MAGIC PID/FEEDFORWARD CONFIGS // TODO: must tune everything!!
     talonFXConfigs = new TalonFXConfiguration();
     talonFXConfigs.withMotorOutput(
-        new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive));
+        new MotorOutputConfigs()
+            .withInverted(InvertedValue.CounterClockwise_Positive)
+            .withNeutralMode(NeutralModeValue.Brake));
 
     Slot0Configs slot0Configs = talonFXConfigs.Slot0;
 

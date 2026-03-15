@@ -114,13 +114,14 @@ public class ShotCalculator {
               elevationMeters,
               HoodConstants.RETRACTED_POSITION.getRadians(),
               HoodConstants.MIN_ANGLE.getRadians());
-      if (data.schemaVersion == ShotTableIO.SCHEMA_VERSION
-          && expectedHash.equals(data.configHash)) {
-        System.out.println("ShotCalculator: Loaded lookup table from " + path);
-        return ShotTableIO.toLookupTable(data);
-      }
-      System.err.println(
-          "ShotCalculator: Shot table JSON is out of date (hash/schema mismatch), generating table.");
+      // if (data.schemaVersion == ShotTableIO.SCHEMA_VERSION
+      //     && expectedHash.equals(data.configHash)) {
+      System.out.println("ShotCalculator: Loaded lookup table from " + path);
+      return ShotTableIO.toLookupTable(data);
+      // }
+      // System.err.println(
+      //     "ShotCalculator: Shot table JSON is out of date (hash/schema mismatch), generating
+      // table.");
     } catch (IOException e) {
       System.err.println(
           "ShotCalculator: Unable to load shot table JSON at "
@@ -152,7 +153,7 @@ public class ShotCalculator {
 
   public static ShotParameters calculateShot(
       Pose2d drivetrainPose, ChassisSpeeds chassisSpeeds, Translation3d target) {
-    //System.out.println("CALCULATING SHOT");
+    // System.out.println("CALCULATING SHOT");
 
     // calculate field relative shooter pose
     Translation3d fieldToShooter =
@@ -220,7 +221,7 @@ public class ShotCalculator {
     Logger.recordOutput(
         "shotCalculator/shooterToTarget + shooter",
         fieldRelativeShooterToTarget.plus(fieldToShooter));
-    //System.out.println("SHOT CALCULATOR DONE");
+    // System.out.println("SHOT CALCULATOR DONE");
 
     return botRelativeParams;
   }

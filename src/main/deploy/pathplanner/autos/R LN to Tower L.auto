@@ -5,34 +5,34 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "R C to to Shoot M"
-          }
-        },
-        {
-          "type": "deadline",
+          "type": "parallel",
           "data": {
             "commands": [
               {
-                "type": "wait",
+                "type": "named",
                 "data": {
-                  "waitTime": 3.0
+                  "name": "Extend Climber"
                 }
               },
               {
-                "type": "named",
+                "type": "path",
                 "data": {
-                  "name": "Shooter Command"
+                  "pathName": "R LN to Tower Lineup"
                 }
               }
             ]
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "R Tower Lineup to Tower L"
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "Stop Shooter Command"
+            "name": "Retract Climber"
           }
         }
       ]

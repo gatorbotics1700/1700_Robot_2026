@@ -265,22 +265,22 @@ public final class ShotTableIO {
     }
   }
 
-  public static boolean isUpToDate(
-      Path path, double elevationMeters, double hoodRetractedRad, double hoodMinRad) {
-    if (!Files.exists(path)) {
-      return false;
-    }
-    try {
-      ShotTableData existing = readJson(path);
-      if (existing.schemaVersion != SCHEMA_VERSION) {
-        return false;
-      }
-      String expectedHash = computeConfigHash(elevationMeters, hoodRetractedRad, hoodMinRad);
-      return expectedHash.equals(existing.configHash);
-    } catch (IOException e) {
-      return false;
-    }
-  }
+  // public static boolean isUpToDate(
+  //     Path path, double elevationMeters, double hoodRetractedRad, double hoodMinRad) {
+  //   if (!Files.exists(path)) {
+  //     return false;
+  //   }
+  //   try {
+  //     ShotTableData existing = readJson(path);
+  //     if (existing.schemaVersion != SCHEMA_VERSION) {
+  //       return false;
+  //     }
+  //     String expectedHash = computeConfigHash(elevationMeters, hoodRetractedRad, hoodMinRad);
+  //     return expectedHash.equals(existing.configHash);
+  //   } catch (IOException e) {
+  //     return false;
+  //   }
+  // }
 
   private static JSONArray toJsonArray(double[] values) {
     JSONArray arr = new JSONArray();

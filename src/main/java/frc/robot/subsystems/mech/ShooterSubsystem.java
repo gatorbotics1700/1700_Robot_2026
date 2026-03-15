@@ -39,6 +39,9 @@ public class ShooterSubsystem extends SubsystemBase {
   private boolean sysIdRunning = false;
   private SysIdRoutine sysIdRoutine;
   private final VoltageOut sysIdVoltageRequest = new VoltageOut(0);
+
+  private LoggedNetworkNumber desiredRotorVelo =
+      new LoggedNetworkNumber("Desired Rotor Velocity", 53);
   private double desiredRotorVelocity = 0;
 
   public static LoggedNetworkNumber flyWheelSlip =

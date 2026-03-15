@@ -118,11 +118,7 @@ public class RobotContainer {
             new Vision(
                 drive,
                 new VisionIOPhotonVision(
-                    VisionConstants.CAMERA_0_NAME, VisionConstants.ROBOT_TO_CAMERA_0),
-                new VisionIOPhotonVision(
-                    VisionConstants.CAMERA_2_NAME, VisionConstants.ROBOT_TO_CAMERA_2),
-                new VisionIOPhotonVision(
-                    VisionConstants.CAMERA_3_NAME, VisionConstants.ROBOT_TO_CAMERA_3));
+                    VisionConstants.CAMERA_0_NAME, VisionConstants.ROBOT_TO_CAMERA_0));
         break;
 
       case SIM:
@@ -141,14 +137,6 @@ public class RobotContainer {
                 new VisionIOPhotonVisionSim(
                     VisionConstants.CAMERA_0_NAME,
                     VisionConstants.ROBOT_TO_CAMERA_0,
-                    drive::getPose),
-                new VisionIOPhotonVisionSim(
-                    VisionConstants.CAMERA_2_NAME,
-                    VisionConstants.ROBOT_TO_CAMERA_2,
-                    drive::getPose),
-                new VisionIOPhotonVisionSim(
-                    VisionConstants.CAMERA_3_NAME,
-                    VisionConstants.ROBOT_TO_CAMERA_3,
                     drive::getPose));
         DriverStation.silenceJoystickConnectionWarning(true);
         break;
@@ -184,23 +172,14 @@ public class RobotContainer {
             () ->
                 CommandScheduler.getInstance()
                     .schedule(
-                        new InstantCommand(
-                                () -> {
-                                  shooterSubsystem.setDesiredRotorVelocity(80);
-                                })
-                            .andThen(new WaitCommand(1))
-                            .andThen(
-                                new InstantCommand(
-                                    () -> {
-                                      hopperFloorSubsystem.setDesiredHopperFloorVoltage(
-                                          HopperFloorConstants.HOPPER_FLOOR_VOLTAGE);
-                                      shooterSubsystem.setDesiredTransitionVoltage(
-                                          ShooterConstants.TRANSITION_VOLTAGE);
-                                      shooterSubsystem.setDesiredRotorVelocity(80);
-                                      hoodSubsystem.setDesiredAngle(
-                                          new Rotation2d(Math.toRadians(65)));
-                                    })))));
+                        ShootingCommands.StationaryShootingCommand(
+                            shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose))));
     NamedCommands.registerCommand("Intaking Command", IntakeCommands.RunIntake(intakeSubsystem));
+    NamedCommands.registerCommand(
+        "Climb Command", ClimbCommands.ClimbWithoutDrive(climberSubsystem));
+    NamedCommands.registerCommand("Extend Climber", ClimbCommands.ExtendClimber(climberSubsystem));
+    NamedCommands.registerCommand(
+        "Retract Climber", ClimbCommands.RetractClimber(climberSubsystem));
     NamedCommands.registerCommand(
         "Stop Shooter Command",
         new InstantCommand(
@@ -913,28 +892,17 @@ public class RobotContainer {
               Commands.runOnce(
                   () -> CommandScheduler.getInstance().schedule((new PointAtHubCommand(drive)))));
       controller
-          .x()
+          .a()
           .onTrue(
               Commands.runOnce(
                   () ->
                       CommandScheduler.getInstance()
                           .schedule(
-                              new InstantCommand(
-                                      () -> {
-                                        shooterSubsystem.setDesiredRotorVelocity(80);
-                                      })
-                                  .andThen(new WaitCommand(1))
-                                  .andThen(
-                                      new InstantCommand(
-                                          () -> {
-                                            hopperFloorSubsystem.setDesiredHopperFloorVoltage(
-                                                HopperFloorConstants.HOPPER_FLOOR_VOLTAGE);
-                                            shooterSubsystem.setDesiredTransitionVoltage(
-                                                ShooterConstants.TRANSITION_VOLTAGE);
-                                            shooterSubsystem.setDesiredRotorVelocity(80);
-                                            hoodSubsystem.setDesiredAngle(
-                                                new Rotation2d(Math.toRadians(65)));
-                                          })))));
+                              ShootingCommands.StationaryShootingCommand(
+                                  shooterSubsystem,
+                                  hoodSubsystem,
+                                  hopperFloorSubsystem,
+                                  robotPose))));
 
       controller_two
           .y()
@@ -953,6 +921,20 @@ public class RobotContainer {
                           .schedule(IntakeCommands.RunIntake(intakeSubsystem))));
       // I am making the assumption that we are not using pathfinding to climb
       controller_two.leftBumper().onTrue(ClimbCommands.ClimbWithoutDrive(climberSubsystem));
+      controller_two
+          .povUp()
+          .onTrue(
+              new InstantCommand(
+                  () ->
+                      CommandScheduler.getInstance()
+                          .schedule(ClimbCommands.ExtendClimber(climberSubsystem))));
+      controller_two
+          .povDown()
+          .onTrue(
+              new InstantCommand(
+                  () ->
+                      CommandScheduler.getInstance()
+                          .schedule(ClimbCommands.RetractClimber(climberSubsystem))));
     }
   }
 

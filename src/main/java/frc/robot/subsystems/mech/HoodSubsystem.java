@@ -39,6 +39,8 @@ public class HoodSubsystem extends SubsystemBase {
   private SysIdRoutine sysIdRoutine;
   private final VoltageOut sysIdVoltageRequest = new VoltageOut(0);
 
+  public static final LoggedNetworkNumber desiredHoodAngle =
+      new LoggedNetworkNumber("/Tuning/Hood/Angle", 68);
   private Rotation2d desiredAngle = getCurrentAngle(); // HoodConstants.RETRACTED_POSITION;
 
   // Tunable PID gains for hood control
@@ -47,7 +49,6 @@ public class HoodSubsystem extends SubsystemBase {
   public static final LoggedNetworkNumber hoodKd = new LoggedNetworkNumber("/Tuning/Hood/kD", 0.1);
 
   public HoodSubsystem() {
-    hoodMotor.setNeutralMode(NeutralModeValue.Brake);
     // MOTION MAGIC PID/FEEDFORWARD CONFIGS // TODO: must tune everything!!
     talonFXConfigs = new TalonFXConfiguration();
 
@@ -56,7 +57,7 @@ public class HoodSubsystem extends SubsystemBase {
     //       new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
     // } else {
     talonFXConfigs.withMotorOutput(
-        new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive));
+        new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive).withNeutralMode(NeutralModeValue.Brake));
     // }
 
     Slot0Configs slot0Configs = talonFXConfigs.Slot0;
