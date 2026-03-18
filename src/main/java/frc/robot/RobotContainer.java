@@ -641,7 +641,27 @@ public class RobotContainer {
         // controller_two.a().onTrue(RunMechWheels());
         // controller_two.b().onTrue(MechStop());
 
-        controller_two
+        // TODO SHOOTING TESTING BUTTONS UNCOMMENT FOR USE
+
+                
+        controller_two //first stage of shooting from stationary fixed spots
+            .y()
+            .onTrue(ShootingCommands.StationaryShootingCommand(
+              shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
+
+        controller_two //second stage shooting from stationary spots across field with pointing drive train
+          .x()
+          .onTrue(new PointAtHubCommand(drive)
+          .alongWith(ShootingCommands.ShootOnTheMoveCommand(
+            shooterSubsystem,
+            hoodSubsystem,
+            hopperFloorSubsystem,
+            turretSubsystem,
+            robotPose,
+            chassisSpeeds
+          )));
+
+        controller_two //third stage full shooting while moving
             .b()
             .onTrue(
                 ShootingCommands.ShootOnTheMoveCommand(
@@ -651,17 +671,9 @@ public class RobotContainer {
                     turretSubsystem,
                     robotPose,
                     chassisSpeeds));
-
-        // controller_two
-        //     .a()
-        //     .onTrue(
-        //         new InstantCommand(
-        //             () ->
-        //                 hopperFloorSubsystem.setDesiredHopperFloorVoltage(
-        //                     HopperFloorConstants.HOPPER_FLOOR_VOLTAGE)));
-
+        
         controller_two
-            .x()
+            .a()
             .onTrue(
                 new InstantCommand(
                     () ->
@@ -673,9 +685,14 @@ public class RobotContainer {
                                     hopperFloorSubsystem,
                                     hoodSubsystem,
                                     intakeSubsystem))));
+                
         // controller_two
-        //     .y()
-        //     .onTrue(new InstantCommand(() -> shooterSubsystem.setDesiredRotorVelocity(60)));
+        //     .a()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () ->
+        //                 hopperFloorSubsystem.setDesiredHopperFloorVoltage(
+        //                     HopperFloorConstants.HOPPER_FLOOR_VOLTAGE)));
 
         // controller_two
         //     .y()
