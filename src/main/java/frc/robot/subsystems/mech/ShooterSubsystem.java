@@ -146,7 +146,7 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public void toggleShouldShoot() {
-    if (shouldShoot.getAsBoolean()) {
+    if (getShouldShoot()) {
       shouldShoot =
           () -> {
             return false;
@@ -159,10 +159,6 @@ public class ShooterSubsystem extends SubsystemBase {
     }
   }
 
-  /**
-   * Sets a supplier for the desired angle. This allows the desired angle to be calculated
-   * dynamically each cycle. The supplier will be called each time getDesiredAngle() is called.
-   */
   public void setShouldShoot(boolean desiredShouldShootValue) {
     shouldShoot =
         () -> {
@@ -170,9 +166,8 @@ public class ShooterSubsystem extends SubsystemBase {
         };
   }
 
-  /** Returns the desired angle, or null if no angle is set. */
-  public BooleanSupplier getShouldShoot() {
-    return shouldShoot;
+  public boolean getShouldShoot() {
+    return shouldShoot.getAsBoolean();
   }
 
   private void initSysIdRoutine() {

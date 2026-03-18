@@ -87,6 +87,42 @@ public class ShootingCommands {
       shooterSubsystem.setDesiredTransitionVoltage(0);
     }
   }
+
+  public static class StopShooting extends Command{
+    private final ShooterSubsystem shooterSubsystem;
+    private final HopperFloorSubsystem hopperFloorSubsystem;
+
+    public StopShooting(
+        ShooterSubsystem shooterSubsystem,
+        HopperFloorSubsystem hopperFloorSubsystem) {
+      this.shooterSubsystem = shooterSubsystem;
+      this.hopperFloorSubsystem = hopperFloorSubsystem;
+      addRequirements(shooterSubsystem, hopperFloorSubsystem);
+      setName("StopShooting");
+    }
+  
+    @Override
+    public void initialize(){}
+
+    @Override
+    public void execute(){
+      if(shooterSubsystem.getFlywheelRotorVelocity()!=0){
+        shooterSubsystem.setDesiredRotorVelocity(0);
+        shooterSubsystem.setDesiredTransitionVoltage(0);
+        hopperFloorSubsystem.setDesiredHopperFloorVoltage(0);
+      } else{
+      System.out.println("SHOOTER ALREADY NOT MOVING");
+      }
+    }
+
+    @Override
+    public boolean isFinished(){
+      if (shooterSubsystem.getFlywheelRotorVelocity() == 0){
+        return true;
+      }
+      return false;
+    }
+  }
   
 
   public static Command StationaryShootingCommand(
@@ -152,8 +188,6 @@ public class ShootingCommands {
           ShotCalculator.calculateShot(drivetrainPose.get(), drivetrainVelocity.get(), target); //calculates the shot params with turretAngle
       double desiredRotorVelocity = ShooterSubsystem.launchSpeedToRotorSpeed(params.shotSpeed);
 
-      Logger.recordOutput(
-          "Mech/ShotCalculator/shouldShoot", shooterSubsystem.getShouldShoot().getAsBoolean());
       Logger.recordOutput("Mech/ShootingCommand/validShot", params.shotSpeed != 0);
       Logger.recordOutput("Mech/ShootingCommand/shotSpeed", params.shotSpeed);
       Logger.recordOutput("Mech/ShootingCommand/rotorSpeed", desiredRotorVelocity);

@@ -382,9 +382,6 @@ public class RobotContainer {
 
       if (Constants.currentMode == Constants.Mode.SIM) {
         controller_two
-            .rightBumper()
-            .onTrue(new InstantCommand(() -> shooterSubsystem.toggleShouldShoot()));
-        controller_two
             .a()
             .onTrue(
                 new InstantCommand(
@@ -508,15 +505,6 @@ public class RobotContainer {
         //                           params.turretAngle,
         //                           params.hoodAngle);
         //                     })));
-
-        // controller_two
-        //     .a()
-        //     .onTrue(
-        //         new InstantCommand(
-        //             () -> {
-        //               shooterSubsystem.toggleShouldShoot();
-        //               System.out.println("BUTTON AAAAAAAAA");
-        //             }));
 
         // controller_two
         //     .x()
@@ -701,10 +689,6 @@ public class RobotContainer {
         //             }));
 
         controller_two
-            .rightBumper()
-            .onTrue(new InstantCommand(() -> shooterSubsystem.toggleShouldShoot()));
-
-        controller_two
             .leftBumper()
             .onTrue(
                 ShootingCommands.StationaryShootingCommand(
@@ -882,9 +866,7 @@ public class RobotContainer {
                                   hopperFloorSubsystem,
                                   hoodSubsystem,
                                   intakeSubsystem))));
-      controller_two
-          .rightBumper()
-          .onTrue(new InstantCommand(() -> shooterSubsystem.toggleShouldShoot()));
+
       controller_two
           .rightTrigger()
           .onTrue(
