@@ -43,29 +43,32 @@ import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveToFuelCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
 import frc.robot.commands.drive.PointAtHubCommand;
-import frc.robot.commands.mech.ClimbCommands;
+// DELETED - not on this drivetrain (Sting)
+// import frc.robot.commands.mech.ClimbCommands;
 import frc.robot.commands.mech.HoodCommands;
-import frc.robot.commands.mech.IntakeCommands;
-import frc.robot.commands.mech.ShootingCommands;
-import frc.robot.commands.mech.ShootingCommands.ShootOnTheMoveCommand;
+// import frc.robot.commands.mech.IntakeCommands;
+// import frc.robot.commands.mech.ShootingCommands;
+// import frc.robot.commands.mech.ShootingCommands.ShootOnTheMoveCommand;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.mech.ClimberSubsystem;
+// DELETED - not on this drivetrain (Sting)
+// import frc.robot.subsystems.mech.ClimberSubsystem;
 import frc.robot.subsystems.mech.HoodSubsystem;
-import frc.robot.subsystems.mech.HopperFloorSubsystem;
-import frc.robot.subsystems.mech.IntakeSubsystem;
+// import frc.robot.subsystems.mech.HopperFloorSubsystem;
+// import frc.robot.subsystems.mech.IntakeSubsystem;
 import frc.robot.subsystems.mech.ShooterSubsystem;
-import frc.robot.subsystems.mech.TurretSubsystem;
+// import frc.robot.subsystems.mech.TurretSubsystem;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.util.CommandSimMacXboxController;
 import frc.robot.util.GamePieceSimulation;
-import frc.robot.util.MultiStepAutoChooser;
+// DELETED - not on this drivetrain (Sting)
+// import frc.robot.util.MultiStepAutoChooser;
 import frc.robot.util.RobotConfigLoader;
 import frc.robot.util.ShotCalculator;
 import frc.robot.util.ShotParameters;
@@ -95,7 +98,7 @@ public class RobotContainer {
   private CommandXboxController controller_two = null; // port 3
 
   // Dashboard inputs
-  private final MultiStepAutoChooser multiStepAutoChooser;
+  // DELETED - private final MultiStepAutoChooser multiStepAutoChooser;
   private final LoggedDashboardChooser<Command> autoChooser;
   private final LoggedDashboardChooser<String> autoModeChooser;
   private final LoggedDashboardChooser<String> autoNameChooser;
@@ -209,11 +212,7 @@ public class RobotContainer {
     }
     autoNameChooser.get(); // Publish to NetworkTables
 
-    // COMMENTED OUT - subsystems not on this drivetrain (Sting)
-    // multiStepAutoChooser =
-    //     new MultiStepAutoChooser(
-    //         intakeSubsystem, hoodSubsystem, shooterSubsystem, hopperFloorSubsystem, robotPose);
-    multiStepAutoChooser = null;
+    // DELETED - multiStepAutoChooser not available on this drivetrain (Sting)
 
     // Set up SysId routines
     // autoChooser.addOption(
@@ -1020,13 +1019,10 @@ public class RobotContainer {
     String autoMode = autoModeChooser.get();
 
     if (autoMode != null && autoMode.equals("Dynamic")) {
-      // Use dynamic auto builder with multi-step chooser
-      try {
-        return multiStepAutoChooser.getAutonomousCommand();
-      } catch (Exception e) {
-        System.out.println("DynamicAutoBuilder error: " + e.getMessage());
-        return Commands.none();
-      }
+      // DELETED - Dynamic auto not available on this drivetrain (Sting)
+      System.out.println("Dynamic auto not available - using pre-made auto");
+      Command selected = autoChooser.get();
+      return selected != null ? selected : Commands.none();
     } else {
       // Use PathPlanner pre-made autos (default)
       Command selected = autoChooser.get();
@@ -1038,7 +1034,8 @@ public class RobotContainer {
     String autoMode = autoModeChooser.get();
 
     if (autoMode != null && autoMode.equals("Dynamic")) {
-      return multiStepAutoChooser.getAutoStartPose();
+      // DELETED - Dynamic auto not available on this drivetrain (Sting)
+      return Optional.empty();
     }
     // For pre-made autos, try to get the start pose from the auto name chooser
     // This allows the robot to start at the correct position in simulation
