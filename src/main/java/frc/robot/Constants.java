@@ -731,7 +731,7 @@ public final class Constants {
     // in mps, so calculate using flywheel rps * 2 * Math.PI * flywheel radius * flywheel slip
 
     public static final double VELO_INCREMENT = 0.25; // mps
-    public static final double RANGE_INCREMENT = 0.05; // m
+    public static final double RANGE_INCREMENT = 0.25; // m
     public static final double MAX_COMPONENT_VELO = 1.5; // mps
     public static final double RANGE_FUDGE = 0;
     public static final double MAX_RANGE =

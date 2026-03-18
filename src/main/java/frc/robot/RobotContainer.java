@@ -46,7 +46,6 @@ import frc.robot.commands.drive.PointAtHubCommand;
 import frc.robot.commands.mech.HoodCommands;
 import frc.robot.commands.mech.IntakeCommands;
 import frc.robot.commands.mech.ShootingCommands;
-import frc.robot.commands.mech.ShootingCommands.ShootOnTheMoveCommand;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -310,8 +309,6 @@ public class RobotContainer {
                       drive)
                   .ignoringDisable(true));
 
-      controller.y().onTrue(HoodCommands.RetractHood(hoodSubsystem));
-
       controller
           .leftBumper()
           .onTrue(
@@ -445,11 +442,8 @@ public class RobotContainer {
             .y()
             .onTrue(
                 new InstantCommand(
-                    () ->
-                        CommandScheduler.getInstance()
-                            .schedule(
-                                HomeMechanisms())));
-        
+                    () -> CommandScheduler.getInstance().schedule(HomeMechanisms())));
+
         // TODO: shooter -- need to update
         // controller_two
         //     .rightBumper()
@@ -667,7 +661,7 @@ public class RobotContainer {
       // controller.y().whileTrue(hoodSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
       // controller.a().whileTrue(hoodSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
       // controller.b().whileTrue(hoodSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-      
+
       // TODO: intake
       // controller_two.x().whileTrue(intakeSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
       // controller_two.y().whileTrue(intakeSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));

@@ -51,6 +51,7 @@ public class DriveSystemsCheckCommands {
         .andThen(new WaitCommand(1))
         .andThen(
             new DriveForThreeSeconds(
-                drive, ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 1, drive.getRotation())));
+                drive, ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 1, drive.getRotation())))
+        .withName("DrivetrainSystemCheck");
   }
 }
