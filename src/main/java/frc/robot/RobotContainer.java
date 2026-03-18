@@ -546,12 +546,7 @@ public class RobotContainer {
         //                   ShooterConstants.TRANSITION_VOLTAGE);
         //             }));
 
-        controller_two
-            .leftBumper()
-            .onTrue(
-                ShootingCommands.StationaryShootingCommand(
-                    shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
-
+       
         controller_two
             .leftTrigger()
             .onTrue(

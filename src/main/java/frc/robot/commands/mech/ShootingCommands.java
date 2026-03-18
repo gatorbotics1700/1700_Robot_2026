@@ -131,15 +131,7 @@ public class ShootingCommands {
       HopperFloorSubsystem hopperFloorSubsystem,
       Supplier<Pose2d> drivetrainPose) {
     ShotParameters closestShotParameters = null;
-    Logger.recordOutput("Mech/Shooter/Stationary/RED_RIGHT", ShooterConstants.RED_RIGHT.pose);
-    Logger.recordOutput("Mech/Shooter/Stationary/BLUE_LEFT", ShooterConstants.BLUE_LEFT.pose);
-    Logger.recordOutput(
-        "Mech/Shooter/Stationary/RED_RIGHT distance",
-        Calculations.distanceToPoseInMeters(drivetrainPose.get(), ShooterConstants.RED_RIGHT.pose));
-    Logger.recordOutput(
-        "Mech/Shooter/Stationary/BLUE_LEFT distance",
-        Calculations.distanceToPoseInMeters(drivetrainPose.get(), ShooterConstants.BLUE_LEFT.pose));
-    for (ShotParameters shot : ShooterConstants.STATIONARY_SHOT_ARRAY) {
+   for (ShotParameters shot : ShooterConstants.STATIONARY_SHOT_ARRAY) {
       if (closestShotParameters == null
           || Calculations.distanceToPoseInMeters(drivetrainPose.get(), shot.pose)
               < Calculations.distanceToPoseInMeters(drivetrainPose.get(), closestShotParameters.pose)) {
@@ -199,14 +191,9 @@ public class ShootingCommands {
       Logger.recordOutput("Mech/ShootingCommand/target", target);
 
       if (params.shotSpeed == 0) { // if we dont have a valid shot
-        hopperFloorSubsystem.setDesiredHopperFloorVoltage(0);
-        shooterSubsystem.setDesiredTransitionVoltage(0);
-        params.turretAngle = new Rotation2d(0);
-        params.hoodAngle = new Rotation2d(0);
-        params.shotSpeed = 0;
+        return new StopShooting(shooterSubsystem,hopperFloorSubsystem);
       }
       turretSubsystem.setDesiredAngle(params.turretAngle);
       return new ShootingCommand(shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, drivetrainPose, params);
-
   }
 } 
