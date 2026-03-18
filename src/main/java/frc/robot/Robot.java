@@ -200,14 +200,15 @@ public class Robot extends LoggedRobot {
     // robotContainer.getShooterSubsystem().setDesiredFlywheelVelocity(0);
     // robotContainer.getShooterSubsystem().setDesiredTransitionVoltage(0);
     // robotContainer.getIntakeSubsystem().setIntakeVoltage(0);
-    CommandScheduler.getInstance()
-        .schedule(
-            robotContainer.MechStop(
-                robotContainer.getTurretSubsystem(),
-                robotContainer.getShooterSubsystem(),
-                robotContainer.getHopperFloorSubsystem(),
-                robotContainer.getHoodSubsystem(),
-                robotContainer.getIntakeSubsystem()));
+    // COMMENTED OUT - subsystems not on this drivetrain (Sting)
+    // CommandScheduler.getInstance()
+    //     .schedule(
+    //         robotContainer.MechStop(
+    //             robotContainer.getTurretSubsystem(),
+    //             robotContainer.getShooterSubsystem(),
+    //             robotContainer.getHopperFloorSubsystem(),
+    //             robotContainer.getHoodSubsystem(),
+    //             robotContainer.getIntakeSubsystem()));
     System.out.println("IN TELEOP INIT");
     // CommandScheduler.getInstance()
     //     .schedule(HoodCommands.HomeHood(robotContainer.getHoodSubsystem()));
@@ -240,20 +241,21 @@ public class Robot extends LoggedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
-    CommandScheduler.getInstance()
-        .schedule(
-            robotContainer.MechStop(
-                robotContainer.getTurretSubsystem(),
-                robotContainer.getShooterSubsystem(),
-                robotContainer.getHopperFloorSubsystem(),
-                robotContainer.getHoodSubsystem(),
-                robotContainer.getIntakeSubsystem()));
+    // COMMENTED OUT - subsystems not on this drivetrain (Sting)
+    // CommandScheduler.getInstance()
+    //     .schedule(
+    //         robotContainer.MechStop(
+    //             robotContainer.getTurretSubsystem(),
+    //             robotContainer.getShooterSubsystem(),
+    //             robotContainer.getHopperFloorSubsystem(),
+    //             robotContainer.getHoodSubsystem(),
+    //             robotContainer.getIntakeSubsystem()));
     // CommandScheduler.getInstance()
     //     .schedule(HoodCommands.HomeHood(robotContainer.getHoodSubsystem()));
-    CommandScheduler.getInstance()
-        .schedule(new ClimbCommands.HomeClimber(robotContainer.getClimberSubsystem()));
+    // CommandScheduler.getInstance()
+    //     .schedule(new ClimbCommands.HomeClimber(robotContainer.getClimberSubsystem()));
     // robotContainer.configureSysIdButtons();
-    robotContainer.configureSystemCheckButtons();
+    // robotContainer.configureSystemCheckButtons();
     // robotContainer.getHoodSubsystem().zeroHood();
 
   }
