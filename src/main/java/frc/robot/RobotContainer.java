@@ -83,7 +83,6 @@ public class RobotContainer {
   private final TurretSubsystem turretSubsystem = new TurretSubsystem();
 
   private final GamePieceSimulation gamePieceSimulation = new GamePieceSimulation();
-  private ShotParameters shotParameters; // TODO: do we need this?
 
   // Controllers
   private CommandXboxController controller = null; // port 0
@@ -144,7 +143,7 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
         break;
 
-      default: // TODO: should the default be real as a safety for matches? to be discussed
+      default:
         // Replayed robot, disable IO implementations
         drive =
             new Drive(
@@ -257,7 +256,6 @@ public class RobotContainer {
       }
 
       // drive over bump
-
       controller
           .a()
           .onTrue(
@@ -273,6 +271,7 @@ public class RobotContainer {
                     }
                   }));
 
+      // drive under trench
       controller
           .x()
           .onTrue(
@@ -310,34 +309,6 @@ public class RobotContainer {
                       drive)
                   .ignoringDisable(true));
 
-      // drive under trench
-      /* controller
-                .x()
-                .onTrue(
-                    new InstantCommand(
-                        () -> {
-                          try {
-                            CommandScheduler.getInstance()
-                                .schedule(
-                                    HoodCommands.RetractHood(hoodSubsystem)
-                                        .alongWith(new ClimbCommands.HomeClimber(climberSubsystem))
-                                        .andThen(
-                                            DriveUnderTrenchCommand.driveUnderTrench(
-                                                drive, shooterSubsystem))
-                                        // .andThen(
-                                        //     new ShootingCommand(
-                                        //         shooterSubsystem,
-                                        //         hoodSubsystem,
-                                        //         turretSubsystem,
-                                        //         hopperFloorSubsystem,
-                                        //         robotPose,
-                                        //         chassisSpeeds))
-                                        .withName("DriveUnderTrench"));
-                          } catch (Exception e) {
-                            e.printStackTrace();
-                          }
-                        }));
-      */
       controller.y().onTrue(HoodCommands.RetractHood(hoodSubsystem));
 
       controller
@@ -373,8 +344,6 @@ public class RobotContainer {
       if (Constants.currentMode == Constants.Mode.SIM
           && System.getProperty("os.name").contains("Mac")) {
         controller_two = new CommandSimMacXboxController(1);
-        // putting this here because it should only run when we're in sim!
-
       } else {
         controller_two = new CommandXboxController(1);
       }
@@ -420,9 +389,7 @@ public class RobotContainer {
                                     Commands.runOnce(
                                         () -> {
                                           // Use current pose and chassis speeds at this instant so
-                                          // all
-                                          // values
-                                          // match.
+                                          // all values match.
                                           Pose2d pose = drive.getPose();
 
                                           ChassisSpeeds cs = drive.getChassisSpeeds();
@@ -439,140 +406,8 @@ public class RobotContainer {
                                               params.turretAngle,
                                               params.hoodAngle);
                                         })))));
-        // controller_two
-        //     .x()
-        //     .onTrue(
-        //         AutoBuilder.pathfindToPose(
-        //                 new Pose2d(1, FieldCoordinates.BLUE_HUB.getY() + 1, new Rotation2d()),
-        //                 new PathConstraints(4, 12, Math.toRadians(700), Math.toRadians(1000)))
-        //             .andThen(
-        //                 Commands.parallel(
-        //                     AutoBuilder.pathfindToPose(
-        //                         new Pose2d(
-        //                             1, FieldCoordinates.BLUE_HUB.getY() + 2, new Rotation2d()),
-        //                         new PathConstraints(
-        //                             0.75, 12, Math.toRadians(700), Math.toRadians(1000))),
-        //                     Commands.waitSeconds(0.2)
-        //                         .andThen(
-        //                             Commands.runOnce(
-        //                                 () -> {
-        //                                   // Use current pose and chassis speeds at this instant
-        // so
-        //                                   // all
-        //                                   // values
-        //                                   // match.
-        //                                   Pose2d pose = drive.getPose();
-
-        //                                   ChassisSpeeds cs = drive.getChassisSpeeds();
-        //                                   ShotParameters params =
-        //                                       ShotCalculator.calculateShot(
-        //                                           pose, cs, FieldCoordinates.BLUE_HUB);
-
-        //                                   gamePieceSimulation.launchFuelBall(
-        //                                       ShotCalculator.getFieldToShooter(
-        //                                           pose, ShooterConstants.BOT_TO_SHOOTER),
-        //                                       cs,
-        //                                       pose.getRotation(),
-        //                                       params.shotSpeed,
-        //                                       params.turretAngle,
-        //                                       params.hoodAngle);
-        //                                 })))));
-        // controller_two
-        //     .x()
-        //     .onTrue(
-        //         AutoBuilder.pathfindToPose(
-        //                 new Pose2d(16.516, 4.281, new Rotation2d()),
-        //                 new PathConstraints(4, 12, Math.toRadians(700), Math.toRadians(1000)))
-        //             .andThen(
-        //                 Commands.runOnce(
-        //                     () -> {
-        //                       // Use current pose and chassis speeds at this instant so
-        //                       // all
-        //                       // values
-        //                       // match.
-        //                       System.out.println("SHOOTING FROM RED TEST POSE");
-        //                       Pose2d pose = drive.getPose();
-
-        //                       ChassisSpeeds cs = drive.getChassisSpeeds();
-        //                       ShotParameters params =
-        //                           ShotCalculator.calculateShot(pose, cs,
-        // FieldCoordinates.RED_HUB);
-
-        //                       gamePieceSimulation.launchFuelBall(
-        //                           ShotCalculator.getFieldToShooter(
-        //                               pose, ShooterConstants.BOT_TO_SHOOTER),
-        //                           cs,
-        //                           pose.getRotation(),
-        //                           params.shotSpeed,
-        //                           params.turretAngle,
-        //                           params.hoodAngle);
-        //                     })));
-
-        // controller_two
-        //     .a()
-        //     .onTrue(
-        //         new InstantCommand(
-        //             () -> {
-        //               shooterSubsystem.toggleShouldShoot();
-        //               System.out.println("BUTTON AAAAAAAAA");
-        //             }));
-
-        // controller_two
-        //     .x()
-        //     .onTrue(
-        //         new ShootingCommand(
-        //             shooterSubsystem,
-        //             hoodSubsystem,
-        //             turretSubsystem,
-        //             hopperFloorSubsystem,
-        //             robotPose,
-        //             chassisSpeeds));
-
-        // controller_two
-        //     .y()
-        //     .onTrue(
-        //         new InstantCommand(
-        //             () ->
-        //                 gamePieceSimulation.launchFuelBall(
-        //                     ShotCalculator.getFieldToShooter(
-        //                         robotPose.get(), ShooterConstants.BOT_TO_SHOOTER),
-        //                     drive.getChassisSpeeds(),
-        //                     robotPose.get().getRotation(),
-        //                     ShotCalculator.calculateShot(
-        //                             robotPose.get(),
-        //                             drive.getChassisSpeeds(),
-        //                             FieldCoordinates.BLUE_HUB)
-        //                         .shotSpeed,
-        //                     ShotCalculator.calculateShot(
-        //                             robotPose.get(),
-        //                             drive.getChassisSpeeds(),
-        //                             FieldCoordinates.BLUE_HUB)
-        //                         .turretAngle,
-        //                     ShotCalculator.calculateShot(
-        //                             robotPose.get(),
-        //                             drive.getChassisSpeeds(),
-        //                             FieldCoordinates.BLUE_HUB)
-        //                         .hoodAngle)));
-
       } else {
-        // TODO INTAKE TESTING BUTTONS - uncomment for use
-
-        // controller_two
-        //     .a()
-        //     .onTrue(
-        //         new InstantCommand(
-        //             () -> {
-        //               intakeSubsystem.setDesiredAngle(IntakeConstants.EXTENDED_POSITION);
-        //             }));
-
-        // controller_two
-        //     .b()
-        //     .onTrue(
-        //         new InstantCommand(
-        //             () -> {
-        //               intakeSubsystem.setDesiredAngle(IntakeConstants.RETRACTED_POSITION);
-        //             }));
-
+        // INTAKE TESTING BUTTONS
         controller_two
             .a()
             .onTrue(
@@ -582,95 +417,14 @@ public class RobotContainer {
                             .schedule(IntakeCommands.RunIntake(intakeSubsystem))));
 
         controller_two
-            .y()
+            .b()
             .onTrue(
                 new InstantCommand(
                     () ->
                         CommandScheduler.getInstance()
                             .schedule(IntakeCommands.ToggleIntake(intakeSubsystem))));
 
-        // controller_two.y().onTrue(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem));
-
-        // TODO TURRET TESTING BUTTONS - uncomment for use
-
-        // controller_two
-        //     .x()
-        //     .onTrue(
-        //         new InstantCommand(
-        //             () -> {
-        //               turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(125)));
-        //             }));
-
-        // controller_two.y().onTrue(new TurretHomingCommand(turretSubsystem));
-
-        // controller_two
-        //     .a()
-        //     .onTrue(
-        //         new InstantCommand(
-        //             () -> {
-        //               turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(-190)));
-        //             }));
-
-        // controller_two
-        //     .b()
-        //     .onTrue(
-        //         new InstantCommand(
-        //             () -> {
-        //               turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(200)));
-        //             }));
-
-        // TODO CLIMBER TESTING BUTTONS - uncomment for use
-        // controller_two.x().onTrue(new ClimbCommands.HomeClimber(climberSubsystem));
-
-        // controller_two.y().onTrue(ClimbCommands.RetractClimber(climberSubsystem));
-
-        // controller_two.a().onTrue(ClimbCommands.ExtendClimber(climberSubsystem));
-
-        // TODO HOOD TESTING BUTTONS - uncomment for use
-
-        // controller_two
-        // .rightBumper()
-        // .onTrue(
-        // new InstantCommand(
-        // () -> {
-        // hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(70.0)));
-        // }));
-
-        // controller_two
-        // .leftBumper()
-        // .onTrue(
-        // new InstantCommand(
-        // () -> {
-        // hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(77.0)));
-        // }));
-        // controller_two
-        // .y()
-        // .onTrue(
-        // HoodCommands.HomeHood(
-        // hoodSubsystem)); // TODO: test and make sure this still works (calling it
-        // // differently)
-        // controller_two.a().onTrue(RunMechWheels());
-        // controller_two.b().onTrue(MechStop());
-
-        controller_two
-            .b()
-            .onTrue(
-                new ShootOnTheMoveCommand(
-                    shooterSubsystem,
-                    hoodSubsystem,
-                    turretSubsystem,
-                    hopperFloorSubsystem,
-                    robotPose,
-                    chassisSpeeds));
-
-        // controller_two
-        //     .a()
-        //     .onTrue(
-        //         new InstantCommand(
-        //             () ->
-        //                 hopperFloorSubsystem.setDesiredHopperFloorVoltage(
-        //                     HopperFloorConstants.HOPPER_FLOOR_VOLTAGE)));
-
+        // mech stop
         controller_two
             .x()
             .onTrue(
@@ -684,65 +438,34 @@ public class RobotContainer {
                                     hopperFloorSubsystem,
                                     hoodSubsystem,
                                     intakeSubsystem))));
-        // controller_two
-        //     .y()
-        //     .onTrue(new InstantCommand(() -> shooterSubsystem.setDesiredRotorVelocity(60)));
 
+        // home mechanisms
+        controller_two
+            .y()
+            .onTrue(
+                new InstantCommand(
+                    () ->
+                        CommandScheduler.getInstance()
+                            .schedule(
+                                HomeMechanisms())));
+        
+        // TODO: shooter -- need to update
         // controller_two
-        //     .y()
+        //     .rightBumper()
         //     .onTrue(
-        //         new InstantCommand(
-        //             () -> {
-        //               hoodSubsystem.setDesiredAngle(new Rotation2d(Units.degreesToRadians(25)));
-        //               shooterSubsystem.setDesiredFlywheelVelocity(90);
-        //               shooterSubsystem.setDesiredTransitionVoltage(
-        //                   ShooterConstants.TRANSITION_VOLTAGE);
-        //             }));
+        //         new ShootOnTheMoveCommand(
+        //             shooterSubsystem,
+        //             hoodSubsystem,
+        //             turretSubsystem,
+        //             hopperFloorSubsystem,
+        //             robotPose,
+        //             chassisSpeeds));
 
-        controller_two
-            .rightBumper()
-            .onTrue(new InstantCommand(() -> shooterSubsystem.toggleShouldShoot()));
-
-        controller_two
-            .leftBumper()
-            .onTrue(
-                ShootingCommands.StationaryShootingCommand(
-                    shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
-
-        controller_two
-            .leftTrigger()
-            .onTrue(
-                new InstantCommand(
-                    () -> turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(36)))));
-
-        controller_two
-            .rightTrigger()
-            .onTrue(
-                new InstantCommand(
-                    () -> turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0)))));
-
-        controller_two
-            .povDown()
-            .onTrue(
-                new InstantCommand(
-                    () -> turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(-36)))));
-
-        // controller_two
-        //     .povDown()
-        //     .onTrue(
-        //         new InstantCommand(
-        //             () ->
-        //                 hopperFloorSubsystem.setDesiredHopperFloorVoltage(
-        //                     HopperFloorConstants.HOPPER_FLOOR_VOLTAGE)));
         // controller_two
         //     .leftBumper()
         //     .onTrue(
-        //         new InstantCommand(
-        //             () ->
-        //                 shooterSubsystem.setDesiredTransitionVoltage(
-        //                     ShooterConstants.TRANSITION_VOLTAGE)));
-
-        // controller_two.b().onTrue(LineupCommand());
+        //         ShootingCommands.StationaryShootingCommand(
+        //             shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
       }
     }
   }
@@ -943,6 +666,7 @@ public class RobotContainer {
       // controller.y().whileTrue(hoodSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
       // controller.a().whileTrue(hoodSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
       // controller.b().whileTrue(hoodSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      
       // TODO: intake
       // controller_two.x().whileTrue(intakeSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
       // controller_two.y().whileTrue(intakeSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
