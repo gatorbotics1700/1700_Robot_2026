@@ -75,12 +75,12 @@ public class RobotContainer {
   private final Drive drive;
   private final Vision vision;
 
-  private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+  // private final ClimberSubsystem climberSubsystem = new ClimberSubsystem(); // COMMENTED OUT - not on this drivetrain
   private final HoodSubsystem hoodSubsystem = new HoodSubsystem();
-  private final HopperFloorSubsystem hopperFloorSubsystem = new HopperFloorSubsystem();
-  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  // private final HopperFloorSubsystem hopperFloorSubsystem = new HopperFloorSubsystem(); // COMMENTED OUT - not on this drivetrain
+  // private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem(); // COMMENTED OUT - not on this drivetrain
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
-  private final TurretSubsystem turretSubsystem = new TurretSubsystem();
+  // private final TurretSubsystem turretSubsystem = new TurretSubsystem(); // COMMENTED OUT - not on this drivetrain
 
   private final GamePieceSimulation gamePieceSimulation = new GamePieceSimulation();
   private ShotParameters shotParameters; // TODO: do we need this?
@@ -180,21 +180,22 @@ public class RobotContainer {
         };
 
     // Register named commands for PathPlanner autos
-    NamedCommands.registerCommand("Shooter Command",
-        new ShootingCommand(
-            shooterSubsystem,
-            hoodSubsystem,
-            turretSubsystem,
-            hopperFloorSubsystem,
-            robotPose,
-            chassisSpeeds));
-    NamedCommands.registerCommand("Intaking Command", IntakeCommands.RunIntake(intakeSubsystem));
-    NamedCommands.registerCommand("Stop Shooter Command",
-        new InstantCommand(() -> {
-          shooterSubsystem.setDesiredRotorVelocity(0);
-          shooterSubsystem.setDesiredTransitionVoltage(0);
-          hopperFloorSubsystem.setDesiredHopperFloorVoltage(0);
-        }));
+    // COMMENTED OUT - turret/hopper not on this drivetrain
+    // NamedCommands.registerCommand("Shooter Command",
+    //     new ShootingCommand(
+    //         shooterSubsystem,
+    //         hoodSubsystem,
+    //         turretSubsystem,
+    //         hopperFloorSubsystem,
+    //         robotPose,
+    //         chassisSpeeds));
+    // NamedCommands.registerCommand("Intaking Command", IntakeCommands.RunIntake(intakeSubsystem)); // COMMENTED OUT - not on this drivetrain
+    // NamedCommands.registerCommand("Stop Shooter Command",
+    //     new InstantCommand(() -> {
+    //       shooterSubsystem.setDesiredRotorVelocity(0);
+    //       shooterSubsystem.setDesiredTransitionVoltage(0);
+    //       hopperFloorSubsystem.setDesiredHopperFloorVoltage(0);
+    //     }));
 
     // Set up auto routines with PathPlanner's auto chooser (using pre-made .auto files)
     autoChooser = new LoggedDashboardChooser<>("Auto/PathPlanner Auto", AutoBuilder.buildAutoChooser());
@@ -363,16 +364,17 @@ public class RobotContainer {
                   },
                   drive));
 
-      controller
-          .rightTrigger()
-          .onTrue(
-              new InstantCommand(
-                  () -> {
-                    CommandScheduler.getInstance()
-                        .schedule(
-                            ShootingCommands.StationaryShootingCommand(
-                                shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
-                  }));
+      // COMMENTED OUT - hopperFloor not on this drivetrain
+      // controller
+      //     .rightTrigger()
+      //     .onTrue(
+      //         new InstantCommand(
+      //             () -> {
+      //               CommandScheduler.getInstance()
+      //                   .schedule(
+      //                       ShootingCommands.StationaryShootingCommand(
+      //                           shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
+      //             }));
     }
   }
 
@@ -581,21 +583,22 @@ public class RobotContainer {
         //               intakeSubsystem.setDesiredAngle(IntakeConstants.RETRACTED_POSITION);
         //             }));
 
-        controller_two
-            .a()
-            .onTrue(
-                new InstantCommand(
-                    () ->
-                        CommandScheduler.getInstance()
-                            .schedule(IntakeCommands.RunIntake(intakeSubsystem))));
+        // COMMENTED OUT - intake not on this drivetrain
+        // controller_two
+        //     .a()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () ->
+        //                 CommandScheduler.getInstance()
+        //                     .schedule(IntakeCommands.RunIntake(intakeSubsystem))));
 
-        controller_two
-            .y()
-            .onTrue(
-                new InstantCommand(
-                    () ->
-                        CommandScheduler.getInstance()
-                            .schedule(IntakeCommands.ToggleIntake(intakeSubsystem))));
+        // controller_two
+        //     .y()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () ->
+        //                 CommandScheduler.getInstance()
+        //                     .schedule(IntakeCommands.ToggleIntake(intakeSubsystem))));
 
         // controller_two.y().onTrue(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem));
 
@@ -660,16 +663,17 @@ public class RobotContainer {
         // controller_two.a().onTrue(RunMechWheels());
         // controller_two.b().onTrue(MechStop());
 
-        controller_two
-            .b()
-            .onTrue(
-                new ShootOnTheMoveCommand(
-                    shooterSubsystem,
-                    hoodSubsystem,
-                    turretSubsystem,
-                    hopperFloorSubsystem,
-                    robotPose,
-                    chassisSpeeds));
+        // COMMENTED OUT - turret/hopper not on this drivetrain
+        // controller_two
+        //     .b()
+        //     .onTrue(
+        //         new ShootOnTheMoveCommand(
+        //             shooterSubsystem,
+        //             hoodSubsystem,
+        //             turretSubsystem,
+        //             hopperFloorSubsystem,
+        //             robotPose,
+        //             chassisSpeeds));
 
         // controller_two
         //     .a()
@@ -679,19 +683,20 @@ public class RobotContainer {
         //                 hopperFloorSubsystem.setDesiredHopperFloorVoltage(
         //                     HopperFloorConstants.HOPPER_FLOOR_VOLTAGE)));
 
-        controller_two
-            .x()
-            .onTrue(
-                new InstantCommand(
-                    () ->
-                        CommandScheduler.getInstance()
-                            .schedule(
-                                MechStop(
-                                    turretSubsystem,
-                                    shooterSubsystem,
-                                    hopperFloorSubsystem,
-                                    hoodSubsystem,
-                                    intakeSubsystem))));
+        // COMMENTED OUT - MechStop uses intake/climber not on this drivetrain
+        // controller_two
+        //     .x()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () ->
+        //                 CommandScheduler.getInstance()
+        //                     .schedule(
+        //                         MechStop(
+        //                             turretSubsystem,
+        //                             shooterSubsystem,
+        //                             hopperFloorSubsystem,
+        //                             hoodSubsystem,
+        //                             intakeSubsystem))));
         // controller_two
         //     .y()
         //     .onTrue(new InstantCommand(() -> shooterSubsystem.setDesiredRotorVelocity(60)));
@@ -711,11 +716,12 @@ public class RobotContainer {
             .rightBumper()
             .onTrue(new InstantCommand(() -> shooterSubsystem.toggleShouldShoot()));
 
-        controller_two
-            .leftBumper()
-            .onTrue(
-                ShootingCommands.StationaryShootingCommand(
-                    shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
+        // COMMENTED OUT - hopperFloor not on this drivetrain
+        // controller_two
+        //     .leftBumper()
+        //     .onTrue(
+        //         ShootingCommands.StationaryShootingCommand(
+        //             shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
 
         // controller_two
         //     .leftTrigger()
@@ -876,34 +882,36 @@ public class RobotContainer {
       } else {
         controller_two = new CommandXboxController(1);
       }
-      controller_two
-          .x()
-          .onTrue(
-              new InstantCommand(
-                  () ->
-                      CommandScheduler.getInstance()
-                          .schedule(
-                              MechStop(
-                                  turretSubsystem,
-                                  shooterSubsystem,
-                                  hopperFloorSubsystem,
-                                  hoodSubsystem,
-                                  intakeSubsystem))));
+      // COMMENTED OUT - MechStop/intake/climber not on this drivetrain
+      // controller_two
+      //     .x()
+      //     .onTrue(
+      //         new InstantCommand(
+      //             () ->
+      //                 CommandScheduler.getInstance()
+      //                     .schedule(
+      //                         MechStop(
+      //                             turretSubsystem,
+      //                             shooterSubsystem,
+      //                             hopperFloorSubsystem,
+      //                             hoodSubsystem,
+      //                             intakeSubsystem))));
       controller_two.y().onTrue(new InstantCommand(() -> shooterSubsystem.toggleShouldShoot()));
-      controller_two
-          .b()
-          .onTrue(
-              ShootingCommands.StationaryShootingCommand(
-                  shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
-      controller_two
-          .leftBumper()
-          .onTrue(
-              new InstantCommand(
-                  () ->
-                      CommandScheduler.getInstance()
-                          .schedule(IntakeCommands.ToggleIntake(intakeSubsystem))));
-      // I am making the assumption that we are not using pathfinding to climb
-      controller_two.rightBumper().onTrue(ClimbCommands.ClimbWithoutDrive(climberSubsystem));
+      // COMMENTED OUT - hopperFloor not on this drivetrain
+      // controller_two
+      //     .b()
+      //     .onTrue(
+      //         ShootingCommands.StationaryShootingCommand(
+      //             shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
+      // controller_two
+      //     .leftBumper()
+      //     .onTrue(
+      //         new InstantCommand(
+      //             () ->
+      //                 CommandScheduler.getInstance()
+      //                     .schedule(IntakeCommands.ToggleIntake(intakeSubsystem))));
+      // // I am making the assumption that we are not using pathfinding to climb
+      // controller_two.rightBumper().onTrue(ClimbCommands.ClimbWithoutDrive(climberSubsystem));
     }
   }
 
@@ -955,15 +963,15 @@ public class RobotContainer {
       //     .b()
       //     .whileTrue(shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
-      // TODO: turret
-      controller_two.x().whileTrue(turretSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-      controller_two.y().whileTrue(turretSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
-      controller_two
-          .a()
-          .whileTrue(turretSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-      controller_two
-          .b()
-          .whileTrue(turretSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      // TODO: turret - COMMENTED OUT - not on this drivetrain
+      // controller_two.x().whileTrue(turretSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      // controller_two.y().whileTrue(turretSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      // controller_two
+      //     .a()
+      //     .whileTrue(turretSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      // controller_two
+      //     .b()
+      //     .whileTrue(turretSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     }
   }
 
@@ -1087,9 +1095,9 @@ public class RobotContainer {
                   shooterSubsystem.setDesiredTransitionVoltage(0);
                   hoodSubsystem.setDesiredAngle(hoodSubsystem.getCurrentAngle());
                   hoodSubsystem.setHoodVoltage(0);
-                  climberSubsystem.setDesiredPositionInches(
-                      climberSubsystem.getCurrentPositionInches());
-                  climberSubsystem.setClimberVoltage(0);
+                  // climberSubsystem.setDesiredPositionInches(
+                  //     climberSubsystem.getCurrentPositionInches());
+                  // climberSubsystem.setClimberVoltage(0);
                 },
                 turretSubsystem,
                 shooterSubsystem,
@@ -1108,18 +1116,20 @@ public class RobotContainer {
             // .alongWith(new TurretHomingCommand(turretSubsystem))
             // TODO: this line would make it so the turret doesn't run the homing command since no
             // limit switch and we assume it's in the right sector on init
-            .alongWith(new InstantCommand(() -> turretSubsystem.homeTurret()))
-            .alongWith(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem)))
+            // .alongWith(new InstantCommand(() -> turretSubsystem.homeTurret())) // COMMENTED OUT - not on this drivetrain
+            ) // .alongWith(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem))) // COMMENTED OUT - not on this drivetrain
         .withName("Home Mechansims");
   }
 
-  public TurretSubsystem getTurretSubsystem() {
-    return turretSubsystem;
-  }
+  // COMMENTED OUT - not on this drivetrain
+  // public TurretSubsystem getTurretSubsystem() {
+  //   return turretSubsystem;
+  // }
 
-  public IntakeSubsystem getIntakeSubsystem() {
-    return intakeSubsystem;
-  }
+  // COMMENTED OUT - not on this drivetrain
+  // public IntakeSubsystem getIntakeSubsystem() {
+  //   return intakeSubsystem;
+  // }
 
   public ShooterSubsystem getShooterSubsystem() {
     return shooterSubsystem;
@@ -1129,7 +1139,8 @@ public class RobotContainer {
     return hoodSubsystem;
   }
 
-  public HopperFloorSubsystem getHopperFloorSubsystem() {
-    return hopperFloorSubsystem;
-  }
+  // COMMENTED OUT - not on this drivetrain
+  // public HopperFloorSubsystem getHopperFloorSubsystem() {
+  //   return hopperFloorSubsystem;
+  // }
 }
