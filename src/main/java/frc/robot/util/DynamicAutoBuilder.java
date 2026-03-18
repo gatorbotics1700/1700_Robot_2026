@@ -11,7 +11,7 @@ import frc.robot.Constants.FieldCoordinates;
 import frc.robot.commands.mech.ClimbCommands;
 import frc.robot.commands.mech.HoodCommands;
 import frc.robot.commands.mech.IntakeCommands;
-import frc.robot.commands.mech.ShootingCommands.ShootOnTheMoveCommand;
+import frc.robot.commands.mech.ShootingCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.mech.ClimberSubsystem;
 import frc.robot.subsystems.mech.HoodSubsystem;
@@ -85,11 +85,11 @@ public class DynamicAutoBuilder {
   private Command createShootingWithZoneCheck() {
     return Commands.run(() -> shooterSubsystem.setShouldShoot(isInAllianceZone()))
         .alongWith(
-            new ShootOnTheMoveCommand(
+            ShootingCommands.ShootOnTheMoveCommand(
                 shooterSubsystem,
                 hoodSubsystem,
-                turretSubsystem,
                 hopperFloorSubsystem,
+                turretSubsystem,
                 robotPose,
                 chassisSpeeds));
   }

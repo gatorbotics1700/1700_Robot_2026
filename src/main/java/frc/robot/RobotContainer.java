@@ -46,7 +46,6 @@ import frc.robot.commands.mech.ClimbCommands;
 import frc.robot.commands.mech.HoodCommands;
 import frc.robot.commands.mech.IntakeCommands;
 import frc.robot.commands.mech.ShootingCommands;
-import frc.robot.commands.mech.ShootingCommands.ShootOnTheMoveCommand;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -657,11 +656,11 @@ public class RobotContainer {
         controller_two
             .b()
             .onTrue(
-                new ShootOnTheMoveCommand(
+                ShootingCommands.ShootOnTheMoveCommand(
                     shooterSubsystem,
                     hoodSubsystem,
-                    turretSubsystem,
                     hopperFloorSubsystem,
+                    turretSubsystem,
                     robotPose,
                     chassisSpeeds));
 

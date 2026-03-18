@@ -27,20 +27,10 @@ import org.littletonrobotics.junction.Logger;
 public class ShootingCommands {
   public ShootingCommands() {}
 
-  // public static class ShootOnTheMoveCommand extends Command {
-    // private final ShooterSubsystem shooterSubsystem;
-    // private Supplier<Pose2d> drivetrainPose;
-    // private Supplier<ChassisSpeeds> drivetrainVelocity;
-    // private final HopperFloorSubsystem hopperFloorSubsystem;
-    // private final HoodSubsystem hoodSubsystem;
-
-    //private final TurretSubsystem turretSubsystem;
-
     // Current logic is that if the flywheel speed is 0 then we're just tracking and if the flywheel
     // speed is not zero then we're trying to shoot, but we may decide we want a separate command
     // for
     // just tracking
-
 
   public static class ShootingCommand extends Command {
     private final ShooterSubsystem shooterSubsystem;
@@ -99,7 +89,7 @@ public class ShootingCommands {
   }
   
 
-  public static Command StationaryFixedShootingCommand(
+  public static Command StationaryShootingCommand(
       ShooterSubsystem shooterSubsystem,
       HoodSubsystem hoodSubsystem,
       HopperFloorSubsystem hopperFloorSubsystem,
@@ -127,32 +117,6 @@ public class ShootingCommands {
                 shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, drivetrainPose, closestShotParameters))
         .withName("StationaryShootingCommand");
   }
-
-  public static Command StationaryAnywhereShootingCommand(
-      ShooterSubsystem shooterSubsystem,
-      HoodSubsystem hoodSubsystem,
-      HopperFloorSubsystem hopperFloorSubsystem,
-      TurretSubsystem turretSubsystem,
-      Supplier<Pose2d> drivetrainPose) {
-    ShotParameters closestShotParameters = null;
-    Logger.recordOutput("Mech/Shooter/Stationary/RED_RIGHT", ShooterConstants.RED_RIGHT.pose);
-    Logger.recordOutput("Mech/Shooter/Stationary/BLUE_LEFT", ShooterConstants.BLUE_LEFT.pose);
-    Logger.recordOutput(
-        "Mech/Shooter/Stationary/RED_RIGHT distance",
-        Calculations.distanceToPoseInMeters(drivetrainPose.get(), ShooterConstants.RED_RIGHT.pose));
-    Logger.recordOutput(
-        "Mech/Shooter/Stationary/BLUE_LEFT distance",
-        Calculations.distanceToPoseInMeters(drivetrainPose.get(), ShooterConstants.BLUE_LEFT.pose));
-    for (ShotParameters shot : ShooterConstants.STATIONARY_SHOT_ARRAY) {
-      if (closestShotParameters == null
-          || Calculations.distanceToPoseInMeters(drivetrainPose.get(), shot.pose)
-              < Calculations.distanceToPoseInMeters(drivetrainPose.get(), closestShotParameters.pose)) {
-        closestShotParameters = shot;
-      }
-    }
-
-    return new ShootingCommand(shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, drivetrainPose, closestShotParameters);
-    }
 
   public static Command ShootOnTheMoveCommand(
         ShooterSubsystem shooterSubsystem,
