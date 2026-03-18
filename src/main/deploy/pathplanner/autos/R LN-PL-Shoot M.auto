@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "R LN to Shoot M"
+            "pathName": null
           }
         },
         {
@@ -39,6 +39,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Left Autos",
   "choreoAuto": false
 }

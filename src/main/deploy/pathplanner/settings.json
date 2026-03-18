@@ -3,17 +3,17 @@
   "robotLength": 0.78,
   "holonomicMode": true,
   "pathFolders": [
-    "BLUE 1P RB",
+    "ROUND ABOUT PIECES",
     "Blue Non-starters",
     "Blue Starters",
-    "Fuel Pile Inner Paths",
-    "under DA trench",
-    "RED 1P RB",
+    "Fuel Pile END LOCATIONS",
     "Red Non-starters",
     "Red Starters",
     "Shoot",
     "field elements",
-    "over DA bump"
+    "leave autos",
+    "over DA bump",
+    "under DA trench"
   ],
   "autoFolders": [
     "Center Autos",

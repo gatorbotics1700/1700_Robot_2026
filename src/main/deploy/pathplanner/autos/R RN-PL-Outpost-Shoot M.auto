@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "R RN to Shoot M"
+            "pathName": null
           }
         },
         {
@@ -38,7 +38,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "R Shoot M to Outpost"
+            "pathName": null
           }
         },
         {
@@ -63,7 +63,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "R Outpost to Shoot M"
+            "pathName": null
           }
         },
         {

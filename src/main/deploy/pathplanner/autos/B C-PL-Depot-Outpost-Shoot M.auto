@@ -38,7 +38,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "B Shoot M to DC"
+            "pathName": null
           }
         },
         {
@@ -69,7 +69,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "B Outpost to Shoot M"
+            "pathName": null
           }
         },
         {

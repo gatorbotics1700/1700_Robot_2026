@@ -38,7 +38,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "R Shoot M to DC"
+            "pathName": null
           }
         },
         {
@@ -63,7 +63,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "R DC to Shoot M"
+            "pathName": null
           }
         },
         {

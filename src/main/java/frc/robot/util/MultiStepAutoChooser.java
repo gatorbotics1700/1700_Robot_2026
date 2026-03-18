@@ -2,15 +2,11 @@ package frc.robot.util;
 
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.mech.ClimberSubsystem;
 import frc.robot.subsystems.mech.HoodSubsystem;
 import frc.robot.subsystems.mech.HopperFloorSubsystem;
 import frc.robot.subsystems.mech.IntakeSubsystem;
 import frc.robot.subsystems.mech.ShooterSubsystem;
-import frc.robot.subsystems.mech.TurretSubsystem;
 import java.util.Optional;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -34,32 +30,18 @@ public class MultiStepAutoChooser {
   private final LoggedDashboardChooser<String> thirdDestinationTypeChooser;
   private final LoggedDashboardChooser<String> thirdDestinationSideChooser;
 
-  private final LoggedDashboardChooser<Boolean> shouldClimbChooser;
-
   public MultiStepAutoChooser(
       IntakeSubsystem intakeSubsystem,
-      Drive drive,
-      ClimberSubsystem climberSubsystem,
       HoodSubsystem hoodSubsystem,
       ShooterSubsystem shooterSubsystem,
-      TurretSubsystem turretSubsystem,
       HopperFloorSubsystem hopperFloorSubsystem,
-      Supplier<Pose2d> robotPose,
-      Supplier<ChassisSpeeds> chassisSpeeds) {
+      Supplier<Pose2d> robotPose) {
     instance = this;
 
     // Create the dynamic auto builder
     this.dynamicAutoBuilder =
         new DynamicAutoBuilder(
-            intakeSubsystem,
-            drive,
-            climberSubsystem,
-            hoodSubsystem,
-            shooterSubsystem,
-            turretSubsystem,
-            hopperFloorSubsystem,
-            robotPose,
-            chassisSpeeds);
+            intakeSubsystem, hoodSubsystem, shooterSubsystem, hopperFloorSubsystem, robotPose);
 
     // Initialize choosers
     allianceChooser = new LoggedDashboardChooser<>("Auto/Alliance");
@@ -80,8 +62,6 @@ public class MultiStepAutoChooser {
     thirdDestinationSideChooser =
         new LoggedDashboardChooser<>("Auto/Third Destination/Third Destination Side");
 
-    shouldClimbChooser = new LoggedDashboardChooser<>("Auto/Climb?");
-
     // Populate alliance chooser with hardcoded values
     allianceChooser.addDefaultOption("None", "None");
     allianceChooser.addOption("Red", "R");
@@ -97,6 +77,7 @@ public class MultiStepAutoChooser {
 
     // Populate first destination type chooser
     firstDestinationTypeChooser.addDefaultOption("None", "None");
+    firstDestinationTypeChooser.addOption("Hub", "Hub");
     firstDestinationTypeChooser.addOption("Depot", "Depot");
     firstDestinationTypeChooser.addOption("Outpost", "Outpost");
     firstDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
@@ -109,6 +90,7 @@ public class MultiStepAutoChooser {
 
     // Populate second destination type chooser
     secondDestinationTypeChooser.addDefaultOption("None", "None");
+    secondDestinationTypeChooser.addOption("Hub", "Hub");
     secondDestinationTypeChooser.addOption("Depot", "Depot");
     secondDestinationTypeChooser.addOption("Outpost", "Outpost");
     secondDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
@@ -121,6 +103,7 @@ public class MultiStepAutoChooser {
 
     // Populate third destination type chooser
     thirdDestinationTypeChooser.addDefaultOption("None", "None");
+    thirdDestinationTypeChooser.addOption("Hub", "Hub");
     thirdDestinationTypeChooser.addOption("Depot", "Depot");
     thirdDestinationTypeChooser.addOption("Outpost", "Outpost");
     thirdDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
@@ -131,10 +114,6 @@ public class MultiStepAutoChooser {
     thirdDestinationSideChooser.addOption("Right", "Right");
     thirdDestinationSideChooser.addOption("Center", "Center");
 
-    // Populate climb chooser
-    shouldClimbChooser.addDefaultOption("No", false);
-    shouldClimbChooser.addOption("Yes", true);
-
     // This ensures they publish to NetworkTables
     allianceChooser.get();
     startPosChooser.get();
@@ -144,17 +123,22 @@ public class MultiStepAutoChooser {
     secondDestinationSideChooser.get();
     thirdDestinationTypeChooser.get();
     thirdDestinationSideChooser.get();
-    shouldClimbChooser.get();
   }
 
   /**
    * Combines destination type and side into a full destination name. Examples: - "Depot" + "Center"
-   * = "DC" - "Depot" + "Left" = "DL" - "Fuel Pile Far" + "Center" = "Fuel Pile CF" - "Outpost" +
-   * any = "Outpost" (side doesn't matter, can be empty/N/A)
+   * = "DC" - "Depot" + "Left" = "DL" - "Fuel Pile" + "Center" = "Fuel Pile C" (Blue) or "Fuel Pile
+   * M" (Red) - "Outpost" + any = "Outpost" (side doesn't matter) - "Hub" + any = "C" (shooting
+   * position)
    */
-  private String combineDestination(String type, String side) {
+  private String combineDestination(String type, String side, String alliance) {
     if (type == null || type.equals("None")) {
       return "None";
+    }
+
+    if (type.equals("Hub")) {
+      // Hub doesn't need a side - it's the center shooting position "C"
+      return "C";
     }
 
     if (type.equals("Outpost")) {
@@ -181,11 +165,12 @@ public class MultiStepAutoChooser {
         return "None";
       }
 
-      // Map side to letter
+      // Map side to letter - Blue uses "C" for center, Red uses "M" for middle
       String sideLetter = "";
       switch (side) {
         case "Center":
-          sideLetter = "C";
+          // Blue paths use "Fuel Pile C", Red paths use "Fuel Pile M"
+          sideLetter = (alliance != null && alliance.equals("B")) ? "C" : "M";
           break;
         case "Left":
           sideLetter = "L";
@@ -213,7 +198,6 @@ public class MultiStepAutoChooser {
     secondDestinationSideChooser.get();
     thirdDestinationTypeChooser.get();
     thirdDestinationSideChooser.get();
-    shouldClimbChooser.get();
   }
 
   /**
@@ -228,18 +212,18 @@ public class MultiStepAutoChooser {
     String startPos = startPosChooser.get();
 
     String firstDestination =
-        combineDestination(firstDestinationTypeChooser.get(), firstDestinationSideChooser.get());
+        combineDestination(
+            firstDestinationTypeChooser.get(), firstDestinationSideChooser.get(), alliance);
     String secondDestination =
-        combineDestination(secondDestinationTypeChooser.get(), secondDestinationSideChooser.get());
+        combineDestination(
+            secondDestinationTypeChooser.get(), secondDestinationSideChooser.get(), alliance);
     String thirdDestination =
-        combineDestination(thirdDestinationTypeChooser.get(), thirdDestinationSideChooser.get());
-
-    Boolean shouldClimb = shouldClimbChooser.get();
-    boolean climb = shouldClimb != null && shouldClimb;
+        combineDestination(
+            thirdDestinationTypeChooser.get(), thirdDestinationSideChooser.get(), alliance);
 
     // Use DynamicAutoBuilder to chain paths together
     return dynamicAutoBuilder.buildAuto(
-        alliance, startPos, firstDestination, secondDestination, thirdDestination, climb);
+        alliance, startPos, firstDestination, secondDestination, thirdDestination);
   }
 
   /**
@@ -252,17 +236,18 @@ public class MultiStepAutoChooser {
     String alliance = allianceChooser.get();
     String startPose = startPosChooser.get();
     String firstDestination =
-        combineDestination(firstDestinationTypeChooser.get(), firstDestinationSideChooser.get());
+        combineDestination(
+            firstDestinationTypeChooser.get(), firstDestinationSideChooser.get(), alliance);
     String secondDestination =
-        combineDestination(secondDestinationTypeChooser.get(), secondDestinationSideChooser.get());
+        combineDestination(
+            secondDestinationTypeChooser.get(), secondDestinationSideChooser.get(), alliance);
     String thirdDestination =
-        combineDestination(thirdDestinationTypeChooser.get(), thirdDestinationSideChooser.get());
-    Boolean shouldClimb = shouldClimbChooser.get();
-    boolean climb = shouldClimb != null && shouldClimb;
+        combineDestination(
+            thirdDestinationTypeChooser.get(), thirdDestinationSideChooser.get(), alliance);
 
     Optional<String> firstPathName =
         dynamicAutoBuilder.getFirstPathName(
-            alliance, startPose, firstDestination, secondDestination, thirdDestination, climb);
+            alliance, startPose, firstDestination, secondDestination, thirdDestination);
     if (firstPathName.isEmpty()) {
       return Optional.empty();
     }

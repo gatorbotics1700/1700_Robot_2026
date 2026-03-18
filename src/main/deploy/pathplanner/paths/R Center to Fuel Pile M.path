@@ -25,7 +25,7 @@
       },
       "nextControl": {
         "x": 7.633509383869715,
-        "y": 0.6569916387503796
+        "y": 0.6569916387503795
       },
       "isLocked": false,
       "linkedName": null
@@ -61,7 +61,7 @@
     "rotation": -90.08390922842985
   },
   "reversed": false,
-  "folder": "Red Starters",
+  "folder": "Fuel Pile END LOCATIONS",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -90.63879517030955
