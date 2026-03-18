@@ -67,34 +67,34 @@ public final class ShotTableGenerator {
         FieldCoordinates.BLUE_HUB.getZ() - ShooterConstants.BOT_TO_SHOOTER.getZ();
     Path outPath = ShotTableIO.projectDeployPath(outRel);
 
-    // if (ShotTableIO.isUpToDate(
-    //     outPath, elevationMeters, hoodRetracted.getRadians(), hoodMin.getRadians())) {
-    //   System.out.println("Shot table already up-to-date at " + outPath);
-    //   return;
-    // }
+    if (ShotTableIO.isUpToDate(
+        outPath, elevationMeters, hoodRetracted.getRadians(), hoodMin.getRadians())) {
+      System.out.println("Shot table already up-to-date at " + outPath);
+      return;
+    }
 
-    // int veloIncrements =
-    //     (int)
-    //         (ShotCalculatorConditions.MAX_COMPONENT_VELO
-    //             * 2
-    //             / ShotCalculatorConditions.VELO_INCREMENT);
-    // int rangeIncrements =
-    //     (int) (ShotCalculatorConditions.MAX_RANGE / ShotCalculatorConditions.RANGE_INCREMENT);
+    int veloIncrements =
+        (int)
+            (ShotCalculatorConditions.MAX_COMPONENT_VELO
+                * 2
+                / ShotCalculatorConditions.VELO_INCREMENT);
+    int rangeIncrements =
+        (int) (ShotCalculatorConditions.MAX_RANGE / ShotCalculatorConditions.RANGE_INCREMENT);
 
-    // System.out.println("Generating shot table...");
-    // ShotParameters[][][] table =
-    //     ShotCalculator.getShootingLookupTable(elevationMeters, hoodMin, hoodRetracted);
-    // ShotTableData data =
-    //     ShotTableIO.fromLookupTable(
-    //         table,
-    //         elevationMeters,
-    //         hoodRetracted.getRadians(),
-    //         hoodMin.getRadians(),
-    //         veloIncrements,
-    //         veloIncrements,
-    //         rangeIncrements);
+    System.out.println("Generating shot table...");
+    ShotParameters[][][] table =
+        ShotCalculator.getShootingLookupTable(elevationMeters, hoodMin, hoodRetracted);
+    ShotTableData data =
+        ShotTableIO.fromLookupTable(
+            table,
+            elevationMeters,
+            hoodRetracted.getRadians(),
+            hoodMin.getRadians(),
+            veloIncrements,
+            veloIncrements,
+            rangeIncrements);
 
-    // ShotTableIO.writeJson(outPath, data, pretty);
-    // System.out.println("Wrote shot table JSON to " + outPath);
+    ShotTableIO.writeJson(outPath, data, pretty);
+    System.out.println("Wrote shot table JSON to " + outPath);
   }
 }
