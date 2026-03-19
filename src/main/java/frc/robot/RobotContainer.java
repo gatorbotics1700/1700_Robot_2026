@@ -225,6 +225,8 @@ public class RobotContainer {
       if (Constants.currentMode == Constants.Mode.SIM
           && System.getProperty("os.name").contains("Mac")) {
         controller = new CommandSimMacXboxController(0);
+        System.out.println("MAKING XBOX CONTROLLER");
+
       } else {
         controller = new CommandXboxController(0);
       }
@@ -274,20 +276,32 @@ public class RobotContainer {
                     }
                   }));
 
-      controller
+      controller // third stage full shooting while moving
           .x()
           .onTrue(
-              new InstantCommand(
-                  () -> {
-                    try {
-                      CommandScheduler.getInstance()
-                          .schedule(
-                              DriveUnderTrenchCommand.driveUnderTrench(drive, shooterSubsystem)
-                                  .withName("DriveUnderTrench"));
-                    } catch (Exception e) {
-                      e.printStackTrace();
-                    }
-                  }));
+             new ShootingCommands.ShootOnTheMoveCommand(
+                  shooterSubsystem,
+                  hoodSubsystem,
+                  hopperFloorSubsystem,
+                  turretSubsystem,
+                  robotPose,
+                  chassisSpeeds));
+
+      // drive under trench
+      // controller
+      //     .x()
+      //     .onTrue(
+      //         new InstantCommand(
+      //             () -> {
+      //               try {
+      //                 CommandScheduler.getInstance()
+      //                     .schedule(
+      //                         DriveUnderTrenchCommand.driveUnderTrench(drive, shooterSubsystem)
+      //                             .withName("DriveUnderTrench"));
+      //               } catch (Exception e) {
+      //                 e.printStackTrace();
+      //               }
+      //             }));
 
       // Reset gyro to 0° when B button is pressed
       controller
@@ -643,26 +657,28 @@ public class RobotContainer {
 
         // TODO SHOOTING TESTING BUTTONS UNCOMMENT FOR USE
 
-                
-        controller_two //first stage of shooting from stationary fixed spots
-            .y()
-            .onTrue(ShootingCommands.StationaryShootingCommand(
-              shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
+        controller_two // first stage of shooting from stationary fixed spots
+            .rightBumper()
+            .onTrue(
+                ShootingCommands.StationaryShootingCommand(
+                    shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
 
-        controller_two //second stage shooting from stationary spots across field with pointing drive train
-          .x()
-          .onTrue(new PointAtHubCommand(drive)
-          .alongWith(ShootingCommands.ShootOnTheMoveCommand(
-            shooterSubsystem,
-            hoodSubsystem,
-            hopperFloorSubsystem,
-            turretSubsystem,
-            robotPose,
-            chassisSpeeds
-          )));
+        controller_two // second stage shooting from stationary spots across field with pointing
+            // drive train
+            .rightTrigger()
+            .onTrue(
+                new PointAtHubCommand(drive)
+                    .alongWith(
+                        ShootingCommands.ShootOnTheMoveCommand(
+                            shooterSubsystem,
+                            hoodSubsystem,
+                            hopperFloorSubsystem,
+                            turretSubsystem,
+                            robotPose,
+                            chassisSpeeds)));
 
-        controller_two //third stage full shooting while moving
-            .b()
+        controller_two // third stage full shooting while moving
+            .leftTrigger()
             .onTrue(
                 ShootingCommands.ShootOnTheMoveCommand(
                     shooterSubsystem,
@@ -671,7 +687,7 @@ public class RobotContainer {
                     turretSubsystem,
                     robotPose,
                     chassisSpeeds));
-        
+
         controller_two
             .a()
             .onTrue(
@@ -685,7 +701,7 @@ public class RobotContainer {
                                     hopperFloorSubsystem,
                                     hoodSubsystem,
                                     intakeSubsystem))));
-                
+
         // controller_two
         //     .a()
         //     .onTrue(
@@ -705,17 +721,11 @@ public class RobotContainer {
         //                   ShooterConstants.TRANSITION_VOLTAGE);
         //             }));
 
-        controller_two
-            .leftBumper()
-            .onTrue(
-                ShootingCommands.StationaryShootingCommand(
-                    shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
-
-        controller_two
-            .leftTrigger()
-            .onTrue(
-                new InstantCommand(
-                    () -> turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(36)))));
+        // controller_two
+        //     .leftTrigger()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () -> turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(36)))));
 
         controller_two
             .rightTrigger()
@@ -1057,10 +1067,10 @@ public class RobotContainer {
 
   public void configureButtonBindings() {
     CommandScheduler.getInstance().getActiveButtonLoop().clear();
-    configureCompDriverButtonBindings();
-    configureCompCodriverButtonBindings(); // TODO: IMPORTANT SWITCH THIS BEFORE MATCHES
-    // configureDriverButtonBindings();
-    // configureCodriverButtonBindings();
+    // configureCompDriverButtonBindings();
+    // configureCompCodriverButtonBindings(); // TODO: IMPORTANT SWITCH THIS BEFORE MATCHES
+    configureDriverButtonBindings();
+    configureCodriverButtonBindings();
   }
 
   public void configureSystemCheckButtons() {
