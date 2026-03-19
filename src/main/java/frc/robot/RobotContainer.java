@@ -171,29 +171,13 @@ public class RobotContainer {
           return drive.getChassisSpeeds();
         };
 
-    // COMMENTED OUT - subsystems not on this drivetrain (Sting)
-    // NamedCommands.registerCommand(
-    //     "Shooter Command",
-    //     Commands.runOnce(
-    //         () ->
-    //             CommandScheduler.getInstance()
-    //                 .schedule(
-    //                     ShootingCommands.StationaryShootingCommand(
-    //                         shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose))));
-    // NamedCommands.registerCommand("Intaking Command", IntakeCommands.RunIntake(intakeSubsystem));
-    // NamedCommands.registerCommand(
-    //     "Climb Command", ClimbCommands.ClimbWithoutDrive(climberSubsystem));
-    // NamedCommands.registerCommand("Extend Climber", ClimbCommands.ExtendClimber(climberSubsystem));
-    // NamedCommands.registerCommand(
-    //     "Retract Climber", ClimbCommands.RetractClimber(climberSubsystem));
-    // NamedCommands.registerCommand(
-    //     "Stop Shooter Command",
-    //     new InstantCommand(
-    //         () -> {
-    //           shooterSubsystem.setDesiredRotorVelocity(0);
-    //           shooterSubsystem.setDesiredTransitionVoltage(0);
-    //           hopperFloorSubsystem.setDesiredHopperFloorVoltage(0);
-    //         }));
+    // NamedCommands registered with Commands.none() for Sting (missing subsystems)
+    NamedCommands.registerCommand("Shooter Command", Commands.none());
+    NamedCommands.registerCommand("Intaking Command", Commands.none());
+    NamedCommands.registerCommand("Climb Command", Commands.none());
+    NamedCommands.registerCommand("Extend Climber", Commands.none());
+    NamedCommands.registerCommand("Retract Climber", Commands.none());
+    NamedCommands.registerCommand("Stop Shooter Command", Commands.none());
 
     // Set up auto mode chooser (Pre-made vs Dynamic)
     autoModeChooser = new LoggedDashboardChooser<>("Auto/Auto Mode");

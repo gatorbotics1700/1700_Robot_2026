@@ -76,7 +76,8 @@ public class Robot extends LoggedRobot {
       case REAL:
         // Running on a real robot, log to a USB stick ("/U/logs") or to RoboRio
         // ("/home/lvuser/logs")
-        Logger.addDataReceiver(new WPILOGWriter("/home/lvuser/logs"));
+        // DISABLED for roboRIO 1 (Sting) - not enough memory for log files
+        // Logger.addDataReceiver(new WPILOGWriter("/home/lvuser/logs"));
         Logger.addDataReceiver(new NT4Publisher());
         break;
 
