@@ -27,14 +27,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.FieldCoordinates;
-import frc.robot.Constants.HoodConstants;
-import frc.robot.Constants.HopperFloorConstants;
-import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.VisionConstants;
@@ -43,32 +38,27 @@ import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveToFuelCommand;
 import frc.robot.commands.drive.DriveUnderTrenchCommand;
 import frc.robot.commands.drive.PointAtHubCommand;
-// DELETED - not on this drivetrain (Sting)
-// import frc.robot.commands.mech.ClimbCommands;
 import frc.robot.commands.mech.HoodCommands;
-// import frc.robot.commands.mech.IntakeCommands;
-// import frc.robot.commands.mech.ShootingCommands;
-// import frc.robot.commands.mech.ShootingCommands.ShootOnTheMoveCommand;
+import frc.robot.commands.mech.IntakeCommands;
+import frc.robot.commands.mech.ShootingCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-// DELETED - not on this drivetrain (Sting)
-// import frc.robot.subsystems.mech.ClimberSubsystem;
+import frc.robot.subsystems.mech.ClimberSubsystem;
 import frc.robot.subsystems.mech.HoodSubsystem;
-// import frc.robot.subsystems.mech.HopperFloorSubsystem;
-// import frc.robot.subsystems.mech.IntakeSubsystem;
+import frc.robot.subsystems.mech.HopperFloorSubsystem;
+import frc.robot.subsystems.mech.IntakeSubsystem;
 import frc.robot.subsystems.mech.ShooterSubsystem;
-// import frc.robot.subsystems.mech.TurretSubsystem;
+import frc.robot.subsystems.mech.TurretSubsystem;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.util.CommandSimMacXboxController;
 import frc.robot.util.GamePieceSimulation;
-// DELETED - not on this drivetrain (Sting)
-// import frc.robot.util.MultiStepAutoChooser;
+import frc.robot.util.MultiStepAutoChooser;
 import frc.robot.util.RobotConfigLoader;
 import frc.robot.util.ShotCalculator;
 import frc.robot.util.ShotParameters;
@@ -82,13 +72,12 @@ public class RobotContainer {
   private final Drive drive;
   private final Vision vision;
 
-  // COMMENTED OUT - not on this drivetrain (Sting)
-  // private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+  private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
   private final HoodSubsystem hoodSubsystem = new HoodSubsystem();
-  // private final HopperFloorSubsystem hopperFloorSubsystem = new HopperFloorSubsystem();
-  // private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  private final HopperFloorSubsystem hopperFloorSubsystem = new HopperFloorSubsystem();
+  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
-  // private final TurretSubsystem turretSubsystem = new TurretSubsystem();
+  private final TurretSubsystem turretSubsystem = new TurretSubsystem();
 
   private final GamePieceSimulation gamePieceSimulation = new GamePieceSimulation();
   private ShotParameters shotParameters; // TODO: do we need this?
@@ -98,7 +87,7 @@ public class RobotContainer {
   private CommandXboxController controller_two = null; // port 3
 
   // Dashboard inputs
-  // DELETED - private final MultiStepAutoChooser multiStepAutoChooser;
+  private final MultiStepAutoChooser multiStepAutoChooser;
   private final LoggedDashboardChooser<Command> autoChooser;
   private final LoggedDashboardChooser<String> autoModeChooser;
   private final LoggedDashboardChooser<String> autoNameChooser;
@@ -171,13 +160,20 @@ public class RobotContainer {
           return drive.getChassisSpeeds();
         };
 
-    // NamedCommands registered with Commands.none() for Sting (missing subsystems)
-    NamedCommands.registerCommand("Shooter Command", Commands.none());
-    NamedCommands.registerCommand("Intaking Command", Commands.none());
-    NamedCommands.registerCommand("Climb Command", Commands.none());
-    NamedCommands.registerCommand("Extend Climber", Commands.none());
-    NamedCommands.registerCommand("Retract Climber", Commands.none());
-    NamedCommands.registerCommand("Stop Shooter Command", Commands.none());
+    // Register named commands for PathPlanner autos
+    NamedCommands.registerCommand(
+        "Shooter Command",
+        ShootingCommands.StationaryShootingCommand(
+            shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
+    NamedCommands.registerCommand("Intaking Command", IntakeCommands.RunIntake(intakeSubsystem));
+    NamedCommands.registerCommand(
+        "Stop Shooter Command",
+        new InstantCommand(
+            () -> {
+              shooterSubsystem.setDesiredRotorVelocity(0);
+              shooterSubsystem.setDesiredTransitionVoltage(0);
+              hopperFloorSubsystem.setDesiredHopperFloorVoltage(0);
+            }));
 
     // Set up auto mode chooser (Pre-made vs Dynamic)
     autoModeChooser = new LoggedDashboardChooser<>("Auto/Auto Mode");
@@ -196,7 +192,18 @@ public class RobotContainer {
     }
     autoNameChooser.get(); // Publish to NetworkTables
 
-    // DELETED - multiStepAutoChooser not available on this drivetrain (Sting)
+    // Set up dynamic auto builder
+    multiStepAutoChooser =
+        new MultiStepAutoChooser(
+            intakeSubsystem,
+            drive,
+            climberSubsystem,
+            hoodSubsystem,
+            shooterSubsystem,
+            turretSubsystem,
+            hopperFloorSubsystem,
+            robotPose,
+            chassisSpeeds);
 
     // Set up SysId routines
     // autoChooser.addOption(
@@ -358,7 +365,8 @@ public class RobotContainer {
       //               CommandScheduler.getInstance()
       //                   .schedule(
       //                       ShootingCommands.StationaryShootingCommand(
-      //                           shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
+      //                           shooterSubsystem, hoodSubsystem, hopperFloorSubsystem,
+      // robotPose));
       //             }));
     }
   }
@@ -1003,10 +1011,13 @@ public class RobotContainer {
     String autoMode = autoModeChooser.get();
 
     if (autoMode != null && autoMode.equals("Dynamic")) {
-      // DELETED - Dynamic auto not available on this drivetrain (Sting)
-      System.out.println("Dynamic auto not available - using pre-made auto");
-      Command selected = autoChooser.get();
-      return selected != null ? selected : Commands.none();
+      // Use Dynamic Auto Builder
+      try {
+        return multiStepAutoChooser.getAutonomousCommand();
+      } catch (Exception e) {
+        System.out.println("Dynamic auto error: " + e.getMessage());
+        return Commands.none();
+      }
     } else {
       // Use PathPlanner pre-made autos (default)
       Command selected = autoChooser.get();
@@ -1018,8 +1029,8 @@ public class RobotContainer {
     String autoMode = autoModeChooser.get();
 
     if (autoMode != null && autoMode.equals("Dynamic")) {
-      // DELETED - Dynamic auto not available on this drivetrain (Sting)
-      return Optional.empty();
+      // Use Dynamic Auto Builder start pose
+      return multiStepAutoChooser.getAutoStartPose();
     }
     // For pre-made autos, try to get the start pose from the auto name chooser
     // This allows the robot to start at the correct position in simulation
@@ -1114,7 +1125,8 @@ public class RobotContainer {
   //                 .andThen(new WaitCommand(1))
   //                 .andThen(
   //                     new InstantCommand(
-  //                         () -> hoodSubsystem.setDesiredAngle(HoodConstants.RETRACTED_POSITION))));
+  //                         () ->
+  // hoodSubsystem.setDesiredAngle(HoodConstants.RETRACTED_POSITION))));
   //     controller_two
   //         .x()
   //         .onTrue(
@@ -1154,12 +1166,14 @@ public class RobotContainer {
   //                 .andThen(
   //                     new InstantCommand(
   //                         () ->
-  //                             turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(36)))))
+  //                             turretSubsystem.setDesiredAngle(new
+  // Rotation2d(Math.toRadians(36)))))
   //                 .andThen(new WaitCommand(1.5))
   //                 .andThen(
   //                     new InstantCommand(
   //                         () ->
-  //                             turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0))))));
+  //                             turretSubsystem.setDesiredAngle(new
+  // Rotation2d(Math.toRadians(0))))));
   //   }
   // }
 
