@@ -486,12 +486,12 @@ public class RobotContainer {
 
                 
         controller_two //first stage of shooting from stationary fixed spots
-            .y()
+            .rightBumper()
             .onTrue(ShootingCommands.StationaryShootingCommand(
               shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
 
         controller_two //second stage shooting from stationary spots across field with pointing drive train
-          .x()
+          .rightTrigger()
           .onTrue(new PointAtHubCommand(drive)
           .alongWith(ShootingCommands.ShootOnTheMoveCommand(
             shooterSubsystem,
@@ -503,7 +503,7 @@ public class RobotContainer {
           )));
 
         controller_two //third stage full shooting while moving
-            .b()
+            .leftTrigger()
             .onTrue(
                 ShootingCommands.ShootOnTheMoveCommand(
                     shooterSubsystem,
@@ -514,7 +514,7 @@ public class RobotContainer {
                     chassisSpeeds));
         
         controller_two
-            .a()
+            .x()
             .onTrue(
                 new InstantCommand(
                     () ->
@@ -547,11 +547,11 @@ public class RobotContainer {
         //             }));
 
        
-        controller_two
-            .leftTrigger()
-            .onTrue(
-                new InstantCommand(
-                    () -> turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(36)))));
+        // controller_two
+        //     .leftTrigger()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () -> turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(36)))));
 
         // home mechanisms
         controller_two
