@@ -658,18 +658,43 @@ public final class Constants {
             Calculations.mirrorPoseAcrossXAxis(BLUE_LEFT.pose),
             new Rotation2d(Math.toRadians(64.4)),
             62.2);
-    public static final ShotParameters RED_SHOT =
+    public static final ShotParameters BLUE_HUB_CENTER_SHOT =
         new ShotParameters(
-            new Pose2d(13.541, 4.035, new Rotation2d(Math.toRadians(180))),
-            new Rotation2d(Math.toRadians(68)),
-            53);
-    public static final ShotParameters BLUE_SHOT =
+            new Pose2d(3.347, 4.035, new Rotation2d(0)),
+            new Rotation2d(Math.toRadians(65)), // TODO: change
+            55); // TODO: change
+    public static final ShotParameters RED_HUB_CENTER_SHOT =
         new ShotParameters(
-            Calculations.mirrorPoseAcrossAlliance(RED_SHOT.pose),
-            new Rotation2d(Math.toRadians(68)),
-            53);
-    public static final ShotParameters[] STATIONARY_BLUE_SHOTS_ARRAY = {BLUE_SHOT};
-    public static final ShotParameters[] STATIONARY_RED_SHOTS_ARRAY = {RED_SHOT};
+            Calculations.mirrorPoseAcrossAlliance(BLUE_HUB_CENTER_SHOT.pose),
+            new Rotation2d(Math.toRadians(65)),
+            55);
+    public static final ShotParameters BLUE_RIGHT_CORNER_SHOT =
+        new ShotParameters(
+            new Pose2d(0.62, 0.576, new Rotation2d(37)),
+            new Rotation2d(Math.toRadians(65)), // TODO: change
+            55); // TODO: change
+    public static final ShotParameters RED_LEFT_CORNER_SHOT =
+        new ShotParameters(
+            Calculations.mirrorPoseAcrossAlliance(BLUE_RIGHT_CORNER_SHOT.pose),
+            new Rotation2d(Math.toRadians(65)),
+            55);
+    public static final ShotParameters BLUE_LEFT_CORNER_SHOT =
+        new ShotParameters(
+            new Pose2d(0.62, 7.494, new Rotation2d(37)),
+            new Rotation2d(Math.toRadians(65)), // TODO: change
+            55); // TODO: change
+    public static final ShotParameters RED_RIGHT_CORNER_SHOT =
+        new ShotParameters(
+            Calculations.mirrorPoseAcrossAlliance(BLUE_LEFT_CORNER_SHOT.pose),
+            new Rotation2d(Math.toRadians(65)),
+            55);
+
+    public static final ShotParameters[] STATIONARY_BLUE_SHOTS_ARRAY = {
+      BLUE_HUB_CENTER_SHOT, BLUE_RIGHT_CORNER_SHOT, BLUE_LEFT_CORNER_SHOT
+    };
+    public static final ShotParameters[] STATIONARY_RED_SHOTS_ARRAY = {
+      RED_HUB_CENTER_SHOT, RED_RIGHT_CORNER_SHOT, RED_LEFT_CORNER_SHOT
+    };
   }
 
   public static final class TurretConstants {

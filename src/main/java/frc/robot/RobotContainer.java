@@ -68,6 +68,7 @@ import frc.robot.util.RobotConfigLoader;
 import frc.robot.util.ShotCalculator;
 import frc.robot.util.ShotParameters;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -225,8 +226,6 @@ public class RobotContainer {
       if (Constants.currentMode == Constants.Mode.SIM
           && System.getProperty("os.name").contains("Mac")) {
         controller = new CommandSimMacXboxController(0);
-        System.out.println("MAKING XBOX CONTROLLER");
-
       } else {
         controller = new CommandXboxController(0);
       }
@@ -287,7 +286,16 @@ public class RobotContainer {
                   robotPose,
                   chassisSpeeds));
 
-      controller
+      // controller
+      //     .y()
+      //     .onTrue(
+      //         Commands.defer(
+      //             () ->
+      //                 ShootingCommands.StationaryShootingCommand(
+      //                     shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose),
+      //             Set.of(shooterSubsystem, hoodSubsystem, hopperFloorSubsystem)));
+
+       controller
           .y()
           .onTrue(
               ShootingCommands.StationaryShootingCommand(
@@ -582,21 +590,21 @@ public class RobotContainer {
         //               intakeSubsystem.setDesiredAngle(IntakeConstants.RETRACTED_POSITION);
         //             }));
 
-        controller_two
-            .a()
-            .onTrue(
-                new InstantCommand(
-                    () ->
-                        CommandScheduler.getInstance()
-                            .schedule(IntakeCommands.RunIntake(intakeSubsystem))));
+        // controller_two
+        //     .a()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () ->
+        //                 CommandScheduler.getInstance()
+        //                     .schedule(IntakeCommands.RunIntake(intakeSubsystem))));
 
-        controller_two
-            .y()
-            .onTrue(
-                new InstantCommand(
-                    () ->
-                        CommandScheduler.getInstance()
-                            .schedule(IntakeCommands.ToggleIntake(intakeSubsystem))));
+        // controller_two
+        //     .y()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () ->
+        //                 CommandScheduler.getInstance()
+        //                     .schedule(IntakeCommands.ToggleIntake(intakeSubsystem))));
 
         // controller_two.y().onTrue(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem));
 
@@ -664,10 +672,10 @@ public class RobotContainer {
         // TODO SHOOTING TESTING BUTTONS UNCOMMENT FOR USE
 
         controller_two // first stage of shooting from stationary fixed spots
-            .rightBumper()
+            .x()
             .onTrue(
-                ShootingCommands.StationaryShootingCommand(
-                    shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
+                new ShootingCommands.ShootingCommand(
+                    shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose, ShooterConstants.RED_HUB_CENTER_SHOT));
 
         controller_two // second stage shooting from stationary spots across field with pointing
             // drive train

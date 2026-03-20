@@ -36,7 +36,7 @@ public class ShootingCommands {
     private Supplier<Pose2d> drivetrainPose;
     private final HopperFloorSubsystem hopperFloorSubsystem;
     private final HoodSubsystem hoodSubsystem;
-    private final Supplier<ShotParameters> shotParameters;
+    private final ShotParameters shotParameters;
 
     // private final TurretSubsystem turretSubsystem;
 
@@ -46,7 +46,7 @@ public class ShootingCommands {
         HopperFloorSubsystem hopperFloorSubsystem,
         // TurretSubsystem turretSubsystem,
         Supplier<Pose2d> drivetrainPose,
-        Supplier<ShotParameters> shotParameters) {
+        ShotParameters shotParameters) {
       this.shooterSubsystem = shooterSubsystem;
       this.hopperFloorSubsystem = hopperFloorSubsystem;
       this.drivetrainPose = drivetrainPose;
@@ -65,14 +65,14 @@ public class ShootingCommands {
       // double desiredRotorVelocity =
       //     ShooterSubsystem.launchSpeedToRotorSpeed(validStationaryShot.shotSpeed);
       shooterSubsystem.setDesiredRotorVelocity(
-          shotParameters.get().shotSpeed); // set velocity to our desired velocity
+          shotParameters.shotSpeed); // set velocity to our desired velocity
       hopperFloorSubsystem.setDesiredHopperFloorVoltage(HopperFloorConstants.HOPPER_FLOOR_VOLTAGE);
-      if (Math.abs(shooterSubsystem.getFlywheelRotorVelocity() - shotParameters.get().shotSpeed)
+      if (Math.abs(shooterSubsystem.getFlywheelRotorVelocity() - shotParameters.shotSpeed)
           < ShooterConstants
               .FLYWHEEL_SPEED_DEADBAND) { // once flywheel is running close to our desired velocity
         // turretSubsystem.setDesiredAngle(shotParameters.turretAngle);
         hoodSubsystem.setDesiredAngle(
-            hoodSubsystem.convertLaunchAngleToHoodAngle(shotParameters.get().hoodAngle));
+            hoodSubsystem.convertLaunchAngleToHoodAngle(shotParameters.hoodAngle));
         shooterSubsystem.setDesiredTransitionVoltage(ShooterConstants.TRANSITION_VOLTAGE);
       }
     }
@@ -129,9 +129,12 @@ public class ShootingCommands {
       HoodSubsystem hoodSubsystem,
       HopperFloorSubsystem hopperFloorSubsystem,
       Supplier<Pose2d> drivetrainPose) {
-    Supplier<ShotParameters> closestShotParameters = null;
-    Logger.recordOutput("Mech/Shooter/Stationary/RED_RIGHT", ShooterConstants.RED_SHOT.pose);
-    Logger.recordOutput("Mech/Shooter/Stationary/BLUE_LEFT", ShooterConstants.BLUE_SHOT.pose);
+    System.out.println("NEW STATIONARY SHOT");
+    ShotParameters closestShotParameters = null;
+    Logger.recordOutput(
+        "Mech/Shooter/Stationary/RED_RIGHT", ShooterConstants.RED_HUB_CENTER_SHOT.pose);
+    Logger.recordOutput(
+        "Mech/Shooter/Stationary/BLUE_LEFT", ShooterConstants.BLUE_HUB_CENTER_SHOT.pose);
     Logger.recordOutput(
         "Mech/Shooter/Stationary/RED_RIGHT distance",
         Calculations.distanceToPoseInMeters(drivetrainPose.get(), ShooterConstants.RED_RIGHT.pose));
@@ -143,32 +146,27 @@ public class ShootingCommands {
         if (closestShotParameters == null
             || Calculations.distanceToPoseInMeters(drivetrainPose.get(), shot.pose)
                 < Calculations.distanceToPoseInMeters(
-                    drivetrainPose.get(), closestShotParameters.get().pose)) {
-          closestShotParameters =
-              () -> {
-                return shot;
-              };
+                    drivetrainPose.get(), closestShotParameters.pose)) {
+          closestShotParameters = shot;
         }
       }
     } else {
       for (ShotParameters shot : ShooterConstants.STATIONARY_RED_SHOTS_ARRAY) {
+        Logger.recordOutput("Mech/ShootingCommand/current shot from array", shot.pose);
+        System.out.println("CURRENT SHOT FROM ARRAY:" + shot.pose);
         if (closestShotParameters == null
             || Calculations.distanceToPoseInMeters(drivetrainPose.get(), shot.pose)
                 < Calculations.distanceToPoseInMeters(
-                    drivetrainPose.get(), closestShotParameters.get().pose)) {
-          closestShotParameters =
-              () -> {
-                return shot;
-              };
+                    drivetrainPose.get(), closestShotParameters.pose)) {
+          closestShotParameters = shot;
         }
       }
     }
 
-    Logger.recordOutput(
-        "Mech/ShootingCommand/Closest shot parameter", closestShotParameters.get().pose);
+    Logger.recordOutput("Mech/ShootingCommand/Closest shot parameter", closestShotParameters.pose);
 
     return AutoBuilder.pathfindToPose(
-            closestShotParameters.get().pose,
+            closestShotParameters.pose,
             new PathConstraints(4, 12, Math.toRadians(700), Math.toRadians(1000)))
         .andThen(
             new ShootingCommand(
