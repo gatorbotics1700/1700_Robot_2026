@@ -1,6 +1,6 @@
 {
-  "robotWidth": 0.78,
-  "robotLength": 0.78,
+  "robotWidth": 0.8509,
+  "robotLength": 0.851,
   "holonomicMode": true,
   "pathFolders": [
     "BLUE 1P RB",

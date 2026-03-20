@@ -18,8 +18,7 @@ public class ShotParameters {
     this.shotSpeed = shotSpeed;
   }
 
-  public ShotParameters(Pose2d
-   pose, Rotation2d hoodAngle, double shotSpeed) {
+  public ShotParameters(Pose2d pose, Rotation2d hoodAngle, double shotSpeed) {
     this.pose = pose;
     this.hoodAngle = hoodAngle;
     this.shotSpeed = shotSpeed;

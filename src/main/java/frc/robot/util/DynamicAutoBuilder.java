@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.FieldCoordinates;
 import frc.robot.commands.mech.HoodCommands;
 import frc.robot.commands.mech.IntakeCommands;
-import frc.robot.commands.mech.ShootingCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.mech.HoodSubsystem;
 import frc.robot.subsystems.mech.HopperFloorSubsystem;
@@ -76,7 +75,8 @@ public class DynamicAutoBuilder {
         || x >= FieldCoordinates.RED_BUMP_AND_TRENCH_X;
   }
 
-  // /** Creates shooting command that shoots only when in alliance zone. */ //TODO: check what we want to do with this
+  // /** Creates shooting command that shoots only when in alliance zone. */ //TODO: check what we
+  // want to do with this
   // private Command createShootingWithZoneCheck() {
   //   return Commands.run(() -> shooterSubsystem.setShouldShoot(isInAllianceZone()))
   //       .alongWith(
@@ -206,7 +206,7 @@ public class DynamicAutoBuilder {
         Command deployAndIntake =
             IntakeCommands.DeployIntake(intakeSubsystem)
                 .alongWith(IntakeCommands.RunIntake(intakeSubsystem));
-                /*.alongWith(createShootingWithZoneCheck());*/
+        /*.alongWith(createShootingWithZoneCheck());*/
         // Paths are the deadline - when paths finish, intake/shooting stop (until climb or end)
         commandSequence.add(allPaths.deadlineFor(deployAndIntake));
       } else {

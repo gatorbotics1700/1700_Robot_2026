@@ -48,7 +48,7 @@
   "folder": "RED 1P RB",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -48.580271160942395
+    "rotation": -48.5802711609424
   },
   "useDefaultConstraints": true
 }

@@ -484,25 +484,27 @@ public class RobotContainer {
 
         // TODO SHOOTING TESTING BUTTONS UNCOMMENT FOR USE
 
-                
-        controller_two //first stage of shooting from stationary fixed spots
+        controller_two // first stage of shooting from stationary fixed spots
             .rightBumper()
-            .onTrue(ShootingCommands.StationaryShootingCommand(
-              shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
+            .onTrue(
+                ShootingCommands.StationaryShootingCommand(
+                    shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
 
-        controller_two //second stage shooting from stationary spots across field with pointing drive train
-          .rightTrigger()
-          .onTrue(new PointAtHubCommand(drive)
-          .alongWith(ShootingCommands.ShootOnTheMoveCommand(
-            shooterSubsystem,
-            hoodSubsystem,
-            hopperFloorSubsystem,
-            turretSubsystem,
-            robotPose,
-            chassisSpeeds
-          )));
+        controller_two // second stage shooting from stationary spots across field with pointing
+            // drive train
+            .rightTrigger()
+            .onTrue(
+                new PointAtHubCommand(drive)
+                    .alongWith(
+                        ShootingCommands.ShootOnTheMoveCommand(
+                            shooterSubsystem,
+                            hoodSubsystem,
+                            hopperFloorSubsystem,
+                            turretSubsystem,
+                            robotPose,
+                            chassisSpeeds)));
 
-        controller_two //third stage full shooting while moving
+        controller_two // third stage full shooting while moving
             .leftTrigger()
             .onTrue(
                 ShootingCommands.ShootOnTheMoveCommand(
@@ -512,7 +514,7 @@ public class RobotContainer {
                     turretSubsystem,
                     robotPose,
                     chassisSpeeds));
-        
+
         controller_two
             .x()
             .onTrue(
@@ -526,7 +528,7 @@ public class RobotContainer {
                                     hopperFloorSubsystem,
                                     hoodSubsystem,
                                     intakeSubsystem))));
-                
+
         // controller_two
         //     .a()
         //     .onTrue(
@@ -546,7 +548,6 @@ public class RobotContainer {
         //                   ShooterConstants.TRANSITION_VOLTAGE);
         //             }));
 
-       
         // controller_two
         //     .leftTrigger()
         //     .onTrue(
@@ -874,10 +875,10 @@ public class RobotContainer {
 
   public void configureButtonBindings() {
     CommandScheduler.getInstance().getActiveButtonLoop().clear();
-    configureCompDriverButtonBindings();
-    configureCompCodriverButtonBindings(); // TODO: IMPORTANT SWITCH THIS BEFORE MATCHES
-    // configureDriverButtonBindings();
-    // configureCodriverButtonBindings();
+    // configureCompDriverButtonBindings();
+    // configureCompCodriverButtonBindings(); // TODO: IMPORTANT SWITCH THIS BEFORE MATCHES
+    configureDriverButtonBindings();
+    configureCodriverButtonBindings();
   }
 
   public void configureSystemCheckButtons() {

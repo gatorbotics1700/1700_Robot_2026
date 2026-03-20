@@ -637,9 +637,9 @@ public final class Constants {
 
     public static final Translation3d BOT_TO_SHOOTER =
         new Translation3d(
-            0.152, 0,
-            0.495); // TODO figure out what part of the shooter to measure from (this is the center
-    // of the turret plate)
+            0.127, 0,
+            0.429); // TODO figure out what part of the shooter to measure from (this is the center
+    // of the turret plate but at the height of the flywheel center)
     public static final ValidStationaryShot RED_RIGHT =
         new ValidStationaryShot(
             new Pose2d(14.17, 1.25, new Rotation2d(Math.toRadians(129))),

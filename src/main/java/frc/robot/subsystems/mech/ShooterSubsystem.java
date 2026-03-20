@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.ShotCalculatorConditions;
 import frc.robot.Constants.TunerConstants;
-import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
@@ -138,7 +137,6 @@ public class ShooterSubsystem extends SubsystemBase {
         / ShooterConstants.FLYWHEEL_RADIUS_METERS
         / flyWheelSlip.get();
   }
-
 
   private void initSysIdRoutine() {
     // config for our test. Sets voltage ramps, limits, and a logging callback
