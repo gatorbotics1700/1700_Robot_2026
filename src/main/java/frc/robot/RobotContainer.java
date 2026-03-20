@@ -287,6 +287,12 @@ public class RobotContainer {
                   robotPose,
                   chassisSpeeds));
 
+      controller
+          .y()
+          .onTrue(
+              ShootingCommands.StationaryShootingCommand(
+                  shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
+
       // drive under trench
       // controller
       //     .x()
@@ -353,7 +359,7 @@ public class RobotContainer {
                           }
                         }));
       */
-      controller.y().onTrue(HoodCommands.RetractHood(hoodSubsystem));
+      // controller.y().onTrue(HoodCommands.RetractHood(hoodSubsystem));
 
       controller
           .leftBumper()

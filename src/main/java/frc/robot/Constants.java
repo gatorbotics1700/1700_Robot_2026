@@ -668,7 +668,8 @@ public final class Constants {
             Calculations.mirrorPoseAcrossAlliance(RED_SHOT.pose),
             new Rotation2d(Math.toRadians(68)),
             53);
-    public static final ShotParameters[] STATIONARY_SHOT_ARRAY = {RED_SHOT, BLUE_SHOT};
+    public static final ShotParameters[] STATIONARY_BLUE_SHOTS_ARRAY = {BLUE_SHOT};
+    public static final ShotParameters[] STATIONARY_RED_SHOTS_ARRAY = {RED_SHOT};
   }
 
   public static final class TurretConstants {

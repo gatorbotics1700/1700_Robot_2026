@@ -124,33 +124,49 @@ public class ShootingCommands {
     }
   }
 
-  public static Command
-      StationaryShootingCommand( // TODO make this its own command and get rid of the base
-          // ShootingCommand
-          ShooterSubsystem shooterSubsystem,
-          HoodSubsystem hoodSubsystem,
-          HopperFloorSubsystem hopperFloorSubsystem,
-          Supplier<Pose2d> drivetrainPose) {
+  public static Command StationaryShootingCommand(
+      ShooterSubsystem shooterSubsystem,
+      HoodSubsystem hoodSubsystem,
+      HopperFloorSubsystem hopperFloorSubsystem,
+      Supplier<Pose2d> drivetrainPose) {
     Supplier<ShotParameters> closestShotParameters = null;
-    Logger.recordOutput("Mech/Shooter/Stationary/RED_RIGHT", ShooterConstants.RED_RIGHT.pose);
-    Logger.recordOutput("Mech/Shooter/Stationary/BLUE_LEFT", ShooterConstants.BLUE_LEFT.pose);
+    Logger.recordOutput("Mech/Shooter/Stationary/RED_RIGHT", ShooterConstants.RED_SHOT.pose);
+    Logger.recordOutput("Mech/Shooter/Stationary/BLUE_LEFT", ShooterConstants.BLUE_SHOT.pose);
     Logger.recordOutput(
         "Mech/Shooter/Stationary/RED_RIGHT distance",
         Calculations.distanceToPoseInMeters(drivetrainPose.get(), ShooterConstants.RED_RIGHT.pose));
     Logger.recordOutput(
         "Mech/Shooter/Stationary/BLUE_LEFT distance",
         Calculations.distanceToPoseInMeters(drivetrainPose.get(), ShooterConstants.BLUE_LEFT.pose));
-    for (ShotParameters shot : ShooterConstants.STATIONARY_SHOT_ARRAY) {
-      if (closestShotParameters == null
-          || Calculations.distanceToPoseInMeters(drivetrainPose.get(), shot.pose)
-              < Calculations.distanceToPoseInMeters(
-                  drivetrainPose.get(), closestShotParameters.get().pose)) {
-        closestShotParameters =
-            () -> {
-              return shot;
-            };
+    if (DriverStation.getAlliance().get() == Alliance.Blue) {
+      for (ShotParameters shot : ShooterConstants.STATIONARY_BLUE_SHOTS_ARRAY) {
+        if (closestShotParameters == null
+            || Calculations.distanceToPoseInMeters(drivetrainPose.get(), shot.pose)
+                < Calculations.distanceToPoseInMeters(
+                    drivetrainPose.get(), closestShotParameters.get().pose)) {
+          closestShotParameters =
+              () -> {
+                return shot;
+              };
+        }
+      }
+    } else {
+      for (ShotParameters shot : ShooterConstants.STATIONARY_RED_SHOTS_ARRAY) {
+        if (closestShotParameters == null
+            || Calculations.distanceToPoseInMeters(drivetrainPose.get(), shot.pose)
+                < Calculations.distanceToPoseInMeters(
+                    drivetrainPose.get(), closestShotParameters.get().pose)) {
+          closestShotParameters =
+              () -> {
+                return shot;
+              };
+        }
       }
     }
+
+    Logger.recordOutput(
+        "Mech/ShootingCommand/Closest shot parameter", closestShotParameters.get().pose);
+
     return AutoBuilder.pathfindToPose(
             closestShotParameters.get().pose,
             new PathConstraints(4, 12, Math.toRadians(700), Math.toRadians(1000)))
