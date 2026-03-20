@@ -14,7 +14,7 @@ public final class RobotConfigLoader {
   public static final String HUANG_HE_SERIAL = "032D20FA";
   public static final String MISSISSIPPI_SERIAL = "032D2198";
   public static final String NILE_SERIAL = "025AE040";
-  private static final String EXPERIMENTAL_SERIAL = "032BE421";
+  private static final String STING_RIO2_SERIAL = "032BE421";
   private static final String DEFAULT_SIM_SERIAL = "SIMULATION";
 
   private static final String DEFAULT_CONFIG_FILE = "configFiles/config_alecto.properties";
@@ -168,7 +168,7 @@ public final class RobotConfigLoader {
     return switch (serial) {
       case SHENANDOAH_SERIAL -> "configFiles/config_hulk.properties";
       case HUANG_HE_SERIAL -> "configFiles/config_sting.properties";
-      case EXPERIMENTAL_SERIAL -> "configFiles/config_experimental.properties";
+      case STING_RIO2_SERIAL -> "configFiles/config_sting.properties";
       case MISSISSIPPI_SERIAL -> "configFiles/config_alecto.properties";
       default -> {
         System.err.println(
