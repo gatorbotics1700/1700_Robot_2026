@@ -3,7 +3,6 @@ package frc.robot.commands.drive;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
 import frc.robot.Constants.DriveToFuelConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.Vision;
@@ -33,11 +32,7 @@ public class DriveToFuelCommand extends Command {
   @Override
   public void execute() {
     Pose2d newFuelPose;
-    if (Constants.currentMode == Constants.Mode.SIM) {
-      newFuelPose = vision.tempGetFuelPoseInSim(currentPose.get());
-    } else {
-      newFuelPose = vision.getFuelPose(currentPose.get());
-    }
+    newFuelPose = vision.getFuelPose(currentPose.get());
 
     if (newFuelPose != null) {
       // TODO think about the case where theres a ball in the blind spot but you still see another
@@ -58,11 +53,6 @@ public class DriveToFuelCommand extends Command {
       double xError = drive.calculateDistanceError(currentPose.get().getX(), desiredPose.getX());
       double yError = drive.calculateDistanceError(currentPose.get().getY(), desiredPose.getY());
       atDesiredPose = xError == 0.0 && yError == 0.0;
-      if (Constants.currentMode == Constants.Mode.SIM) {
-        if (atDesiredPose) {
-          vision.deleteClosestSimulatedTarget(currentPose.get());
-        }
-      }
     }
 
     double timeSinceValidTargetSeen = System.currentTimeMillis() - validTargetSeenTime;

@@ -488,9 +488,6 @@ public class ShotCalculator {
                   elevation,
                   hoodMinAngle,
                   hoodRetractedPosition);
-          shotSpeedTable[i][j][k] = lookupTable[i][j][k].shotSpeed;
-          hoodAngleTable[i][j][k] = lookupTable[i][j][k].hoodAngle.getRadians();
-          turretAngleTable[i][j][k] = lookupTable[i][j][k].turretAngle.getRadians();
         }
       }
     }
