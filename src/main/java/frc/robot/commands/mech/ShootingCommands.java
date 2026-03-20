@@ -24,8 +24,10 @@ import org.littletonrobotics.junction.Logger;
 public class ShootingCommands {
   public ShootingCommands() {}
 
-  // Current logic is that if the flywheel speed is 0 then we're just tracking and if the flywheel
-  // speed is not zero then we're trying to shoot, but we may decide we want a separate command
+  // Current logic is that if the flywheel speed is 0 then we're just tracking and
+  // if the flywheel
+  // speed is not zero then we're trying to shoot, but we may decide we want a
+  // separate command
   // for
   // just tracking
 
@@ -122,11 +124,13 @@ public class ShootingCommands {
     }
   }
 
-  public static Command StationaryShootingCommand( //TODO make this its own command and get rid of the base ShootingCommand
-      ShooterSubsystem shooterSubsystem,
-      HoodSubsystem hoodSubsystem,
-      HopperFloorSubsystem hopperFloorSubsystem,
-      Supplier<Pose2d> drivetrainPose) {
+  public static Command
+      StationaryShootingCommand( // TODO make this its own command and get rid of the base
+          // ShootingCommand
+          ShooterSubsystem shooterSubsystem,
+          HoodSubsystem hoodSubsystem,
+          HopperFloorSubsystem hopperFloorSubsystem,
+          Supplier<Pose2d> drivetrainPose) {
     Supplier<ShotParameters> closestShotParameters = null;
     Logger.recordOutput("Mech/Shooter/Stationary/RED_RIGHT", ShooterConstants.RED_RIGHT.pose);
     Logger.recordOutput("Mech/Shooter/Stationary/BLUE_LEFT", ShooterConstants.BLUE_LEFT.pose);
@@ -161,22 +165,21 @@ public class ShootingCommands {
   }
 
   public static class ShootOnTheMoveCommand extends Command {
-    
-    ShooterSubsystem shooterSubsystem;
-    HoodSubsystem hoodSubsystem;
-    HopperFloorSubsystem hopperFloorSubsystem;
-    TurretSubsystem turretSubsystem;
-    Supplier<Pose2d> drivetrainPose;
-    Supplier<ChassisSpeeds> drivetrainVelocity;
+
+    private final ShooterSubsystem shooterSubsystem;
+    private final HoodSubsystem hoodSubsystem;
+    private final HopperFloorSubsystem hopperFloorSubsystem;
+    private final TurretSubsystem turretSubsystem;
+    private Supplier<Pose2d> drivetrainPose;
+    private Supplier<ChassisSpeeds> drivetrainVelocity;
 
     public ShootOnTheMoveCommand(
-      ShooterSubsystem shooterSubsystem,
-      HoodSubsystem hoodSubsystem,
-      HopperFloorSubsystem hopperFloorSubsystem,
-      TurretSubsystem turretSubsystem,
-      Supplier<Pose2d> drivetrainPose,
-      Supplier<ChassisSpeeds> drivetrainVelocity
-    ){
+        ShooterSubsystem shooterSubsystem,
+        HoodSubsystem hoodSubsystem,
+        HopperFloorSubsystem hopperFloorSubsystem,
+        TurretSubsystem turretSubsystem,
+        Supplier<Pose2d> drivetrainPose,
+        Supplier<ChassisSpeeds> drivetrainVelocity) {
       this.shooterSubsystem = shooterSubsystem;
       this.hoodSubsystem = hoodSubsystem;
       this.hopperFloorSubsystem = hopperFloorSubsystem;
@@ -188,74 +191,86 @@ public class ShootingCommands {
     }
 
     @Override
-    public void initialize(){
-
-    }
+    public void initialize() {}
 
     @Override
-    public void execute(){
-      Supplier<Translation3d> target;
+    public void execute() {
+      Translation3d target;
 
-    target =
-        () -> {
-          if (FieldCoordinates.BLUE_BUMP_AND_TRENCH_X <= drivetrainPose.get().getX()
-              && drivetrainPose.get().getX() < FieldCoordinates.RED_BUMP_AND_TRENCH_X) {
-            if (FieldCoordinates.FIELD_CENTER.getY() < drivetrainPose.get().getY()) {
-              return DriverStation.getAlliance().get() == Alliance.Blue
+      if (FieldCoordinates.BLUE_BUMP_AND_TRENCH_X <= drivetrainPose.get().getX()
+          && drivetrainPose.get().getX() < FieldCoordinates.RED_BUMP_AND_TRENCH_X) {
+        if (FieldCoordinates.FIELD_CENTER.getY() < drivetrainPose.get().getY()) {
+          target =
+              DriverStation.getAlliance().get() == Alliance.Blue
                   ? FieldCoordinates.BLUE_RIGHT_FUNNELING
                   : FieldCoordinates.RED_LEFT_FUNNELING;
 
-            } else {
-              return DriverStation.getAlliance().get() == Alliance.Blue
+        } else {
+          target =
+              DriverStation.getAlliance().get() == Alliance.Blue
                   ? FieldCoordinates.BLUE_LEFT_FUNNELING
                   : FieldCoordinates.RED_RIGHT_FUNNELING;
-            }
+        }
 
-          } else {
-            return DriverStation.getAlliance().get() == Alliance.Blue
+      } else {
+        target =
+            DriverStation.getAlliance().get() == Alliance.Blue
                 ? FieldCoordinates.BLUE_HUB
                 : FieldCoordinates.RED_HUB;
-          }
-        };
+      }
 
-    Supplier<ShotParameters> params =
-        () -> {
-          return ShotCalculator.calculateShot(
-              drivetrainPose.get(), drivetrainVelocity.get(), target.get());
-        }; // calculates the shot params with turretAngle
-    double desiredRotorVelocity = ShooterSubsystem.launchSpeedToRotorSpeed(params.get().shotSpeed);
+      ShotParameters params =
+          ShotCalculator.calculateShot(
+              drivetrainPose.get(),
+              drivetrainVelocity.get(),
+              target); // calculates the shot params with turretAngle
+      double desiredRotorVelocity = ShooterSubsystem.launchSpeedToRotorSpeed(params.shotSpeed);
 
-    Logger.recordOutput("Mech/ShootingCommand/validShot", params.get().shotSpeed != 0);
-    Logger.recordOutput("Mech/ShootingCommand/shotSpeed", params.get().shotSpeed);
-    Logger.recordOutput("Mech/ShootingCommand/rotorSpeed", desiredRotorVelocity);
+      Logger.recordOutput("Mech/ShootingCommand/validShot", params.shotSpeed != 0);
+      Logger.recordOutput("Mech/ShootingCommand/shotSpeed", params.shotSpeed);
+      Logger.recordOutput("Mech/ShootingCommand/rotorSpeed", desiredRotorVelocity);
 
-    Logger.recordOutput("Mech/ShootingCommand/hoodAngle", params.get().hoodAngle.getDegrees());
-    Logger.recordOutput("Mech/ShootingCommand/turretAngle", params.get().turretAngle.getDegrees());
-    Logger.recordOutput("Mech/ShootingCommand/currentPose", drivetrainPose.get());
-    Logger.recordOutput("Mech/ShootingCommand/chassisSpeeds", drivetrainVelocity.get());
+      Logger.recordOutput("Mech/ShootingCommand/hoodAngle", params.hoodAngle.getDegrees());
+      Logger.recordOutput("Mech/ShootingCommand/turretAngle", params.turretAngle.getDegrees());
+      Logger.recordOutput("Mech/ShootingCommand/currentPose", drivetrainPose.get());
+      Logger.recordOutput("Mech/ShootingCommand/chassisSpeeds", drivetrainVelocity.get());
 
-    Logger.recordOutput("Mech/ShootingCommand/target", target.get());
-    Logger.recordOutput("Mech/ShootingCommand/Current alliance", DriverStation.getAlliance().get());
+      Logger.recordOutput("Mech/ShootingCommand/target", target);
+      Logger.recordOutput(
+          "Mech/ShootingCommand/Current alliance", DriverStation.getAlliance().get());
 
-    System.out.println("SHOOTING ON THE MOVE TARGET:" + target);
+      System.out.println("SHOOTING ON THE MOVE TARGET:" + target);
 
-    if (params.get().shotSpeed == 0) { // if we dont have a valid shot
-      shooterSubsystem.setDesiredRotorVelocity(0);
-      shooterSubsystem.setDesiredTransitionVoltage(0);
-      hopperFloorSubsystem.setDesiredHopperFloorVoltage(0);
-    } else {
-      turretSubsystem.setDesiredAngle(params.get().turretAngle);
-      shooterSubsystem.setDesiredRotorVelocity(params.get().shotSpeed); // set velocity to our desired velocity
-      hopperFloorSubsystem.setDesiredHopperFloorVoltage(HopperFloorConstants.HOPPER_FLOOR_VOLTAGE);
-      if (Math.abs(shooterSubsystem.getFlywheelRotorVelocity() - params.get().shotSpeed)
-          < ShooterConstants
-              .FLYWHEEL_SPEED_DEADBAND) { // once flywheel is running close to our desired velocity
-        hoodSubsystem.setDesiredAngle(hoodSubsystem.convertLaunchAngleToHoodAngle(params.get().hoodAngle));
-        shooterSubsystem.setDesiredTransitionVoltage(ShooterConstants.TRANSITION_VOLTAGE);
+      if (params.shotSpeed == 0) { // if we dont have a valid shot
+        shooterSubsystem.setDesiredRotorVelocity(0);
+        shooterSubsystem.setDesiredTransitionVoltage(0);
+        hopperFloorSubsystem.setDesiredHopperFloorVoltage(0);
+      } else {
+        turretSubsystem.setDesiredAngle(params.turretAngle);
+        shooterSubsystem.setDesiredRotorVelocity(
+            params.shotSpeed); // set velocity to our desired velocity
+        hopperFloorSubsystem.setDesiredHopperFloorVoltage(
+            HopperFloorConstants.HOPPER_FLOOR_VOLTAGE);
+        if (Math.abs(shooterSubsystem.getFlywheelRotorVelocity() - params.shotSpeed)
+            < ShooterConstants.FLYWHEEL_SPEED_DEADBAND) { // once flywheel is running close to
+          // our desired velocity
+          hoodSubsystem.setDesiredAngle(
+              hoodSubsystem.convertLaunchAngleToHoodAngle(params.hoodAngle));
+          shooterSubsystem.setDesiredTransitionVoltage(ShooterConstants.TRANSITION_VOLTAGE);
+        }
       }
     }
-    
+
+    @Override
+    public boolean isFinished() {
+      return false;
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+      hopperFloorSubsystem.setDesiredHopperFloorVoltage(0);
+      shooterSubsystem.setDesiredTransitionVoltage(0);
+      shooterSubsystem.setDesiredRotorVelocity(0);
     }
   }
-  
 }

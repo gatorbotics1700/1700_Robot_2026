@@ -279,7 +279,7 @@ public class RobotContainer {
       controller // third stage full shooting while moving
           .x()
           .onTrue(
-             new ShootingCommands.ShootOnTheMoveCommand(
+              new ShootingCommands.ShootOnTheMoveCommand(
                   shooterSubsystem,
                   hoodSubsystem,
                   hopperFloorSubsystem,
@@ -669,7 +669,7 @@ public class RobotContainer {
             .onTrue(
                 new PointAtHubCommand(drive)
                     .alongWith(
-                        ShootingCommands.ShootOnTheMoveCommand(
+                        new ShootingCommands.ShootOnTheMoveCommand(
                             shooterSubsystem,
                             hoodSubsystem,
                             hopperFloorSubsystem,
@@ -680,7 +680,7 @@ public class RobotContainer {
         controller_two // third stage full shooting while moving
             .leftTrigger()
             .onTrue(
-                ShootingCommands.ShootOnTheMoveCommand(
+                new ShootingCommands.ShootOnTheMoveCommand(
                     shooterSubsystem,
                     hoodSubsystem,
                     hopperFloorSubsystem,
