@@ -121,7 +121,7 @@ public class HoodSubsystem extends SubsystemBase {
 
     // Only run position control if SysID is not running
     if (positionControl && !sysIdRunning) {
-      setHoodPosition(desiredAngle);
+      setHoodPosition(new Rotation2d(desiredHoodAngle.get()));
     }
 
     hoodLogs();

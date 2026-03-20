@@ -68,7 +68,6 @@ import frc.robot.util.RobotConfigLoader;
 import frc.robot.util.ShotCalculator;
 import frc.robot.util.ShotParameters;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -295,7 +294,7 @@ public class RobotContainer {
       //                     shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose),
       //             Set.of(shooterSubsystem, hoodSubsystem, hopperFloorSubsystem)));
 
-       controller
+      controller
           .y()
           .onTrue(
               ShootingCommands.StationaryShootingCommand(
@@ -675,7 +674,11 @@ public class RobotContainer {
             .x()
             .onTrue(
                 new ShootingCommands.ShootingCommand(
-                    shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose, ShooterConstants.RED_HUB_CENTER_SHOT));
+                    shooterSubsystem,
+                    hoodSubsystem,
+                    hopperFloorSubsystem,
+                    robotPose,
+                    ShooterConstants.RED_HUB_CENTER_SHOT));
 
         controller_two // second stage shooting from stationary spots across field with pointing
             // drive train
@@ -715,6 +718,12 @@ public class RobotContainer {
                                     hopperFloorSubsystem,
                                     hoodSubsystem,
                                     intakeSubsystem))));
+
+        controller_two
+            .y()
+            .onTrue(
+                new InstantCommand(
+                    () -> CommandScheduler.getInstance().schedule(HomeMechanisms())));
 
         // controller_two
         //     .a()
