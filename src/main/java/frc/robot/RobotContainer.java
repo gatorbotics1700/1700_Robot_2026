@@ -196,8 +196,6 @@ public class RobotContainer {
     multiStepAutoChooser =
         new MultiStepAutoChooser(
             intakeSubsystem,
-            drive,
-            climberSubsystem,
             hoodSubsystem,
             shooterSubsystem,
             turretSubsystem,
