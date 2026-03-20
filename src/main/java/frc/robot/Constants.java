@@ -29,6 +29,7 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -514,14 +515,14 @@ public final class Constants {
         double rollDegrees,
         double pitchDegrees,
         double yawDegrees) {
-      return new Transform3d(
-          xMeters,
-          yMeters,
-          zMeters,
-          new Rotation3d(
-              Math.toRadians(rollDegrees),
-              Math.toRadians(pitchDegrees),
-              Math.toRadians(yawDegrees)));
+      Pose3d rotation =
+          new Pose3d(new Translation3d(), new Rotation3d(0, 0, Math.toRadians(yawDegrees)));
+      rotation =
+          rotation.transformBy(
+              new Transform3d(
+                  new Translation3d(),
+                  new Rotation3d(Math.toRadians(rollDegrees), Math.toRadians(pitchDegrees), 0)));
+      return new Transform3d(xMeters, yMeters, zMeters, rotation.getRotation());
     }
 
     public static Transform3d[] createCameraTransformsArray() {
