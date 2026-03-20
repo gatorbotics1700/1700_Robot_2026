@@ -21,8 +21,9 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 public class ShooterSubsystem extends SubsystemBase {
   private final TalonFX leftFlywheelMotor;
-  // private final TalonFX rightFlywheelMotor;
   private final TalonFX transitionMotor;
+  private final TalonFX leftTransitionMotor;
+  private final TalonFX rightTransitionMotor;
 
   private double desiredTransitionVoltage;
 
@@ -30,6 +31,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private static TalonFXConfiguration leftFlywheelTalonFXConfigs;
   private static TalonFXConfiguration transitionMotorConfigs;
+  private static TalonFXConfiguration leftTransitionMotorConfigs;
+  private static TalonFXConfiguration rightTransitionMotorConfigs;
 
   private static Slot0Configs leftFlywheelSlot0Configs;
   private static MotionMagicConfigs leftMotionMagicConfigs;
@@ -58,6 +61,10 @@ public class ShooterSubsystem extends SubsystemBase {
         new TalonFX(ShooterConstants.LEFT_FLYWHEEL_MOTOR_CAN_ID, TunerConstants.mechCANBus);
     transitionMotor =
         new TalonFX(ShooterConstants.TRANSITION_MOTOR_CAN_ID, TunerConstants.mechCANBus);
+    leftTransitionMotor =
+        new TalonFX(ShooterConstants.LEFT_TRANSITION_MOTOR_CAN_ID, TunerConstants.mechCANBus);
+    rightTransitionMotor =
+        new TalonFX(ShooterConstants.RIGHT_TRANSITION_MOTOR_CAN_ID, TunerConstants.mechCANBus);
 
     // TALONFX & MOTIONMAGIC CONFIGS // TODO everything needs tuning; might not need all values for
     // flywheel
@@ -88,8 +95,20 @@ public class ShooterSubsystem extends SubsystemBase {
     transitionMotorConfigs.withMotorOutput(
         new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive));
 
+    leftTransitionMotorConfigs = new TalonFXConfiguration();
+
+    leftTransitionMotorConfigs.withMotorOutput(
+        new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
+
+    rightTransitionMotorConfigs = new TalonFXConfiguration();
+
+    rightTransitionMotorConfigs.withMotorOutput(
+        new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive));
+
     leftFlywheelMotor.getConfigurator().apply(leftFlywheelTalonFXConfigs);
     transitionMotor.getConfigurator().apply(transitionMotorConfigs);
+    leftTransitionMotor.getConfigurator().apply(leftTransitionMotorConfigs);
+    rightTransitionMotor.getConfigurator().apply(rightTransitionMotorConfigs);
 
     m_request = new MotionMagicVelocityVoltage(0);
   }
@@ -100,10 +119,12 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Only control motors if SysID is not running
     if (!sysIdRunning) {
-      leftFlywheelMotor.setControl(m_request.withVelocity(desiredRotorVelo.get()));
+      leftFlywheelMotor.setControl(m_request.withVelocity(desiredRotorVelocity));
     }
 
     transitionMotor.setVoltage(desiredTransitionVoltage);
+    leftTransitionMotor.setVoltage(desiredTransitionVoltage);
+    rightTransitionMotor.setVoltage(desiredTransitionVoltage);
 
     shooterLogs();
   }

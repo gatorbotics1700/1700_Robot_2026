@@ -582,7 +582,7 @@ public final class Constants {
     public static final double HOOD_POSITION_DEADBAND_DEGREES = 1; // TODO: tune
 
     /** Voltage applied when running toward retract limit (tune sign for your mechanism). */
-    public static final double FAST_HOMING_VOLTAGE = 0.5; // TODO tune
+    public static final double FAST_HOMING_VOLTAGE = 3; // TODO tune
 
     public static final double SLOW_HOMING_VOLTAGE = 0.5; // TODO tune
     // GEAR RATIOS
@@ -629,6 +629,8 @@ public final class Constants {
     public static final int LEFT_FLYWHEEL_MOTOR_CAN_ID = 29;
     public static final int RIGHT_FLYWHEEL_MOTOR_CAN_ID = 30;
     public static final int TRANSITION_MOTOR_CAN_ID = 16;
+    public static final int LEFT_TRANSITION_MOTOR_CAN_ID = 18;
+    public static final int RIGHT_TRANSITION_MOTOR_CAN_ID = 19;
 
     public static final double TRANSITION_VOLTAGE = 10;
     public static final double FLYWHEEL_SPEED_DEADBAND = 2;

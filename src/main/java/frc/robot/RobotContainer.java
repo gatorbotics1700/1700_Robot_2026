@@ -553,12 +553,15 @@ public class RobotContainer {
         controller_two // first stage of shooting from stationary fixed spots
             .x()
             .onTrue(
-                new ShootingCommands.ShootingCommand(
-                    shooterSubsystem,
-                    hoodSubsystem,
-                    hopperFloorSubsystem,
-                    robotPose,
-                    ShooterConstants.RED_HUB_CENTER_SHOT));
+                new InstantCommand(
+                    () ->
+                        CommandScheduler.getInstance()
+                            .schedule(
+                                ShootingCommands.StationaryShootingCommand(
+                                    shooterSubsystem,
+                                    hoodSubsystem,
+                                    hopperFloorSubsystem,
+                                    robotPose))));
 
         controller_two // second stage shooting from stationary spots across field with pointing
             // drive train

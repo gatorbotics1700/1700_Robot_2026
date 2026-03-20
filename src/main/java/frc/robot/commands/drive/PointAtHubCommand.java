@@ -24,11 +24,6 @@ public class PointAtHubCommand extends Command {
   @Override
   public void execute() {
     Rotation2d desiredHubAngle = drive.getDesiredHubAngle();
-    if (desiredHubAngle == null) {
-      onTargetCycles = 0;
-      drive.stop();
-      return;
-    }
 
     drive.driveToPose(new Pose2d(drive.getPose().getTranslation(), desiredHubAngle));
     Logger.recordOutput("PointAtHub/current angle", drive.getPose().getRotation().getDegrees());
@@ -43,9 +38,6 @@ public class PointAtHubCommand extends Command {
   @Override
   public boolean isFinished() {
     Rotation2d desiredHubAngle = drive.getDesiredHubAngle();
-    if (desiredHubAngle == null) {
-      return false;
-    }
 
     boolean atDesiredRotation =
         drive.calculateRotationError(
