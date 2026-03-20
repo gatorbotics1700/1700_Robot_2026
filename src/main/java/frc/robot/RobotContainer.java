@@ -635,13 +635,6 @@ public class RobotContainer {
         //               turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(200)));
         //             }));
 
-        // TODO CLIMBER TESTING BUTTONS - uncomment for use
-        // controller_two.x().onTrue(new ClimbCommands.HomeClimber(climberSubsystem));
-
-        // controller_two.y().onTrue(ClimbCommands.RetractClimber(climberSubsystem));
-
-        // controller_two.a().onTrue(ClimbCommands.ExtendClimber(climberSubsystem));
-
         // TODO HOOD TESTING BUTTONS - uncomment for use
 
         // controller_two
@@ -733,42 +726,12 @@ public class RobotContainer {
         //                 hopperFloorSubsystem.setDesiredHopperFloorVoltage(
         //                     HopperFloorConstants.HOPPER_FLOOR_VOLTAGE)));
 
-        // controller_two
-        //     .y()
-        //     .onTrue(
-        //         new InstantCommand(
-        //             () -> {
-        //               hoodSubsystem.setDesiredAngle(new Rotation2d(Units.degreesToRadians(25)));
-        //               shooterSubsystem.setDesiredFlywheelVelocity(90);
-        //               shooterSubsystem.setDesiredTransitionVoltage(
-        //                   ShooterConstants.TRANSITION_VOLTAGE);
-        //             }));
-
-        // controller_two
-        //     .leftTrigger()
-        //     .onTrue(
-        //         new InstantCommand(
-        //             () -> turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(36)))));
-
         controller_two
-            .rightTrigger()
+            .rightBumper()
             .onTrue(
                 new InstantCommand(
                     () -> turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0)))));
 
-        controller_two
-            .povDown()
-            .onTrue(
-                new InstantCommand(
-                    () -> turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(-36)))));
-
-        // controller_two
-        //     .povDown()
-        //     .onTrue(
-        //         new InstantCommand(
-        //             () ->
-        //                 hopperFloorSubsystem.setDesiredHopperFloorVoltage(
-        //                     HopperFloorConstants.HOPPER_FLOOR_VOLTAGE)));
         // controller_two
         //     .leftBumper()
         //     .onTrue(
@@ -1124,7 +1087,7 @@ public class RobotContainer {
       controller_two
           .b()
           .onTrue(
-              HoodCommands.HomeHood(hoodSubsystem)
+              new HoodCommands.HoodHomingCommand(hoodSubsystem)
                   .andThen(new WaitCommand(1))
                   .andThen(
                       new InstantCommand(
@@ -1256,7 +1219,7 @@ public class RobotContainer {
   }
 
   public Command HomeMechanisms() {
-    return (HoodCommands.HomeHood(hoodSubsystem)
+    return (new HoodCommands.HoodHomingCommand(hoodSubsystem)
             .alongWith(new ClimbCommands.HomeClimber(climberSubsystem))
             .alongWith(new InstantCommand(() -> turretSubsystem.homeTurret()))
             .alongWith(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem)))
