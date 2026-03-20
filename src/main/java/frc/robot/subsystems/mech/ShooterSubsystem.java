@@ -100,7 +100,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Only control motors if SysID is not running
     if (!sysIdRunning) {
-      leftFlywheelMotor.setControl(m_request.withVelocity(desiredRotorVelocity));
+      leftFlywheelMotor.setControl(m_request.withVelocity(desiredRotorVelo.get()));
     }
 
     transitionMotor.setVoltage(desiredTransitionVoltage);
