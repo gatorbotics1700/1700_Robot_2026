@@ -43,6 +43,8 @@ public class HoodSubsystem extends SubsystemBase {
       new LoggedNetworkNumber("/Tuning/Hood/Angle", 68);
   private Rotation2d desiredAngle = getCurrentAngle(); // HoodConstants.RETRACTED_POSITION;
 
+  private static final double HOOD_CURRENT_LIMIT = 100; // TODO change
+
   // Tunable PID gains for hood control
   public static final LoggedNetworkNumber hoodKp = new LoggedNetworkNumber("/Tuning/Hood/kP", 4.8);
   public static final LoggedNetworkNumber hoodKi = new LoggedNetworkNumber("/Tuning/Hood/kI", 0.0);
@@ -121,7 +123,7 @@ public class HoodSubsystem extends SubsystemBase {
 
     // Only run position control if SysID is not running
     if (positionControl && !sysIdRunning) {
-      setHoodPosition(desiredAngle);
+      setHoodPosition(new Rotation2d(Math.toRadians(desiredHoodAngle.get())));
     }
 
     hoodLogs();
@@ -170,8 +172,11 @@ public class HoodSubsystem extends SubsystemBase {
     hoodMotor.setVoltage(voltage);
   }
 
-  public boolean isRetractedLimitSwitchPressed() {
-    return limitSwitch.get();
+  public boolean isCurrentLimitReached() {
+    if (hoodMotor.getStatorCurrent().getValueAsDouble() > HOOD_CURRENT_LIMIT) {
+      return true;
+    }
+    return false;
   }
 
   public void zeroHood() {
@@ -273,7 +278,7 @@ public class HoodSubsystem extends SubsystemBase {
     Logger.recordOutput("Mech/Hood/Current Angle", getCurrentAngle().getDegrees());
     Logger.recordOutput("Mech/Hood/Motor Output", hoodMotor.get());
     Logger.recordOutput("Mech/Hood/Current velocity", hoodMotor.getVelocity().getValueAsDouble());
-    Logger.recordOutput("Mech/Hood/Limit switch", isRetractedLimitSwitchPressed());
+    Logger.recordOutput("Mech/Hood/Limit switch", isCurrentLimitReached());
     Logger.recordOutput(
         "Mech/Hood/Control Mode", positionControl ? "position control" : "voltage control");
 

@@ -271,21 +271,47 @@ public class RobotContainer {
                     }
                   }));
 
-      // drive under trench
-      controller
+      controller // third stage full shooting while moving
           .x()
           .onTrue(
-              new InstantCommand(
-                  () -> {
-                    try {
-                      CommandScheduler.getInstance()
-                          .schedule(
-                              DriveUnderTrenchCommand.driveUnderTrench(drive, shooterSubsystem)
-                                  .withName("DriveUnderTrench"));
-                    } catch (Exception e) {
-                      e.printStackTrace();
-                    }
-                  }));
+              new ShootingCommands.ShootOnTheMoveCommand(
+                  shooterSubsystem,
+                  hoodSubsystem,
+                  hopperFloorSubsystem,
+                  turretSubsystem,
+                  robotPose,
+                  chassisSpeeds));
+
+      // controller
+      //     .y()
+      //     .onTrue(
+      //         Commands.defer(
+      //             () ->
+      //                 ShootingCommands.StationaryShootingCommand(
+      //                     shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose),
+      //             Set.of(shooterSubsystem, hoodSubsystem, hopperFloorSubsystem)));
+
+      controller
+          .y()
+          .onTrue(
+              ShootingCommands.StationaryShootingCommand(
+                  shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
+
+      // drive under trench
+      // controller
+      //     .x()
+      //     .onTrue(
+      //         new InstantCommand(
+      //             () -> {
+      //               try {
+      //                 CommandScheduler.getInstance()
+      //                     .schedule(
+      //                         DriveUnderTrenchCommand.driveUnderTrench(drive, shooterSubsystem)
+      //                             .withName("DriveUnderTrench"));
+      //               } catch (Exception e) {
+      //                 e.printStackTrace();
+      //               }
+      //             }));
 
       // Reset gyro to 0° when B button is pressed
       controller
@@ -308,6 +334,36 @@ public class RobotContainer {
                       },
                       drive)
                   .ignoringDisable(true));
+
+      // drive under trench
+      /* controller
+                .x()
+                .onTrue(
+                    new InstantCommand(
+                        () -> {
+                          try {
+                            CommandScheduler.getInstance()
+                                .schedule(
+                                    HoodCommands.RetractHood(hoodSubsystem)
+                                        .alongWith(new ClimbCommands.HomeClimber(climberSubsystem))
+                                        .andThen(
+                                            DriveUnderTrenchCommand.driveUnderTrench(
+                                                drive, shooterSubsystem))
+                                        // .andThen(
+                                        //     new ShootingCommand(
+                                        //         shooterSubsystem,
+                                        //         hoodSubsystem,
+                                        //         turretSubsystem,
+                                        //         hopperFloorSubsystem,
+                                        //         robotPose,
+                                        //         chassisSpeeds))
+                                        .withName("DriveUnderTrench"));
+                          } catch (Exception e) {
+                            e.printStackTrace();
+                          }
+                        }));
+      */
+      // controller.y().onTrue(HoodCommands.RetractHood(hoodSubsystem));
 
       controller
           .leftBumper()
@@ -402,22 +458,39 @@ public class RobotContainer {
                                               params.hoodAngle);
                                         })))));
       } else {
-        // INTAKE TESTING BUTTONS
-        controller_two
-            .a()
-            .onTrue(
-                new InstantCommand(
-                    () ->
-                        CommandScheduler.getInstance()
-                            .schedule(IntakeCommands.RunIntake(intakeSubsystem))));
+        // TODO INTAKE TESTING BUTTONS - uncomment for use
 
-        controller_two
-            .b()
-            .onTrue(
-                new InstantCommand(
-                    () ->
-                        CommandScheduler.getInstance()
-                            .schedule(IntakeCommands.ToggleIntake(intakeSubsystem))));
+        // controller_two
+        //     .a()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () -> {
+        //               intakeSubsystem.setDesiredAngle(IntakeConstants.EXTENDED_POSITION);
+        //             }));
+
+        // controller_two
+        //     .b()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () -> {
+        //               intakeSubsystem.setDesiredAngle(IntakeConstants.RETRACTED_POSITION);
+        //             }));
+
+        // controller_two
+        //     .a()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () ->
+        //                 CommandScheduler.getInstance()
+        //                     .schedule(IntakeCommands.RunIntake(intakeSubsystem))));
+
+        // controller_two
+        //     .y()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () ->
+        //                 CommandScheduler.getInstance()
+        //                     .schedule(IntakeCommands.ToggleIntake(intakeSubsystem))));
 
         // controller_two.y().onTrue(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem));
 
@@ -449,13 +522,6 @@ public class RobotContainer {
         //               turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(200)));
         //             }));
 
-        // TODO CLIMBER TESTING BUTTONS - uncomment for use
-        // controller_two.x().onTrue(new ClimbCommands.HomeClimber(climberSubsystem));
-
-        // controller_two.y().onTrue(ClimbCommands.RetractClimber(climberSubsystem));
-
-        // controller_two.a().onTrue(ClimbCommands.ExtendClimber(climberSubsystem));
-
         // TODO HOOD TESTING BUTTONS - uncomment for use
 
         // controller_two
@@ -485,10 +551,14 @@ public class RobotContainer {
         // TODO SHOOTING TESTING BUTTONS UNCOMMENT FOR USE
 
         controller_two // first stage of shooting from stationary fixed spots
-            .rightBumper()
+            .x()
             .onTrue(
-                ShootingCommands.StationaryShootingCommand(
-                    shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
+                new ShootingCommands.ShootingCommand(
+                    shooterSubsystem,
+                    hoodSubsystem,
+                    hopperFloorSubsystem,
+                    robotPose,
+                    ShooterConstants.RED_HUB_CENTER_SHOT));
 
         controller_two // second stage shooting from stationary spots across field with pointing
             // drive train
@@ -496,7 +566,7 @@ public class RobotContainer {
             .onTrue(
                 new PointAtHubCommand(drive)
                     .alongWith(
-                        ShootingCommands.ShootOnTheMoveCommand(
+                        new ShootingCommands.ShootOnTheMoveCommand(
                             shooterSubsystem,
                             hoodSubsystem,
                             hopperFloorSubsystem,
@@ -507,7 +577,7 @@ public class RobotContainer {
         controller_two // third stage full shooting while moving
             .leftTrigger()
             .onTrue(
-                ShootingCommands.ShootOnTheMoveCommand(
+                new ShootingCommands.ShootOnTheMoveCommand(
                     shooterSubsystem,
                     hoodSubsystem,
                     hopperFloorSubsystem,
@@ -529,6 +599,12 @@ public class RobotContainer {
                                     hoodSubsystem,
                                     intakeSubsystem))));
 
+        controller_two
+            .y()
+            .onTrue(
+                new InstantCommand(
+                    () -> CommandScheduler.getInstance().schedule(HomeMechanisms())));
+
         // controller_two
         //     .a()
         //     .onTrue(
@@ -537,41 +613,11 @@ public class RobotContainer {
         //                 hopperFloorSubsystem.setDesiredHopperFloorVoltage(
         //                     HopperFloorConstants.HOPPER_FLOOR_VOLTAGE)));
 
-        // controller_two
-        //     .y()
-        //     .onTrue(
-        //         new InstantCommand(
-        //             () -> {
-        //               hoodSubsystem.setDesiredAngle(new Rotation2d(Units.degreesToRadians(25)));
-        //               shooterSubsystem.setDesiredFlywheelVelocity(90);
-        //               shooterSubsystem.setDesiredTransitionVoltage(
-        //                   ShooterConstants.TRANSITION_VOLTAGE);
-        //             }));
-
-        // controller_two
-        //     .leftTrigger()
-        //     .onTrue(
-        //         new InstantCommand(
-        //             () -> turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(36)))));
-
-        // home mechanisms
         controller_two
-            .y()
+            .rightBumper()
             .onTrue(
                 new InstantCommand(
-                    () -> CommandScheduler.getInstance().schedule(HomeMechanisms())));
-
-        // TODO: shooter -- need to update
-        // controller_two
-        //     .rightBumper()
-        //     .onTrue(
-        //         new ShootOnTheMoveCommand(
-        //             shooterSubsystem,
-        //             hoodSubsystem,
-        //             turretSubsystem,
-        //             hopperFloorSubsystem,
-        //             robotPose,
-        //             chassisSpeeds));
+                    () -> turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0)))));
 
         // controller_two
         //     .leftBumper()
@@ -909,7 +955,7 @@ public class RobotContainer {
       controller_two
           .b()
           .onTrue(
-              HoodCommands.HomeHood(hoodSubsystem)
+              new HoodCommands.HoodHomingCommand(hoodSubsystem)
                   .andThen(new WaitCommand(1))
                   .andThen(
                       new InstantCommand(
@@ -1036,7 +1082,7 @@ public class RobotContainer {
   }
 
   public Command HomeMechanisms() {
-    return (HoodCommands.HomeHood(hoodSubsystem)
+    return (new HoodCommands.HoodHomingCommand(hoodSubsystem)
             .alongWith(new InstantCommand(() -> turretSubsystem.homeTurret()))
             .alongWith(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem)))
         .withName("Home Mechansims");
