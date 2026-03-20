@@ -563,7 +563,7 @@ public class RobotContainer {
         controller_two // second stage shooting from stationary spots across field with pointing
             // drive train
             .rightTrigger()
-            .onTrue(new PointAtHubCommand(drive));
+            .whileTrue(new PointAtHubCommand(drive));
         // .alongWith(
         //     new ShootingCommands.ShootOnTheMoveCommand(
         //         shooterSubsystem,

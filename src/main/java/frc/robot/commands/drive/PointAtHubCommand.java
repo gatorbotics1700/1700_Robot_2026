@@ -24,16 +24,12 @@ public class PointAtHubCommand extends Command {
   }
 
   @Override
-  public boolean isFinished() {
-    boolean atDesiredPose =
-        drive.calculateRotationError(
-                drive.getPose().getRotation().getDegrees(), drive.getDesiredHubAngle().getDegrees())
-            == 0.0;
+  public void end(boolean interrupted) {
+    drive.stop();
+  }
 
-    if (atDesiredPose) {
-      drive.stop();
-      return true;
-    }
+  @Override
+  public boolean isFinished() {
     return false;
   }
 }
