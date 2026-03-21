@@ -185,8 +185,8 @@ public final class Constants {
     private static final Distance kWheelRadius =
         Inches.of(RobotConfigLoader.getDouble("tuner.wheel_radius_inches"));
 
-    private static final boolean kInvertLeftSide = false;
-    private static final boolean kInvertRightSide = true;
+    private static final boolean kInvertLeftSide = true;
+    private static final boolean kInvertRightSide = false;
 
     private static final int kPigeonId = RobotConfigLoader.getInt("tuner.pigeon_id");
 
