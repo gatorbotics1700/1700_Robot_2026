@@ -46,7 +46,7 @@ public class ShooterSubsystem extends SubsystemBase {
   private double desiredRotorVelocity = 0;
 
   public static LoggedNetworkNumber flyWheelSlip =
-      new LoggedNetworkNumber("/Tuning/Shooter/flywheelSlip", 0.17);
+      new LoggedNetworkNumber("/Tuning/Shooter/flywheelSlip", 0.175);
 
   // Tunable PID gains flywheel
   public static final LoggedNetworkNumber flywheelKP =
@@ -119,7 +119,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Only control motors if SysID is not running
     if (!sysIdRunning) {
-      leftFlywheelMotor.setControl(m_request.withVelocity(desiredRotorVelo.get()));
+      leftFlywheelMotor.setControl(
+          m_request.withVelocity(desiredRotorVelocity)); // desiredRotorVelo.get()));
     }
 
     transitionMotor.setVoltage(desiredTransitionVoltage * 1.75);

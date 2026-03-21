@@ -620,8 +620,15 @@ public class RobotContainer {
         controller_two
             .a()
             .onTrue(
-                new InstantCommand(
-                    () -> CommandScheduler.getInstance().schedule(TestShot(shooterSubsystem))));
+                new PointAtHubCommand(drive)
+                    .andThen(
+                        new ShootingCommands.ShootOnTheMoveCommand(
+                            shooterSubsystem,
+                            hoodSubsystem,
+                            hopperFloorSubsystem,
+                            turretSubsystem,
+                            robotPose,
+                            chassisSpeeds)));
         // new InstantCommand(
         //     () ->
         //         hopperFloorSubsystem.setDesiredHopperFloorVoltage(

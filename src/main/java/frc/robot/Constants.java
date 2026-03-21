@@ -745,7 +745,7 @@ public final class Constants {
   public static final class ShotCalculatorConditions {
     // VALUES YOU WILL WANT TO CHANGE:
     public static final double SHOT_DEADBAND =
-        0.05; // smallest calculated error we are okay shooting with
+        0.30; // smallest calculated error we are okay shooting with
     // shot height measures the highest point of the arc in meters, max should be ceiling height
     // minus a bit, and min should be just over the target height
     public static final double MIN_SHOT_HEIGHT = 2; // 1 for MSLL

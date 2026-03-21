@@ -47,16 +47,23 @@ public class HoodSubsystem extends SubsystemBase {
 
   private static final double HOOD_CURRENT_LIMIT = 60; // TODO change
 
+  public static final LoggedNetworkNumber hoodAdjust =
+      new LoggedNetworkNumber("/Tuning/Hood/hoodAdjust", -8);
+
   // Tunable PID gains for hood control
-  public static final LoggedNetworkNumber hoodKp = new LoggedNetworkNumber("/Tuning/Hood/kP", 5.3);
+  public static final LoggedNetworkNumber hoodKp = new LoggedNetworkNumber("/Tuning/Hood/kP", 30);
   public static final LoggedNetworkNumber hoodKi = new LoggedNetworkNumber("/Tuning/Hood/kI", 0.0);
   public static final LoggedNetworkNumber hoodKd = new LoggedNetworkNumber("/Tuning/Hood/kD", 0.1);
 
-  public static final LoggedNetworkNumber hoodKg = new LoggedNetworkNumber("/Tuning/Hood/kG", 0.0);
-  public static final LoggedNetworkNumber hoodKs = new LoggedNetworkNumber("/Tuning/Hood/kS", 0.0);
-  public static final LoggedNetworkNumber hoodKv = new LoggedNetworkNumber("/Tuning/Hood/kV", 0.0);
-    public static final LoggedNetworkNumber hoodKa = new LoggedNetworkNumber("/Tuning/Hood/kA", 0.0);
+  public static final LoggedNetworkNumber hoodKg = new LoggedNetworkNumber("/Tuning/Hood/kG", 0.2);
+  public static final LoggedNetworkNumber hoodKs = new LoggedNetworkNumber("/Tuning/Hood/kS", 0.01);
+  public static final LoggedNetworkNumber hoodKv = new LoggedNetworkNumber("/Tuning/Hood/kV", 0.16);
+  public static final LoggedNetworkNumber hoodKa = new LoggedNetworkNumber("/Tuning/Hood/kA", 0.01);
 
+  public static final LoggedNetworkNumber hoodMMKv =
+      new LoggedNetworkNumber("/Tuning/Hood/MM kV", 0.16);
+  public static final LoggedNetworkNumber hoodMMKa =
+      new LoggedNetworkNumber("/Tuning/Hood/MM kA", 0.1);
 
   public HoodSubsystem() {
     // MOTION MAGIC PID/FEEDFORWARD CONFIGS // TODO: must tune everything!!
@@ -75,12 +82,14 @@ public class HoodSubsystem extends SubsystemBase {
     Slot0Configs slot0Configs = talonFXConfigs.Slot0;
 
     slot0Configs.kG =
-        hoodKg.get(); //0.2; // Add 0.2128 V output to overcome gravity (tuned in early feedforward testing)
+        hoodKg.get(); // 0.2; // Add 0.2128 V output to overcome gravity (tuned in early feedforward
+    // testing)
     slot0Configs.kS =
-        hoodKs.get(); //0.25; // Add 0.01 V output to overcome static friction (just a guesstimate, but this might
+        hoodKs.get(); // 0.25; // Add 0.01 V output to overcome static friction (just a guesstimate,
+    // but this might
     // just be 0
-    slot0Configs.kV = hoodKv.get(); //0.16; // A velocity target of 1 rps results in 0.12 V output
-    slot0Configs.kA = hoodKa.get(); //0.01; // An acceleration of 1 rps/s requires 0.01 V output
+    slot0Configs.kV = hoodKv.get(); // 0.16; // A velocity target of 1 rps results in 0.12 V output
+    slot0Configs.kA = hoodKa.get(); // 0.01; // An acceleration of 1 rps/s requires 0.01 V output
 
     // Initial PID gains come from tunable LoggedNetworkNumbers
     slot0Configs.kP = hoodKp.get(); // A position error of 2.5 rotations results in 12V output
@@ -92,7 +101,7 @@ public class HoodSubsystem extends SubsystemBase {
 
     motionMagicConfigs.MotionMagicCruiseVelocity = 0; // unlimited cruise velocity
     motionMagicConfigs.MotionMagicExpo_kV = 0.16; // kV is around 0.12 V/rps
-    motionMagicConfigs.MotionMagicExpo_kA = 0.1; // Use a slower kA of 0.1 V/(rps/s)
+    motionMagicConfigs.MotionMagicExpo_kA = 0.2; // Use a slower kA of 0.1 V/(rps/s)
 
     hoodMotor.getConfigurator().apply(talonFXConfigs);
 
@@ -105,13 +114,31 @@ public class HoodSubsystem extends SubsystemBase {
   public void periodic() {
     // Update PID gains from NetworkTables if they've changed, and reapply configs
     Slot0Configs slot0Configs = talonFXConfigs.Slot0;
+
     double newKp = hoodKp.get();
     double newKi = hoodKi.get();
     double newKd = hoodKd.get();
-    if (newKp != slot0Configs.kP || newKi != slot0Configs.kI || newKd != slot0Configs.kD) {
+
+    double newKg = hoodKg.get();
+    double newKs = hoodKs.get();
+    double newKv = hoodKv.get();
+    double newKa = hoodKa.get();
+
+    if (newKp != slot0Configs.kP
+        || newKi != slot0Configs.kI
+        || newKd != slot0Configs.kD
+        || newKg != slot0Configs.kG
+        || newKs != slot0Configs.kS
+        || newKv != slot0Configs.kV
+        || newKa != slot0Configs.kA) {
       slot0Configs.kP = newKp;
       slot0Configs.kI = newKi;
       slot0Configs.kD = newKd;
+      slot0Configs.kG = newKg;
+      slot0Configs.kS = newKs;
+      slot0Configs.kV = newKv;
+      slot0Configs.kA = newKa;
+
       hoodMotor.getConfigurator().apply(talonFXConfigs);
     }
 
@@ -157,6 +184,10 @@ public class HoodSubsystem extends SubsystemBase {
     hoodMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
   }
 
+  public static Rotation2d launchAngleToHoodAngle(Rotation2d launchAngle) {
+    return launchAngle.plus(new Rotation2d(Math.toRadians(hoodAdjust.get())));
+  }
+
   public double degreesToRevs(double hoodAngleDegrees) {
     return hoodAngleDegrees
         / 360.0
@@ -199,10 +230,6 @@ public class HoodSubsystem extends SubsystemBase {
         / HoodConstants.HOOD_SHAFT_REVS_PER_MECH_REV
         * 2
         * Math.PI;
-  }
-
-  public Rotation2d convertLaunchAngleToHoodAngle(Rotation2d launchAngle) {
-    return launchAngle; // TODO: fix this to actually be right
   }
 
   public void setPositionControl(boolean positionControl) {

@@ -67,12 +67,11 @@ public class ShootingCommands {
       shooterSubsystem.setDesiredRotorVelocity(
           shotParameters.shotSpeed); // set velocity to our desired velocity
       hopperFloorSubsystem.setDesiredHopperFloorVoltage(HopperFloorConstants.HOPPER_FLOOR_VOLTAGE);
+      hoodSubsystem.setDesiredAngle(HoodSubsystem.launchAngleToHoodAngle(shotParameters.hoodAngle));
       if (Math.abs(shooterSubsystem.getFlywheelRotorVelocity() - shotParameters.shotSpeed)
           < ShooterConstants
               .FLYWHEEL_SPEED_DEADBAND) { // once flywheel is running close to our desired velocity
         // turretSubsystem.setDesiredAngle(shotParameters.turretAngle);
-        hoodSubsystem.setDesiredAngle(
-            hoodSubsystem.convertLaunchAngleToHoodAngle(shotParameters.hoodAngle));
         shooterSubsystem.setDesiredTransitionVoltage(ShooterConstants.TRANSITION_VOLTAGE);
       }
     }
@@ -262,14 +261,13 @@ public class ShootingCommands {
       } else {
         turretSubsystem.setDesiredAngle(params.turretAngle);
         shooterSubsystem.setDesiredRotorVelocity(
-            params.shotSpeed); // set velocity to our desired velocity
+            desiredRotorVelocity); // set velocity to our desired velocity
         hopperFloorSubsystem.setDesiredHopperFloorVoltage(
             HopperFloorConstants.HOPPER_FLOOR_VOLTAGE);
-        if (Math.abs(shooterSubsystem.getFlywheelRotorVelocity() - params.shotSpeed)
+        hoodSubsystem.setDesiredAngle(HoodSubsystem.launchAngleToHoodAngle(params.hoodAngle));
+        if (Math.abs(shooterSubsystem.getFlywheelRotorVelocity() - desiredRotorVelocity)
             < ShooterConstants.FLYWHEEL_SPEED_DEADBAND) { // once flywheel is running close to
           // our desired velocity
-          hoodSubsystem.setDesiredAngle(
-              hoodSubsystem.convertLaunchAngleToHoodAngle(params.hoodAngle));
           shooterSubsystem.setDesiredTransitionVoltage(ShooterConstants.TRANSITION_VOLTAGE);
         }
       }
