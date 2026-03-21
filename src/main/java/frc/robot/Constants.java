@@ -315,7 +315,7 @@ public final class Constants {
                 kFrontLeftEncoderOffset,
                 kFrontLeftXPos,
                 kFrontLeftYPos,
-                kInvertRightSide,
+                kInvertLeftSide,
                 kFrontLeftSteerMotorInverted,
                 kFrontLeftEncoderInverted);
     public static final SwerveModuleConstants<
@@ -354,7 +354,7 @@ public final class Constants {
                 kBackRightEncoderOffset,
                 kBackRightXPos,
                 kBackRightYPos,
-                kInvertLeftSide,
+                kInvertRightSide,
                 kBackRightSteerMotorInverted,
                 kBackRightEncoderInverted);
   }
