@@ -524,21 +524,29 @@ public class RobotContainer {
 
         // TODO HOOD TESTING BUTTONS - uncomment for use
 
-        // controller_two
-        // .rightBumper()
-        // .onTrue(
-        // new InstantCommand(
-        // () -> {
-        // hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(70.0)));
-        // }));
+        controller_two
+            .rightBumper()
+            .onTrue(
+                new InstantCommand(
+                    () -> {
+                      hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(70.0)));
+                    }));
 
-        // controller_two
-        // .leftBumper()
-        // .onTrue(
-        // new InstantCommand(
-        // () -> {
-        // hoodSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(77.0)));
-        // }));
+        controller_two
+            .leftBumper()
+            .onTrue(
+                new InstantCommand(
+                    () -> {
+                      hoodSubsystem.setDesiredAngle(HoodConstants.RETRACTED_POSITION);
+                    }));
+
+        controller_two
+            .leftTrigger()
+            .onTrue(
+                new InstantCommand(
+                    () -> {
+                      hoodSubsystem.setDesiredAngle(HoodConstants.MIN_ANGLE);
+                    }));
         // controller_two
         // .y()
         // .onTrue(
@@ -576,16 +584,16 @@ public class RobotContainer {
         //         robotPose,
         //         chassisSpeeds)));
 
-        controller_two // third stage full shooting while moving
-            .leftTrigger()
-            .onTrue(
-                new ShootingCommands.ShootOnTheMoveCommand(
-                    shooterSubsystem,
-                    hoodSubsystem,
-                    hopperFloorSubsystem,
-                    turretSubsystem,
-                    robotPose,
-                    chassisSpeeds));
+        // controller_two // third stage full shooting while moving
+        //     .leftTrigger()
+        //     .onTrue(
+        //         new ShootingCommands.ShootOnTheMoveCommand(
+        //             shooterSubsystem,
+        //             hoodSubsystem,
+        //             hopperFloorSubsystem,
+        //             turretSubsystem,
+        //             robotPose,
+        //             chassisSpeeds));
 
         controller_two
             .x()
@@ -619,11 +627,11 @@ public class RobotContainer {
         //         hopperFloorSubsystem.setDesiredHopperFloorVoltage(
         //             HopperFloorConstants.HOPPER_FLOOR_VOLTAGE)));\
 
-        controller_two
-            .rightBumper()
-            .onTrue(
-                new InstantCommand(
-                    () -> turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0)))));
+        // controller_two
+        //     .rightBumper()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () -> turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0)))));
 
         // controller_two
         //     .leftBumper()

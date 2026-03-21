@@ -52,6 +52,12 @@ public class HoodSubsystem extends SubsystemBase {
   public static final LoggedNetworkNumber hoodKi = new LoggedNetworkNumber("/Tuning/Hood/kI", 0.0);
   public static final LoggedNetworkNumber hoodKd = new LoggedNetworkNumber("/Tuning/Hood/kD", 0.1);
 
+  public static final LoggedNetworkNumber hoodKg = new LoggedNetworkNumber("/Tuning/Hood/kG", 0.0);
+  public static final LoggedNetworkNumber hoodKs = new LoggedNetworkNumber("/Tuning/Hood/kS", 0.0);
+  public static final LoggedNetworkNumber hoodKv = new LoggedNetworkNumber("/Tuning/Hood/kV", 0.0);
+    public static final LoggedNetworkNumber hoodKa = new LoggedNetworkNumber("/Tuning/Hood/kA", 0.0);
+
+
   public HoodSubsystem() {
     // MOTION MAGIC PID/FEEDFORWARD CONFIGS // TODO: must tune everything!!
     talonFXConfigs = new TalonFXConfiguration();
@@ -69,12 +75,12 @@ public class HoodSubsystem extends SubsystemBase {
     Slot0Configs slot0Configs = talonFXConfigs.Slot0;
 
     slot0Configs.kG =
-        0.2; // Add 0.2128 V output to overcome gravity (tuned in early feedforward testing)
+        hoodKg.get(); //0.2; // Add 0.2128 V output to overcome gravity (tuned in early feedforward testing)
     slot0Configs.kS =
-        0.25; // Add 0.01 V output to overcome static friction (just a guesstimate, but this might
+        hoodKs.get(); //0.25; // Add 0.01 V output to overcome static friction (just a guesstimate, but this might
     // just be 0
-    slot0Configs.kV = 0.16; // A velocity target of 1 rps results in 0.12 V output
-    slot0Configs.kA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
+    slot0Configs.kV = hoodKv.get(); //0.16; // A velocity target of 1 rps results in 0.12 V output
+    slot0Configs.kA = hoodKa.get(); //0.01; // An acceleration of 1 rps/s requires 0.01 V output
 
     // Initial PID gains come from tunable LoggedNetworkNumbers
     slot0Configs.kP = hoodKp.get(); // A position error of 2.5 rotations results in 12V output
@@ -125,7 +131,7 @@ public class HoodSubsystem extends SubsystemBase {
 
     // Only run position control if SysID is not running
     if (positionControl && !sysIdRunning) {
-      setHoodPosition(new Rotation2d(Math.toRadians(desiredHoodAngle.get())));
+      setHoodPosition(desiredAngle);
     }
 
     hoodLogs();
@@ -208,11 +214,11 @@ public class HoodSubsystem extends SubsystemBase {
     SysIdRoutine.Config config =
         new SysIdRoutine.Config(
             // this is the ramp rate for voltage during a test
-            Volts.per(Second).of(1),
+            Volts.per(Second).of(2),
             // this is the maximum voltage for the test
             Volts.of(1.5),
             // this is the duration of the test.
-            Seconds.of(2.5),
+            Seconds.of(1.5),
             (state) -> Logger.recordOutput("Mech/Hood/SysID/SysIdState", state.toString()));
 
     // mechanism for our test. Sets the voltage; we log voltage/position/velocity ourselves in

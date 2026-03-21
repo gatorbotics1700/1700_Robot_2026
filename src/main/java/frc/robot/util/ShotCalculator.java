@@ -153,6 +153,9 @@ public class ShotCalculator {
 
   public static ShotParameters calculateShot(
       Pose2d drivetrainPose, ChassisSpeeds chassisSpeeds, Translation3d target) {
+    Logger.recordOutput("Mech/ShotCalculator/drivetrainPose", drivetrainPose);
+    Logger.recordOutput("Mech/ShotCalculator/chassisSpeeds", chassisSpeeds);
+    Logger.recordOutput("Mech/ShotCalculator/target", target);
     // System.out.println("CALCULATING SHOT");
 
     // calculate field relative shooter pose
