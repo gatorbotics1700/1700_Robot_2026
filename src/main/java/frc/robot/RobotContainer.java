@@ -571,10 +571,19 @@ public class RobotContainer {
                                     hopperFloorSubsystem,
                                     robotPose))));
 
+        // controller_two // second stage shooting from stationary spots across field with pointing
+        //     // drive train
+        //     .rightTrigger()
+        //     .onTrue(new PointAtHubCommand(drive));
+
         controller_two // second stage shooting from stationary spots across field with pointing
             // drive train
             .rightTrigger()
-            .onTrue(new PointAtHubCommand(drive));
+            .onTrue(
+                new InstantCommand(
+                    () ->
+                        CommandScheduler.getInstance()
+                            .schedule(IntakeCommands.RunIntake(intakeSubsystem))));
         // .alongWith(
         //     new ShootingCommands.ShootOnTheMoveCommand(
         //         shooterSubsystem,
@@ -629,6 +638,7 @@ public class RobotContainer {
                             turretSubsystem,
                             robotPose,
                             chassisSpeeds)));
+
         // new InstantCommand(
         //     () ->
         //         hopperFloorSubsystem.setDesiredHopperFloorVoltage(
