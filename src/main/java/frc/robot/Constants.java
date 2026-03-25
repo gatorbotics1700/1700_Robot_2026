@@ -313,8 +313,8 @@ public final class Constants {
                 kFrontLeftDriveMotorId,
                 kFrontLeftEncoderId,
                 kFrontLeftEncoderOffset,
-                kFrontLeftYPos,
                 kFrontLeftXPos,
+                kFrontLeftYPos,
                 kInvertLeftSide,
                 kFrontLeftSteerMotorInverted,
                 kFrontLeftEncoderInverted);
@@ -339,8 +339,8 @@ public final class Constants {
                 kBackLeftDriveMotorId,
                 kBackLeftEncoderId,
                 kBackLeftEncoderOffset,
-                kBackLeftYPos,
                 kBackLeftXPos,
+                kBackLeftYPos,
                 kInvertLeftSide,
                 kBackLeftSteerMotorInverted,
                 kBackLeftEncoderInverted);
