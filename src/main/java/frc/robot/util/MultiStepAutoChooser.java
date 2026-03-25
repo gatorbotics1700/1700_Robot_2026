@@ -45,7 +45,7 @@ public class MultiStepAutoChooser {
     // Create the dynamic auto builder
     this.dynamicAutoBuilder =
         new DynamicAutoBuilder(
-            intakeSubsystem,
+           //intakeSubsystem,
             hoodSubsystem,
             shooterSubsystem,
             turretSubsystem,

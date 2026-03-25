@@ -26,7 +26,7 @@ public class DynamicAutoBuilder {
   private final Supplier<ChassisSpeeds> chassisSpeeds;
 
   public DynamicAutoBuilder(
-      IntakeSubsystem intakeSubsystem,
+     // IntakeSubsystem intakeSubsystem,
       HoodSubsystem hoodSubsystem,
       ShooterSubsystem shooterSubsystem,
       TurretSubsystem turretSubsystem,
