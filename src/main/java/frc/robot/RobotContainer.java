@@ -282,20 +282,16 @@ public class RobotContainer {
                   robotPose,
                   chassisSpeeds));
 
-      // controller
-      //     .y()
-      //     .onTrue(
-      //         Commands.defer(
-      //             () ->
-      //                 ShootingCommands.StationaryShootingCommand(
-      //                     shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose),
-      //             Set.of(shooterSubsystem, hoodSubsystem, hopperFloorSubsystem)));
-
       controller
           .y()
           .onTrue(
-              ShootingCommands.StationaryShootingCommand(
-                  shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
+              new ShootingCommands.ShootOnTheMoveCommand(
+                  shooterSubsystem,
+                  hoodSubsystem,
+                  hopperFloorSubsystem,
+                  turretSubsystem,
+                  robotPose,
+                  chassisSpeeds));
 
       // drive under trench
       // controller
