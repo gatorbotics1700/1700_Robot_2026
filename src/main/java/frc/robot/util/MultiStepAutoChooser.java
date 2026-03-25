@@ -87,6 +87,7 @@ public class MultiStepAutoChooser {
 
     // Populate first destination type chooser
     firstDestinationTypeChooser.addDefaultOption("None", "None");
+    firstDestinationTypeChooser.addOption("Center", "Center");
     firstDestinationTypeChooser.addOption("Depot", "Depot");
     firstDestinationTypeChooser.addOption("Outpost", "Outpost");
     firstDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
@@ -99,6 +100,7 @@ public class MultiStepAutoChooser {
 
     // Populate second destination type chooser
     secondDestinationTypeChooser.addDefaultOption("None", "None");
+    secondDestinationTypeChooser.addOption("Center", "Center");
     secondDestinationTypeChooser.addOption("Depot", "Depot");
     secondDestinationTypeChooser.addOption("Outpost", "Outpost");
     secondDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
@@ -111,6 +113,7 @@ public class MultiStepAutoChooser {
 
     // Populate third destination type chooser
     thirdDestinationTypeChooser.addDefaultOption("None", "None");
+    thirdDestinationTypeChooser.addOption("Center", "Center");
     thirdDestinationTypeChooser.addOption("Depot", "Depot");
     thirdDestinationTypeChooser.addOption("Outpost", "Outpost");
     thirdDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
@@ -140,6 +143,11 @@ public class MultiStepAutoChooser {
   private String combineDestination(String type, String side) {
     if (type == null || type.equals("None")) {
       return "None";
+    }
+
+    if (type.equals("Center")) {
+      // Center doesn't need a side, ignore it even if provided
+      return "Center";
     }
 
     if (type.equals("Outpost")) {
