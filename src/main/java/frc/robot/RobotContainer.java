@@ -282,20 +282,31 @@ public class RobotContainer {
                   robotPose,
                   chassisSpeeds));
 
-      // controller
-      //     .y()
-      //     .onTrue(
-      //         Commands.defer(
-      //             () ->
-      //                 ShootingCommands.StationaryShootingCommand(
-      //                     shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose),
-      //             Set.of(shooterSubsystem, hoodSubsystem, hopperFloorSubsystem)));
-
       controller
           .y()
           .onTrue(
-              ShootingCommands.StationaryShootingCommand(
-                  shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
+              new InstantCommand(
+                  () -> {
+                    // Use current pose and chassis speeds at this instant so all values
+                    // match.
+                    Pose2d pose = drive.getPose();
+                    ChassisSpeeds cs = drive.getChassisSpeeds();
+                    ShotParameters params =
+                        ShotCalculator.calculateShot(pose, cs, FieldCoordinates.BLUE_HUB);
+                    gamePieceSimulation.launchFuelBall(
+                        ShotCalculator.getFieldToShooter(pose, ShooterConstants.BOT_TO_SHOOTER),
+                        cs,
+                        drive.getRotation(),
+                        params.shotSpeed,
+                        params.turretAngle,
+                        params.hoodAngle);
+                  }));
+
+      controller
+          .b()
+          .onTrue(
+              Commands.runOnce(
+                  () -> CommandScheduler.getInstance().schedule((new PointAtHubCommand(drive)))));
 
       // drive under trench
       // controller
@@ -314,26 +325,26 @@ public class RobotContainer {
       //             }));
 
       // Reset gyro to 0° when B button is pressed
-      controller
-          .b()
-          .onTrue(
-              Commands.runOnce(
-                      () -> {
-                        if (DriverStation.getAlliance().isPresent()
-                            && DriverStation.getAlliance().get() == DriverStation.Alliance.Red) {
-                          drive.setPose(
-                              new Pose2d(
-                                  drive.getPose().getTranslation(),
-                                  new Rotation2d(Math.toRadians(180))));
-                        } else {
-                          drive.setPose(
-                              new Pose2d(
-                                  drive.getPose().getTranslation(),
-                                  new Rotation2d(Math.toRadians(0))));
-                        }
-                      },
-                      drive)
-                  .ignoringDisable(true));
+      // controller
+      //     .b()
+      //     .onTrue(
+      //         Commands.runOnce(
+      //                 () -> {
+      //                   if (DriverStation.getAlliance().isPresent()
+      //                       && DriverStation.getAlliance().get() == DriverStation.Alliance.Red) {
+      //                     drive.setPose(
+      //                         new Pose2d(
+      //                             drive.getPose().getTranslation(),
+      //                             new Rotation2d(Math.toRadians(180))));
+      //                   } else {
+      //                     drive.setPose(
+      //                         new Pose2d(
+      //                             drive.getPose().getTranslation(),
+      //                             new Rotation2d(Math.toRadians(0))));
+      //                   }
+      //                 },
+      //                 drive)
+      //             .ignoringDisable(true));
 
       // drive under trench
       /* controller
