@@ -72,13 +72,16 @@ public class DynamicAutoBuilder {
 
   /** Creates shooting command. */
   private Command createShootingCommand() {
-    return new ShootOnTheMoveCommand(
-        shooterSubsystem,
-        hoodSubsystem,
-        turretSubsystem,
-        hopperFloorSubsystem,
-        robotPose,
-        chassisSpeeds);
+    return Commands.runOnce(() -> shooterSubsystem.setShouldShoot(true))
+        .andThen(
+            new ShootOnTheMoveCommand(
+                shooterSubsystem,
+                hoodSubsystem,
+                turretSubsystem,
+                hopperFloorSubsystem,
+                robotPose,
+                chassisSpeeds))
+        .finallyDo(() -> shooterSubsystem.setShouldShoot(false));
   }
 
   private Command getActionForDestination(String destination) {
@@ -150,10 +153,12 @@ public class DynamicAutoBuilder {
     List<Command> commandSequence = new ArrayList<>();
     String currentLocation = startPos;
 
-    // If starting at center, pause for 3 seconds then shoot
-    if (isCenter(startPos) && RobotBase.isReal()) {
-      System.out.println("  Starting at center - will pause 3s then shoot");
-      commandSequence.add(Commands.waitSeconds(3.0).andThen(createShootingCommand()));
+    // If starting at center, pause for 3 seconds then shoot for 3 seconds
+    if (isCenter(startPos)) {
+      System.out.println("  Starting at center - will pause 3s then shoot for 3s");
+      commandSequence.add(
+          Commands.waitSeconds(3.0)
+              .andThen(createShootingCommand().withDeadline(Commands.waitSeconds(3.0))));
     }
 
     // Build paths with shooting when destination is center
@@ -161,27 +166,17 @@ public class DynamicAutoBuilder {
       Command firstPath = loadPathCommand(alliance, currentLocation, dest1);
       Command firstAction = getActionForDestination(dest1);
 
-      if (isCenter(dest1) && RobotBase.isReal()) {
-        // Going to center - run path with intake, then shoot when we arrive
-        Command pathWithIntake =
-            firstPath.deadlineFor(
-                IntakeCommands.DeployIntake(intakeSubsystem)
-                    .alongWith(IntakeCommands.RunIntake(intakeSubsystem))
-                    .alongWith(firstAction));
-        commandSequence.add(pathWithIntake);
-        commandSequence.add(createShootingCommand());
-      } else {
-        // Not going to center - just run path with intake
-        if (RobotBase.isReal()) {
-          Command pathWithIntake =
-              firstPath.deadlineFor(
-                  IntakeCommands.DeployIntake(intakeSubsystem)
-                      .alongWith(IntakeCommands.RunIntake(intakeSubsystem))
-                      .alongWith(firstAction));
-          commandSequence.add(pathWithIntake);
-        } else {
-          commandSequence.add(firstPath.deadlineFor(firstAction));
-        }
+      // Run path with intake
+      Command pathWithIntake =
+          firstPath.deadlineFor(
+              IntakeCommands.DeployIntake(intakeSubsystem)
+                  .alongWith(IntakeCommands.RunIntake(intakeSubsystem))
+                  .alongWith(firstAction));
+      commandSequence.add(pathWithIntake);
+
+      if (isCenter(dest1)) {
+        // Going to center - shoot for 3 seconds when we arrive
+        commandSequence.add(createShootingCommand().withDeadline(Commands.waitSeconds(3.0)));
       }
       currentLocation = dest1;
 
@@ -189,21 +184,14 @@ public class DynamicAutoBuilder {
         Command secondPath = loadPathCommand(alliance, currentLocation, dest2);
         Command secondAction = getActionForDestination(dest2);
 
-        if (isCenter(dest2) && RobotBase.isReal()) {
-          Command pathWithIntake =
-              secondPath.deadlineFor(
-                  IntakeCommands.RunIntake(intakeSubsystem).alongWith(secondAction));
-          commandSequence.add(pathWithIntake);
-          commandSequence.add(createShootingCommand());
-        } else {
-          if (RobotBase.isReal()) {
-            Command pathWithIntake =
-                secondPath.deadlineFor(
-                    IntakeCommands.RunIntake(intakeSubsystem).alongWith(secondAction));
-            commandSequence.add(pathWithIntake);
-          } else {
-            commandSequence.add(secondPath.deadlineFor(secondAction));
-          }
+        // Run path with intake
+        commandSequence.add(
+            secondPath.deadlineFor(
+                IntakeCommands.RunIntake(intakeSubsystem).alongWith(secondAction)));
+
+        if (isCenter(dest2)) {
+          // Going to center - shoot for 3 seconds when we arrive
+          commandSequence.add(createShootingCommand().withDeadline(Commands.waitSeconds(3.0)));
         }
         currentLocation = dest2;
 
@@ -211,21 +199,14 @@ public class DynamicAutoBuilder {
           Command thirdPath = loadPathCommand(alliance, currentLocation, dest3);
           Command thirdAction = getActionForDestination(dest3);
 
-          if (isCenter(dest3) && RobotBase.isReal()) {
-            Command pathWithIntake =
-                thirdPath.deadlineFor(
-                    IntakeCommands.RunIntake(intakeSubsystem).alongWith(thirdAction));
-            commandSequence.add(pathWithIntake);
-            commandSequence.add(createShootingCommand());
-          } else {
-            if (RobotBase.isReal()) {
-              Command pathWithIntake =
-                  thirdPath.deadlineFor(
-                      IntakeCommands.RunIntake(intakeSubsystem).alongWith(thirdAction));
-              commandSequence.add(pathWithIntake);
-            } else {
-              commandSequence.add(thirdPath.deadlineFor(thirdAction));
-            }
+          // Run path with intake
+          commandSequence.add(
+              thirdPath.deadlineFor(
+                  IntakeCommands.RunIntake(intakeSubsystem).alongWith(thirdAction)));
+
+          if (isCenter(dest3)) {
+            // Going to center - shoot for 3 seconds when we arrive
+            commandSequence.add(createShootingCommand().withDeadline(Commands.waitSeconds(3.0)));
           }
         }
       }
