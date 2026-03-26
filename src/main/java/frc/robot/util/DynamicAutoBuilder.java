@@ -6,9 +6,11 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.commands.mech.IntakeCommands;
 import frc.robot.commands.mech.ShootingCommands.ShootOnTheMoveCommand;
 import frc.robot.subsystems.mech.HoodSubsystem;
 import frc.robot.subsystems.mech.HopperFloorSubsystem;
+import frc.robot.subsystems.mech.IntakeSubsystem;
 import frc.robot.subsystems.mech.ShooterSubsystem;
 import frc.robot.subsystems.mech.TurretSubsystem;
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ import java.util.function.Supplier;
 
 public class DynamicAutoBuilder {
 
+  private final IntakeSubsystem intakeSubsystem;
   private final HoodSubsystem hoodSubsystem;
   private final ShooterSubsystem shooterSubsystem;
   private final TurretSubsystem turretSubsystem;
@@ -26,13 +29,14 @@ public class DynamicAutoBuilder {
   private final Supplier<ChassisSpeeds> chassisSpeeds;
 
   public DynamicAutoBuilder(
-     // IntakeSubsystem intakeSubsystem,
+      IntakeSubsystem intakeSubsystem,
       HoodSubsystem hoodSubsystem,
       ShooterSubsystem shooterSubsystem,
       TurretSubsystem turretSubsystem,
       HopperFloorSubsystem hopperFloorSubsystem,
       Supplier<Pose2d> robotPose,
       Supplier<ChassisSpeeds> chassisSpeeds) {
+    this.intakeSubsystem = intakeSubsystem;
     this.hoodSubsystem = hoodSubsystem;
     this.shooterSubsystem = shooterSubsystem;
     this.turretSubsystem = turretSubsystem;
@@ -147,8 +151,12 @@ public class DynamicAutoBuilder {
     if (dest1 != null && !dest1.equals("None")) {
       Command firstPath = loadPathCommand(alliance, currentLocation, dest1);
 
-      // Run path
-      commandSequence.add(firstPath);
+      // Run path with intake (path is the deadline, intake runs alongside)
+      Command pathWithIntake =
+          IntakeCommands.DeployIntake(intakeSubsystem)
+              .alongWith(IntakeCommands.RunIntake(intakeSubsystem))
+              .withDeadline(firstPath);
+      commandSequence.add(pathWithIntake);
 
       if (isCenter(dest1)) {
         // Going to center - shoot for 3 seconds when we arrive
@@ -159,8 +167,8 @@ public class DynamicAutoBuilder {
       if (dest2 != null && !dest2.equals("None")) {
         Command secondPath = loadPathCommand(alliance, currentLocation, dest2);
 
-        // Run path
-        commandSequence.add(secondPath);
+        // Run path with intake (path is the deadline, intake runs alongside)
+        commandSequence.add(IntakeCommands.RunIntake(intakeSubsystem).withDeadline(secondPath));
 
         if (isCenter(dest2)) {
           // Going to center - shoot for 3 seconds when we arrive
@@ -171,8 +179,8 @@ public class DynamicAutoBuilder {
         if (dest3 != null && !dest3.equals("None")) {
           Command thirdPath = loadPathCommand(alliance, currentLocation, dest3);
 
-          // Run path
-          commandSequence.add(thirdPath);
+          // Run path with intake (path is the deadline, intake runs alongside)
+          commandSequence.add(IntakeCommands.RunIntake(intakeSubsystem).withDeadline(thirdPath));
 
           if (isCenter(dest3)) {
             // Going to center - shoot for 3 seconds when we arrive
