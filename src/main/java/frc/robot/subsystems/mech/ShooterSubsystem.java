@@ -103,10 +103,9 @@ public class ShooterSubsystem extends SubsystemBase {
     rightTransitionMotorConfigs.withMotorOutput(
         new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive));
 
-    // transitionMotorConfigs.CurrentLimits.StatorCurrentLimit = 65;
-    // applyTransitionMotorCurrentLimits(transitionMotorConfigs);
-    // applyTransitionMotorCurrentLimits(leftTransitionMotorConfigs);
-    // applyTransitionMotorCurrentLimits(rightTransitionMotorConfigs);
+    transitionMotorConfigs.CurrentLimits.StatorCurrentLimit = 80;
+    applyTransitionMotorCurrentLimits(leftTransitionMotorConfigs);
+    applyTransitionMotorCurrentLimits(rightTransitionMotorConfigs);
 
     leftFlywheelMotor.getConfigurator().apply(leftFlywheelTalonFXConfigs);
     kickerMotor.getConfigurator().apply(transitionMotorConfigs);

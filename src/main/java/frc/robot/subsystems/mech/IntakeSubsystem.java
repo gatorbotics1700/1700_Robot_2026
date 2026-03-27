@@ -32,10 +32,16 @@ public class IntakeSubsystem extends SubsystemBase {
   private boolean sysIdRunning = false;
 
   private final TalonFXConfiguration deployTalonFXConfigs;
+  private final TalonFXConfiguration intakeTalonFXConfigs;
 
   private static Slot0Configs slot0Configs;
   private static MotionMagicConfigs motionMagicConfigs;
-  private static CurrentLimitsConfigs currentLimitConfigs;
+  private static CurrentLimitsConfigs deployCurrentLimitConfigs;
+  private static CurrentLimitsConfigs intakeCurrentLimitConfigs;
+
+  private LoggedNetworkNumber tunableIntakeSpeed =
+      new LoggedNetworkNumber(
+          "Tuning/intake speed", -1); // TODO change this value when the intakes gear box changes
 
   /**
    * Called by SysId commands to indicate test is running; we log voltage/position/velocity in
@@ -84,13 +90,10 @@ public class IntakeSubsystem extends SubsystemBase {
     desiredIntakeSpeed = 0;
     hallEffect = new DigitalInput(IntakeConstants.INTAKE_HALL_EFFECT_PORT);
 
-    intakeMotor
-        .getConfigurator()
-        .apply(
-            new TalonFXConfiguration()
-                .withMotorOutput(
-                    new MotorOutputConfigs()
-                        .withInverted(InvertedValue.CounterClockwise_Positive)));
+    intakeTalonFXConfigs =
+        new TalonFXConfiguration()
+            .withMotorOutput(
+                new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive));
 
     deployTalonFXConfigs = new TalonFXConfiguration();
 
@@ -120,11 +123,16 @@ public class IntakeSubsystem extends SubsystemBase {
             .get(); // was 0.1 Use a slower kA of 0.1 V/(rps/s) - the larger the kA, the smoother
     // and slower
 
-    currentLimitConfigs = deployTalonFXConfigs.CurrentLimits;
-    currentLimitConfigs.StatorCurrentLimit = 10;
-    currentLimitConfigs.StatorCurrentLimitEnable = true;
+    intakeCurrentLimitConfigs = intakeTalonFXConfigs.CurrentLimits;
+    intakeCurrentLimitConfigs.StatorCurrentLimit = 20;
+    intakeCurrentLimitConfigs.StatorCurrentLimitEnable = true;
+
+    deployCurrentLimitConfigs = deployTalonFXConfigs.CurrentLimits;
+    deployCurrentLimitConfigs.StatorCurrentLimit = 10;
+    deployCurrentLimitConfigs.StatorCurrentLimitEnable = true;
 
     deployMotor.getConfigurator().apply(deployTalonFXConfigs);
+    intakeMotor.getConfigurator().apply(intakeTalonFXConfigs);
 
     m_request = new MotionMagicExpoVoltage(0);
 
@@ -144,16 +152,16 @@ public class IntakeSubsystem extends SubsystemBase {
 
     if (!sysIdRunning && useDeployPositionControl) {
       deployMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
-      //   if (isDeployed.getAsBoolean()
-      //       && currentLimitConfigs.StatorCurrentLimit != 20
-      //       && getCurrentAngle().getDegrees() > 30) {
-      //     currentLimitConfigs.StatorCurrentLimit = 20;
-      //     deployMotor.getConfigurator().apply(deployTalonFXConfigs);
-      //   } else if ((!isDeployed.getAsBoolean() || getCurrentAngle().getDegrees() < 30)
-      //       && currentLimitConfigs.StatorCurrentLimit != 60) {
-      //     currentLimitConfigs.StatorCurrentLimit = 60;
-      //     deployMotor.getConfigurator().apply(deployTalonFXConfigs);
-      //   }
+      if (isDeployed.getAsBoolean()
+          && deployCurrentLimitConfigs.StatorCurrentLimit != 10
+          && getCurrentAngle().getDegrees() > 30) {
+        deployCurrentLimitConfigs.StatorCurrentLimit = 10;
+        deployMotor.getConfigurator().apply(deployTalonFXConfigs);
+      } else if ((!isDeployed.getAsBoolean() || getCurrentAngle().getDegrees() < 30)
+          && deployCurrentLimitConfigs.StatorCurrentLimit != 60) {
+        deployCurrentLimitConfigs.StatorCurrentLimit = 60;
+        deployMotor.getConfigurator().apply(deployTalonFXConfigs);
+      }
     }
 
     intakeLogs();
@@ -190,7 +198,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void setIntakeSpeed(double speed) {
-    desiredIntakeSpeed = speed;
+    desiredIntakeSpeed = speed == 0 ? 0 : tunableIntakeSpeed.get();
     intakeMotor.set(desiredIntakeSpeed);
   }
 
@@ -377,9 +385,11 @@ public class IntakeSubsystem extends SubsystemBase {
     Logger.recordOutput(
         "Mech/Intake/ClosedLoopError", deployMotor.getClosedLoopError().getValueAsDouble());
     Logger.recordOutput(
-        "Mech/Intake/Stator Current", deployMotor.getStatorCurrent().getValueAsDouble());
+        "Mech/Intake/Deploy Stator Current", deployMotor.getStatorCurrent().getValueAsDouble());
     Logger.recordOutput(
-        "Mech/Intake/Supply Current", deployMotor.getSupplyCurrent().getValueAsDouble());
+        "Mech/Intake/Deploy Supply Current", deployMotor.getSupplyCurrent().getValueAsDouble());
+    Logger.recordOutput(
+        "Mech/Intake/Intake Stator Current", intakeMotor.getStatorCurrent().getValueAsDouble());
 
     // SysID
     Logger.recordOutput("Mech/Intake/SysID/intakeSysIDRunning", sysIdRunning);

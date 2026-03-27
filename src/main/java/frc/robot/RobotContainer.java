@@ -169,6 +169,10 @@ public class RobotContainer {
 
     // Register named commands for PathPlanner autos
     NamedCommands.registerCommand(
+        "Point At Hub Command",
+        Commands.runOnce(
+            () -> CommandScheduler.getInstance().schedule((new PointAtHubCommand(drive)))));
+    NamedCommands.registerCommand(
         "Shooter Command",
         Commands.runOnce(
             () ->
@@ -616,15 +620,22 @@ public class RobotContainer {
         controller_two
             .a()
             .onTrue(
-                new PointAtHubCommand(drive)
-                    .andThen(
-                        new ShootingCommands.ShootOnTheMoveCommand(
-                            shooterSubsystem,
-                            hoodSubsystem,
-                            hopperFloorSubsystem,
-                            turretSubsystem,
-                            robotPose,
-                            chassisSpeeds)));
+                new InstantCommand(
+                    () -> {
+                      shooterSubsystem.setDesiredRotorVelocity(80);
+                      shooterSubsystem.setDesiredTransitionSpeed(ShooterConstants.TRANSITION_SPEED);
+                      hopperFloorSubsystem.setDesiredHopperFloorSpeed(
+                          HopperFloorConstants.HOPPER_FLOOR_SPEED);
+                    }));
+        // new PointAtHubCommand(drive)
+        //     .andThen(
+        //         new ShootingCommands.ShootOnTheMoveCommand(
+        //             shooterSubsystem,
+        //             hoodSubsystem,
+        //             hopperFloorSubsystem,
+        //             turretSubsystem,
+        //             robotPose,
+        //             chassisSpeeds)));
 
         // new InstantCommand(
         //     () ->
