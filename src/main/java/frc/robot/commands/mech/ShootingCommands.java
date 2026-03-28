@@ -24,13 +24,10 @@ public class ShootingCommands {
   // Current logic is that if the flywheel speed is 0 then we're just tracking and
   // if the flywheel
   // speed is not zero then we're trying to shoot, but we may decide we want a
-  // separate command
-  // for
-  // just tracking
+  // separate command for just tracking
 
   public static class ShootingCommand extends Command {
     private final ShooterSubsystem shooterSubsystem;
-    private Supplier<Pose2d> drivetrainPose;
     private final HopperFloorSubsystem hopperFloorSubsystem;
     private final HoodSubsystem hoodSubsystem;
     private final ShotParameters shotParameters;
@@ -46,7 +43,6 @@ public class ShootingCommands {
         ShotParameters shotParameters) {
       this.shooterSubsystem = shooterSubsystem;
       this.hopperFloorSubsystem = hopperFloorSubsystem;
-      this.drivetrainPose = drivetrainPose;
       this.hoodSubsystem = hoodSubsystem;
       this.shotParameters = shotParameters;
       // this.turretSubsystem = turretSubsystem;
@@ -59,8 +55,6 @@ public class ShootingCommands {
 
     @Override
     public void execute() {
-      // double desiredRotorVelocity =
-      //     ShooterSubsystem.launchSpeedToRotorSpeed(validStationaryShot.shotSpeed);
       shooterSubsystem.setDesiredRotorVelocity(
           shotParameters.shotSpeed); // set velocity to our desired velocity
       hopperFloorSubsystem.setDesiredHopperFloorSpeed(HopperFloorConstants.HOPPER_FLOOR_SPEED);

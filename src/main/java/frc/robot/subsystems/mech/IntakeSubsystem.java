@@ -41,7 +41,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private LoggedNetworkNumber tunableIntakeSpeed =
       new LoggedNetworkNumber(
-          "Tuning/intake speed", -1); // TODO change this value when the intakes gear box changes
+          "/Tuning/Intake/intake speed",
+          -1); // TODO change this value when the intakes gear box changes
 
   /**
    * Called by SysId commands to indicate test is running; we log voltage/position/velocity in
@@ -75,6 +76,9 @@ public class IntakeSubsystem extends SubsystemBase {
       new LoggedNetworkNumber("/Tuning/Intake/Expo kA", 0.16);
   public static final LoggedNetworkNumber intakeExpoKv =
       new LoggedNetworkNumber("/Tuning/Intake/Expo kV", 0.1);
+
+  public static final LoggedNetworkNumber intakeCurrentLimit =
+      new LoggedNetworkNumber("/Tuning/Intake/Intake Current Limit", 20);
 
   private Rotation2d desiredAngle = new Rotation2d();
   private boolean useDeployPositionControl = false;
@@ -149,6 +153,7 @@ public class IntakeSubsystem extends SubsystemBase {
     // Update PID gains from NetworkTables if they've changed, and reapply configs
     updateSlot0Configs();
     updateMotionMagicConfigs();
+    updateCurrentLimitConfigs();
 
     if (!sysIdRunning && useDeployPositionControl) {
       deployMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
@@ -370,6 +375,15 @@ public class IntakeSubsystem extends SubsystemBase {
     }
   }
 
+  public void updateCurrentLimitConfigs() {
+    double newIntakeCurrentLimit = intakeCurrentLimit.get();
+
+    if (newIntakeCurrentLimit != intakeCurrentLimitConfigs.StatorCurrentLimit) {
+      intakeCurrentLimitConfigs.StatorCurrentLimit = newIntakeCurrentLimit;
+      intakeMotor.getConfigurator().apply(intakeTalonFXConfigs);
+    }
+  }
+
   public void intakeLogs() {
     Logger.recordOutput("Mech/Intake/Current Deploy Angle", getCurrentAngle().getDegrees());
     Logger.recordOutput("Mech/Intake/Desired Deploy Angle", desiredAngle.getDegrees());
@@ -384,12 +398,19 @@ public class IntakeSubsystem extends SubsystemBase {
         "Mech/Intake/ClosedLoopReference", deployMotor.getClosedLoopReference().getValueAsDouble());
     Logger.recordOutput(
         "Mech/Intake/ClosedLoopError", deployMotor.getClosedLoopError().getValueAsDouble());
+
     Logger.recordOutput(
         "Mech/Intake/Deploy Stator Current", deployMotor.getStatorCurrent().getValueAsDouble());
     Logger.recordOutput(
-        "Mech/Intake/Deploy Supply Current", deployMotor.getSupplyCurrent().getValueAsDouble());
-    Logger.recordOutput(
         "Mech/Intake/Intake Stator Current", intakeMotor.getStatorCurrent().getValueAsDouble());
+    Logger.recordOutput(
+        "All Stator Currents/Deploy", deployMotor.getStatorCurrent().getValueAsDouble());
+    Logger.recordOutput(
+        "All Stator Currents/Intake", intakeMotor.getStatorCurrent().getValueAsDouble());
+    Logger.recordOutput(
+        "Mech/Intake/Intake Current Limit", intakeCurrentLimitConfigs.StatorCurrentLimit);
+    Logger.recordOutput(
+        "Mech/Intake/Deploy Current Limit", deployCurrentLimitConfigs.StatorCurrentLimit);
 
     // SysID
     Logger.recordOutput("Mech/Intake/SysID/intakeSysIDRunning", sysIdRunning);

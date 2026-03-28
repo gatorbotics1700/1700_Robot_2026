@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.TunerConstants;
-import frc.robot.commands.mech.IntakeCommands;
 import frc.robot.util.Elastic;
 import frc.robot.util.RobotConfigLoader;
 import frc.robot.util.ShotCalculator;
@@ -116,7 +115,6 @@ public class Robot extends LoggedRobot {
     // and put our autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
     shotCalculator = new ShotCalculator();
-    // SmartDashboard.putData(robotContainer.getDriveSubsystem());
     SmartDashboard.putData(CommandScheduler.getInstance());
   }
 
@@ -175,12 +173,9 @@ public class Robot extends LoggedRobot {
               robotContainer.getDriveSubsystem().setPose(startPose);
             });
 
-    CommandScheduler.getInstance()
-        .schedule(
-            robotContainer
-                .HomeMechanisms()
-                .andThen(IntakeCommands.DeployIntake(robotContainer.getIntakeSubsystem()))
-                .andThen(IntakeCommands.RunIntake(robotContainer.getIntakeSubsystem())));
+    CommandScheduler.getInstance().schedule(robotContainer.HomeMechanisms());
+    // .andThen(IntakeCommands.DeployIntake(robotContainer.getIntakeSubsystem()))
+    // .andThen(IntakeCommands.RunIntake(robotContainer.getIntakeSubsystem())));
 
     // schedule the autonomous command (example)
     if (autonomousCommand != null) {
@@ -239,8 +234,8 @@ public class Robot extends LoggedRobot {
                 robotContainer.getHopperFloorSubsystem(),
                 robotContainer.getHoodSubsystem(),
                 robotContainer.getIntakeSubsystem()));
-    // robotContainer.configureSysIdButtons();
-    robotContainer.configureSystemCheckButtons();
+    robotContainer.configureSysIdButtons();
+    // robotContainer.configureSystemCheckButtons();
   }
 
   /** This function is called periodically during test mode. */

@@ -41,8 +41,8 @@ public class ShooterSubsystem extends SubsystemBase {
   private SysIdRoutine sysIdRoutine;
   private final VoltageOut sysIdVoltageRequest = new VoltageOut(0);
 
-  private LoggedNetworkNumber desiredRotorVelo =
-      new LoggedNetworkNumber("Mech/Shooter/Desired Rotor Velo", 53);
+  // private LoggedNetworkNumber desiredRotorVelo =
+  //     new LoggedNetworkNumber("Mech/Shooter/Desired Rotor Velo", 53);
   private double desiredRotorVelocity = 0;
 
   public static LoggedNetworkNumber flyWheelSlip =
@@ -232,6 +232,16 @@ public class ShooterSubsystem extends SubsystemBase {
     Logger.recordOutput(
         "Mech/Shooter/Right Transition Current",
         rightTransitionMotor.getStatorCurrent().getValueAsDouble());
+
+    Logger.recordOutput(
+        "All Stator Currents/Kicker", kickerMotor.getStatorCurrent().getValueAsDouble());
+    Logger.recordOutput(
+        "All Stator Currents/Left Transition",
+        leftTransitionMotor.getStatorCurrent().getValueAsDouble());
+    Logger.recordOutput(
+        "All Stator Currents/Right Transition",
+        rightTransitionMotor.getStatorCurrent().getValueAsDouble());
+    Logger.recordOutput("All Stator Currents/Flywheel",leftFlywheelMotor.getStatorCurrent().getValueAsDouble());
 
     Logger.recordOutput("Mech/Shooter/MAX SPEED", ShotCalculatorConditions.MAX_SHOT_SPEED);
 

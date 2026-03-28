@@ -33,7 +33,7 @@ public class TurretSubsystem extends SubsystemBase {
   private static final double SYSID_LIMIT_MARGIN_DEGREES = 10.0;
   private boolean sysIdRunning = false;
 
-  private final int TURRET_GEARBOX_RATIO = 9;
+  private final int TURRET_GEARBOX_RATIO = 1;
 
   /**
    * Called by SysId commands to indicate test is running; we log voltage/position/velocity in
@@ -61,11 +61,11 @@ public class TurretSubsystem extends SubsystemBase {
       new LoggedNetworkNumber("/Tuning/Turret/kD", 0.0);
 
   public static final LoggedNetworkNumber turretKs =
-      new LoggedNetworkNumber("/Tuning/Turret/kS", 0.0);
+      new LoggedNetworkNumber("/Tuning/Turret/kS", 0.25262);
   public static final LoggedNetworkNumber turretKv =
-      new LoggedNetworkNumber("/Tuning/Turret/kV", 0.0);
+      new LoggedNetworkNumber("/Tuning/Turret/kV", 1.3679);
   public static final LoggedNetworkNumber turretKa =
-      new LoggedNetworkNumber("/Tuning/Turret/kA", 0.0);
+      new LoggedNetworkNumber("/Tuning/Turret/kA", 0.3484);
 
   public TurretSubsystem() {
     turretMotor = new TalonFX(TurretConstants.TURRET_MOTOR_CAN_ID, TunerConstants.mechCANBus);
@@ -274,6 +274,8 @@ public class TurretSubsystem extends SubsystemBase {
         turretMotor.getClosedLoopReference().getValueAsDouble());
     Logger.recordOutput(
         "Mech/Turret/closed loop error", turretMotor.getClosedLoopError().getValueAsDouble());
+
+    Logger.recordOutput("All Stator Currents/Turret",turretMotor.getStatorCurrent().getValueAsDouble());
 
     // SysID
     Logger.recordOutput("Mech/Turret/SysID/turretSysIDRunning", sysIdRunning);

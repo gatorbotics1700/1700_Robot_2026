@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "Home Mechanisms"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "R C to to Shoot M"

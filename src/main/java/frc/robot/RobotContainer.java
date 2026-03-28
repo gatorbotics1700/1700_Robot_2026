@@ -188,6 +188,8 @@ public class RobotContainer {
               hopperFloorSubsystem.setDesiredHopperFloorSpeed(0);
             }));
 
+    NamedCommands.registerCommand("Home Mechanisms", HomeMechanisms());
+
     // Set up auto routines with PathPlanner's auto chooser (using pre-made .auto files)
     autoChooser =
         new LoggedDashboardChooser<>("Auto/PathPlanner Auto", AutoBuilder.buildAutoChooser());
@@ -718,6 +720,8 @@ public class RobotContainer {
                       },
                       drive)
                   .ignoringDisable(true));
+      controller.a().onTrue(new InstantCommand(() -> intakeSubsystem.setDeploySpeed(0.1)));
+      controller.b().onTrue(new InstantCommand(() -> intakeSubsystem.setDeploySpeed(0)));
 
       // controller
       //     .a()
@@ -840,12 +844,12 @@ public class RobotContainer {
       // controller_two.y().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
       // TODO: hood sysid buttons -- uncomment for use
-      controller_two.x().whileTrue(hoodSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-      controller_two.y().whileTrue(hoodSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
-      controller_two.a().whileTrue(hoodSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-      controller_two.b().whileTrue(hoodSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      // controller_two.x().whileTrue(hoodSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      // controller_two.y().whileTrue(hoodSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      // controller_two.a().whileTrue(hoodSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      // controller_two.b().whileTrue(hoodSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
-      controller_two.rightTrigger().onTrue(new InstantCommand(() -> hoodSubsystem.zeroHood()));
+      // controller_two.rightTrigger().onTrue(new InstantCommand(() -> hoodSubsystem.zeroHood()));
 
       // TODO: intake sysid buttons -- uncomment for use
       // controller_two.x().whileTrue(intakeSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
@@ -874,14 +878,16 @@ public class RobotContainer {
       //     .whileTrue(shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
       // TODO: turret sysid buttons -- uncomment for use
-      // controller_two.x().whileTrue(turretSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-      // controller_two.y().whileTrue(turretSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
-      // controller_two
-      //     .a()
-      //     .whileTrue(turretSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-      // controller_two
-      //     .b()
-      //     .whileTrue(turretSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      controller_two.x().whileTrue(turretSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      controller_two.y().whileTrue(turretSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      controller_two
+          .a()
+          .whileTrue(turretSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      controller_two
+          .b()
+          .whileTrue(turretSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+
+      controller_two.rightBumper().onTrue(new InstantCommand(() -> turretSubsystem.homeTurret()));
     }
   }
 
@@ -1142,8 +1148,8 @@ public class RobotContainer {
 
   public Command HomeMechanisms() {
     return (new HoodCommands.HoodHomingCommand(hoodSubsystem)
-            .alongWith(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem))
-            .alongWith(new InstantCommand(() -> turretSubsystem.homeTurret(), turretSubsystem)))
+            .alongWith(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem)))
+        // .alongWith(new InstantCommand(() -> turretSubsystem.homeTurret(), turretSubsystem)))
         .withName("Home Mechansims");
   }
 

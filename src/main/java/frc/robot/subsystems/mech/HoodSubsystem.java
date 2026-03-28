@@ -311,6 +311,7 @@ public class HoodSubsystem extends SubsystemBase {
         "Mech/Hood/Control Mode", positionControl ? "position control" : "voltage control");
     Logger.recordOutput(
         "Mech/Hood/Stator Current", hoodMotor.getStatorCurrent().getValueAsDouble());
+    Logger.recordOutput("All Stator Currents/Hood",hoodMotor.getStatorCurrent().getValueAsDouble());
 
     // SysID
     Logger.recordOutput("Mech/Hood/SysID/hoodSysIDRunning", sysIdRunning);
