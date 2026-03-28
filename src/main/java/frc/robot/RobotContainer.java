@@ -1089,6 +1089,7 @@ public class RobotContainer {
     Logger.recordOutput("Odometry/Fuel", vision.getFuelPose(drive.getPose()));
 
     Logger.recordOutput("Mech/Valid Shot", getValidShot());
+
   }
 
   public boolean getValidShot() {
