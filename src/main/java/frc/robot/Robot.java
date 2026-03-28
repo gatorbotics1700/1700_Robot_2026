@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.util.Elastic;
+import frc.robot.util.PDHLogger;
 import frc.robot.util.RobotConfigLoader;
 import frc.robot.util.ShotCalculator;
 import java.util.Optional;
@@ -48,6 +49,7 @@ public class Robot extends LoggedRobot {
       shotCalculator; // not actually used anywhere, but we need the constructor to run asap to
 
   // generate the lookup table
+  private PDHLogger pdhLogger;
 
   public Robot() {
     // Record metadata
@@ -115,6 +117,7 @@ public class Robot extends LoggedRobot {
     // and put our autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
     shotCalculator = new ShotCalculator();
+    pdhLogger = new PDHLogger();
     SmartDashboard.putData(CommandScheduler.getInstance());
   }
 
@@ -136,6 +139,8 @@ public class Robot extends LoggedRobot {
     // This must be called from the robot's periodic block in order for anything in
     // the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    pdhLogger.log();
 
     // Return to non-RT thread priority (do not modify the first argument)
     // Threads.setCurrentThreadPriority(false, 10);
