@@ -56,11 +56,11 @@ public class TurretSubsystem extends SubsystemBase {
 
   // Tunable PID gains for turret
   public static final LoggedNetworkNumber turretKp =
-      new LoggedNetworkNumber("/Tuning/Turret/kP", 0.0);
+      new LoggedNetworkNumber("/Tuning/Turret/kP", 4);
   public static final LoggedNetworkNumber turretKi =
       new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
   public static final LoggedNetworkNumber turretKd =
-      new LoggedNetworkNumber("/Tuning/Turret/kD", 0.0);
+      new LoggedNetworkNumber("/Tuning/Turret/kD", 0.1);
 
   public static final LoggedNetworkNumber turretKs =
       new LoggedNetworkNumber("/Tuning/Turret/kS", 0.25262);
@@ -111,12 +111,14 @@ public class TurretSubsystem extends SubsystemBase {
     turretMotor.getConfigurator().apply(talonFXConfigs);
 
     m_request = new MotionMagicExpoVoltage(0);
+
+    homeTurret();
   }
 
   @Override
   public void periodic() {
     // Update PID gains from NetworkTables if they've changed, and reapply configs
-    updateSlot0Configs();
+    // updateSlot0Configs();
 
     if (!sysIdRunning) {
       turretMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
@@ -169,13 +171,14 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void homeTurret() {
-    turretMotor.setPosition(
-        getCurrentToOffsetError()
-                / ENCODER_REVS_PER_TURRET_REV
-                * TURRET_GEARBOX_RATIO
-                * GEAR_REVS_PER_TURRET_REV
-            + degreesToRevs(TurretConstants.TURRET_HOMING_ANGLE));
-    System.out.println("ANGLE AT END OF TURRET HOMING: " + getCurrentAngle());
+    turretMotor.setPosition(0);
+    // turretMotor.setPosition(
+    //     getCurrentToOffsetError()
+    //             / ENCODER_REVS_PER_TURRET_REV
+    //             * TURRET_GEARBOX_RATIO
+    //             * GEAR_REVS_PER_TURRET_REV
+    //         + degreesToRevs(TurretConstants.TURRET_HOMING_ANGLE));
+    System.out.println("ANGLE AT END OF TURRET HOMING: " + getCurrentAngle().getDegrees());
     setDesiredAngle((new Rotation2d(Math.toRadians(0))));
   }
 
@@ -268,6 +271,15 @@ public class TurretSubsystem extends SubsystemBase {
     Logger.recordOutput("Mech/Turret/boreEncoder isConnected", boreEncoder.isConnected());
     Logger.recordOutput("Mech/Turret/currentAngle", getCurrentAngle().getDegrees());
     Logger.recordOutput("Mech/Turret/desiredAngle", desiredAngle.getDegrees());
+    Logger.recordOutput("Mech/Turret/get bore offset", getCurrentToOffsetError());
+    Logger.recordOutput("Mech/Turret/motor position", turretMotor.getPosition().getValueAsDouble());
+    Logger.recordOutput(
+        "Mech/Turret/what home turret thinks its doing",
+        getCurrentToOffsetError()
+                / ENCODER_REVS_PER_TURRET_REV
+                * TURRET_GEARBOX_RATIO
+                * GEAR_REVS_PER_TURRET_REV
+            + degreesToRevs(TurretConstants.TURRET_HOMING_ANGLE));
 
     // Logger.recordOutput("Mech/Turret/hallEffect", isHallEffectTriggered());
     Logger.recordOutput(

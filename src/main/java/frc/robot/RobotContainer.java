@@ -40,7 +40,6 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.drive.DriveCommands;
-import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveSystemsCheckCommands;
 import frc.robot.commands.drive.PointAtHubCommand;
 import frc.robot.commands.mech.HoodCommands;
@@ -188,7 +187,11 @@ public class RobotContainer {
               hopperFloorSubsystem.setDesiredHopperFloorSpeed(0);
             }));
 
-    NamedCommands.registerCommand("Auto Init", HomeMechanisms());
+    NamedCommands.registerCommand(
+        "Auto Init",
+        HomeMechanisms()
+            .andThen(IntakeCommands.DeployIntake(intakeSubsystem))
+            .andThen(IntakeCommands.RunIntake(intakeSubsystem)));
 
     // Set up auto routines with PathPlanner's auto chooser (using pre-made .auto files)
     autoChooser =
@@ -260,20 +263,20 @@ public class RobotContainer {
       }
 
       // drive over bump
-      controller
-          .a()
-          .onTrue(
-              new InstantCommand(
-                  () -> {
-                    try {
-                      CommandScheduler.getInstance()
-                          .schedule(
-                              DriveOverBumpCommand.driveOverBump(drive, shooterSubsystem)
-                                  .withName("DriveOverBump"));
-                    } catch (Exception e) {
-                      e.printStackTrace();
-                    }
-                  }));
+      // controller
+      //     .a()
+      //     .onTrue(
+      //         new InstantCommand(
+      //             () -> {
+      //               try {
+      //                 CommandScheduler.getInstance()
+      //                     .schedule(
+      //                         DriveOverBumpCommand.driveOverBump(drive, shooterSubsystem)
+      //                             .withName("DriveOverBump"));
+      //               } catch (Exception e) {
+      //                 e.printStackTrace();
+      //               }
+      //             }));
 
       controller // third stage full shooting while moving
           .x()
@@ -623,15 +626,13 @@ public class RobotContainer {
                 //       hopperFloorSubsystem.setDesiredHopperFloorSpeed(
                 //           HopperFloorConstants.HOPPER_FLOOR_SPEED);
                 //     }));
-                new PointAtHubCommand(drive)
-                    .andThen(
-                        new ShootingCommands.ShootOnTheMoveCommand(
-                            shooterSubsystem,
-                            hoodSubsystem,
-                            hopperFloorSubsystem,
-                            turretSubsystem,
-                            robotPose,
-                            chassisSpeeds)));
+                new ShootingCommands.ShootOnTheMoveCommand(
+                    shooterSubsystem,
+                    hoodSubsystem,
+                    hopperFloorSubsystem,
+                    turretSubsystem,
+                    robotPose,
+                    chassisSpeeds));
 
         // new InstantCommand(
         //     () ->
@@ -649,6 +650,30 @@ public class RobotContainer {
         //     .onTrue(
         //         ShootingCommands.StationaryShootingCommand(
         //             shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose));
+
+        // turret testing buttons
+
+        controller_two
+            .povUp()
+            .onTrue(new InstantCommand(() -> turretSubsystem.homeTurret()).ignoringDisable(true));
+
+        controller_two
+            .povRight()
+            .onTrue(
+                new InstantCommand(
+                    () -> turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(36)))));
+
+        controller_two
+            .povDown()
+            .onTrue(
+                new InstantCommand(
+                    () -> turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(0)))));
+
+        controller_two
+            .povLeft()
+            .onTrue(
+                new InstantCommand(
+                    () -> turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(-100)))));
       }
     }
   }
@@ -720,8 +745,8 @@ public class RobotContainer {
                       },
                       drive)
                   .ignoringDisable(true));
-      controller.a().onTrue(new InstantCommand(() -> intakeSubsystem.setDeploySpeed(0.1)));
-      controller.b().onTrue(new InstantCommand(() -> intakeSubsystem.setDeploySpeed(0)));
+      // controller.a().onTrue(new InstantCommand(() -> intakeSubsystem.setDeploySpeed(0.1)));
+      // controller.b().onTrue(new InstantCommand(() -> intakeSubsystem.setDeploySpeed(0)));
 
       // controller
       //     .a()
@@ -887,7 +912,9 @@ public class RobotContainer {
           .b()
           .whileTrue(turretSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
-      controller_two.rightBumper().onTrue(new InstantCommand(() -> turretSubsystem.homeTurret()));
+      controller_two
+          .rightBumper()
+          .onTrue(new InstantCommand(() -> turretSubsystem.homeTurret()).ignoringDisable(true));
     }
   }
 

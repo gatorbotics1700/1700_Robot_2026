@@ -16,11 +16,11 @@
     },
     {
       "anchor": {
-        "x": 3.0,
+        "x": 2.6,
         "y": 4.034
       },
       "prevControl": {
-        "x": 3.5171074218749996,
+        "x": 3.1171074218749997,
         "y": 3.428758680555555
       },
       "nextControl": null,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 1.2498464571958248
+    "rotation": -0.6479812498820495
   },
   "reversed": false,
   "folder": "BLUE 1P RB",
