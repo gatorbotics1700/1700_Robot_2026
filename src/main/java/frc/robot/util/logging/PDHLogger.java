@@ -17,9 +17,7 @@ public final class PDHLogger {
       return;
     }
     int channels = pdh.getNumChannels();
-    for (int ch = 0;
-        ch < channels;
-        ch++) { // TODO: if this does the same thing as getAllCurrents, get rid of it
+    for (int ch = 0; ch < channels; ch++) {
       Logger.recordOutput("PDH/Channel " + ch + " Current", pdh.getCurrent(ch));
     }
     Logger.recordOutput("PDH/TotalCurrent", pdh.getTotalCurrent());
@@ -27,6 +25,5 @@ public final class PDHLogger {
     Logger.recordOutput("PDH/Total Power", pdh.getTotalPower());
     Logger.recordOutput("PDH/Total Energy", pdh.getTotalEnergy());
     Logger.recordOutput("PDH/Temperature", pdh.getTemperature());
-    Logger.recordOutput("PDH/All Currents", pdh.getAllCurrents());
   }
 }
