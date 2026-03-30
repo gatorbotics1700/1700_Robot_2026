@@ -66,7 +66,7 @@ task(replayWatch, type: JavaExec) {
 
 // Generate shot lookup table JSON into src/main/deploy (runs on your computer).
 task(generateShotTable, type: JavaExec) {
-    mainClass = "frc.robot.tools.ShotTableGenerator"
+    mainClass = "frc.robot.util.shooting.ShotTableGenerator"
     classpath = sourceSets.main.runtimeClasspath
     workingDir(projectDir)
     args "--name", "AlectoHub"
