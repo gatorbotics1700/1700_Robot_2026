@@ -23,7 +23,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -37,7 +36,6 @@ import frc.robot.Constants.FieldCoordinates;
 import frc.robot.Constants.HoodConstants;
 import frc.robot.Constants.HopperFloorConstants;
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.Constants.PowerConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.VisionConstants;
@@ -65,7 +63,6 @@ import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.util.CommandSimMacXboxController;
 import frc.robot.util.RobotConfigLoader;
-import frc.robot.util.logging.PDHLogger;
 import frc.robot.util.shooting.GamePieceSimulation;
 import frc.robot.util.shooting.ShotCalculator;
 import frc.robot.util.shooting.ShotParameters;
@@ -99,7 +96,6 @@ public class RobotContainer {
   private Supplier<ChassisSpeeds> chassisSpeeds;
 
   /** Null when {@link Constants.Mode#REPLAY} (no hardware). */
-  private final PowerDistribution pdh;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -162,12 +158,6 @@ public class RobotContainer {
         vision = new Vision(drive);
 
         break;
-    }
-
-    if (Constants.currentMode == Constants.Mode.REPLAY) {
-      pdh = null;
-    } else {
-      pdh = new PowerDistribution(PowerConstants.PDH_CAN_ID, PowerDistribution.ModuleType.kRev);
     }
 
     robotPose =
@@ -1002,8 +992,6 @@ public class RobotContainer {
     Logger.recordOutput("Drive/Odometry/Fuel", vision.getFuelPose(drive.getPose()));
 
     Logger.recordOutput("Mech/Valid Shot", getValidShot());
-
-    PDHLogger.log(pdh);
   }
 
   public boolean getValidShot() {

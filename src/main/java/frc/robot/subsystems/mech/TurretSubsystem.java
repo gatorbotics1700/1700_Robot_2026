@@ -105,8 +105,7 @@ public class TurretSubsystem extends SubsystemBase {
     turretMotor.getConfigurator().apply(talonFXConfigs);
 
     m_request = new MotionMagicExpoVoltage(0);
-
-    homeTurret();
+    // homeTurret();
   }
 
   @Override
@@ -165,13 +164,13 @@ public class TurretSubsystem extends SubsystemBase {
   public void homeTurret() {
     // TODO: try calling the other version of homeTurret in robotInit, my theory is
     // the bore encoder isn't connected by the time we call this
-    turretMotor.setPosition(0);
-    // turretMotor.setPosition(
-    //     getCurrentToOffsetError()
-    //             / ENCODER_REVS_PER_TURRET_REV
-    //             * TURRET_GEARBOX_RATIO
-    //             * GEAR_REVS_PER_TURRET_REV
-    //         + degreesToRevs(TurretConstants.TURRET_HOMING_ANGLE));
+    // turretMotor.setPosition(0);
+    turretMotor.setPosition(
+        getCurrentToOffsetError()
+                / ENCODER_REVS_PER_TURRET_REV
+                * TURRET_GEARBOX_RATIO
+                * GEAR_REVS_PER_TURRET_REV
+            + degreesToRevs(TurretConstants.TURRET_HOMING_ANGLE));
     System.out.println("ANGLE AT END OF TURRET HOMING: " + getCurrentAngle().getDegrees());
     setDesiredAngle((new Rotation2d(Math.toRadians(0))));
   }

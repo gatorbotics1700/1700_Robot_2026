@@ -641,7 +641,7 @@ public final class Constants {
 
     public static final double TURRET_DEADBAND = 0.75;
 
-    public static final double TURRET_ENCODER_OFFSET = 0.241;
+    public static final double TURRET_ENCODER_OFFSET = 0.46;
     public static final double TURRET_HOMING_ANGLE = 0.0;
     public static final double MIN_TURRET_ANGLE = -285;
     public static final double MAX_TURRET_ANGLE = 105;
