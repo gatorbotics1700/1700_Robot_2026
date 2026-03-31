@@ -305,7 +305,7 @@ public class RobotContainer {
 
       // X -- Drive Over Bump
       controller
-          .rightTrigger()
+          .x()
           .onTrue(
               new InstantCommand(
                   () -> {
@@ -343,11 +343,12 @@ public class RobotContainer {
                                   hopperFloorSubsystem,
                                   turretSubsystem,
                                   robotPose,
-                                  chassisSpeeds))));
+                                  chassisSpeeds))))
+          .onFalse(new ShootingCommands.StopShooting(shooterSubsystem, hopperFloorSubsystem));
 
-      // Left Bumper -- Point @ Hub & Shoot (without turret) (while true)
+      // Back -- Point @ Hub & Shoot (without turret) (while true)
       controller
-          .leftBumper()
+          .back()
           .whileTrue(
               Commands.runOnce(
                   () ->
@@ -377,14 +378,23 @@ public class RobotContainer {
                       CommandScheduler.getInstance()
                           .schedule(IntakeCommands.StopIntake(intakeSubsystem))));
 
-      // Right Bumper -- Deploy / Retract Intake Toggle
+      // Right Bumper -- Deploy Intake
       controller
           .rightBumper()
           .onTrue(
               new InstantCommand(
                   () ->
                       CommandScheduler.getInstance()
-                          .schedule(IntakeCommands.ToggleIntake(intakeSubsystem))));
+                          .schedule(IntakeCommands.DeployIntake(intakeSubsystem))));
+
+      // Left Bumper -- Retract Intake
+      controller
+          .leftBumper()
+          .onTrue(
+              new InstantCommand(
+                  () ->
+                      CommandScheduler.getInstance()
+                          .schedule(IntakeCommands.RetractIntake(intakeSubsystem))));
     }
   }
 
@@ -591,7 +601,7 @@ public class RobotContainer {
 
       // X -- Drive Over Bump
       controller
-          .rightTrigger()
+          .x()
           .onTrue(
               new InstantCommand(
                   () -> {
@@ -746,10 +756,10 @@ public class RobotContainer {
       }
 
       // TODO: drivetrain sysid buttons -- uncomment for use
-      //  controller_two.a().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-      //  controller_two.b().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-      //  controller_two.x().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-      // controller_two.y().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      controller_two.a().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      controller_two.b().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      controller_two.x().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      controller_two.y().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
       // TODO: hood sysid buttons -- uncomment for use
       // controller_two.x().whileTrue(hoodSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
@@ -786,18 +796,18 @@ public class RobotContainer {
       //     .whileTrue(shooterSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
       // TODO: turret sysid buttons -- uncomment for use
-      controller_two.x().whileTrue(turretSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-      controller_two.y().whileTrue(turretSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
-      controller_two
-          .a()
-          .whileTrue(turretSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-      controller_two
-          .b()
-          .whileTrue(turretSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      // controller_two.x().whileTrue(turretSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      // controller_two.y().whileTrue(turretSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      // controller_two
+      //     .a()
+      //     .whileTrue(turretSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      // controller_two
+      //     .b()
+      //     .whileTrue(turretSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
-      controller_two
-          .rightBumper()
-          .onTrue(new InstantCommand(() -> turretSubsystem.homeTurret()).ignoringDisable(true));
+      // controller_two
+      //     .rightBumper()
+      //     .onTrue(new InstantCommand(() -> turretSubsystem.homeTurret()).ignoringDisable(true));
     }
   }
 

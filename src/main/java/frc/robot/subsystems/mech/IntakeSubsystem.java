@@ -40,6 +40,9 @@ public class IntakeSubsystem extends SubsystemBase {
   private static CurrentLimitsConfigs deployCurrentLimitConfigs;
   private static CurrentLimitsConfigs intakeCurrentLimitConfigs;
 
+  private LoggedNetworkNumber retractSpeed =
+      new LoggedNetworkNumber("/Tuning/Intake/Deploy Speed", IntakeConstants.RETRACTING_SPEED);
+
   private LoggedNetworkNumber tunableIntakeSpeed =
       new LoggedNetworkNumber(
           "/Tuning/Intake/intake speed",
@@ -209,7 +212,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void setDeploySpeed(double speed) {
     useDeployPositionControl = false;
-    desiredDeploySpeed = speed;
+    desiredDeploySpeed = speed != 0 ? retractSpeed.get() : 0;
     deployMotor.set(desiredDeploySpeed);
   }
 

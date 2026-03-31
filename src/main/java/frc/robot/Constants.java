@@ -596,8 +596,8 @@ public final class Constants {
     public static final Rotation2d HALF_EXTENDED_POSITION =
         new Rotation2d(Math.toRadians(HALF_EXTENDED_ANGLE_DEGREES));
 
-    public static final double HOMING_SPEED = -0.1; // TODO tune
-    public static final double RETRACTING_SPEED = -0.25; // TODO: tune
+    public static final double HOMING_SPEED = -0.2; // TODO tune
+    public static final double RETRACTING_SPEED = -0.2; // TODO: tune
     public static final double INTAKING_SPEED = -0.6; // TODO: tune
 
     public static final double POSITION_DEADBAND = 3;
@@ -613,7 +613,7 @@ public final class Constants {
     public static final int LEFT_TRANSITION_MOTOR_CAN_ID = 18;
     public static final int RIGHT_TRANSITION_MOTOR_CAN_ID = 19;
 
-    public static final double TRANSITION_SPEED = 0.8;
+    public static final double TRANSITION_SPEED = 0.4;
 
     /**
      * Stator current limit for transition rollers (A). Limits torque when a ball is jammed so the
@@ -654,8 +654,8 @@ public final class Constants {
     // trying to phase through walls)
     // hub
     public static final Translation3d RED_HUB = new Translation3d(11.915394, 4.034663, 1.80);
-    public static final Translation3d BLUE_LEFT_FUNNELING = new Translation3d(2.482, 6.653, 0);
-    public static final Translation3d BLUE_RIGHT_FUNNELING = new Translation3d(2.482, 1.511, 0);
+    public static final Translation3d BLUE_LEFT_FUNNELING = new Translation3d(2.482, 1.511, 0);
+    public static final Translation3d BLUE_RIGHT_FUNNELING = new Translation3d(2.482, 6.653, 0);
     public static final Translation3d RED_LEFT_FUNNELING = new Translation3d(14.858, 6.653, 0);
     public static final Translation3d RED_RIGHT_FUNNELING = new Translation3d(14.858, 1.511, 0);
 

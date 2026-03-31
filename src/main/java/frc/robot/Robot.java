@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.PowerConstants;
 import frc.robot.Constants.TunerConstants;
+import frc.robot.commands.mech.HoodCommands;
 import frc.robot.util.Elastic;
 import frc.robot.util.RobotConfigLoader;
 import frc.robot.util.logging.PDHLogger;
@@ -219,6 +220,8 @@ public class Robot extends LoggedRobot {
                 robotContainer.getHoodSubsystem(),
                 robotContainer.getIntakeSubsystem()));
     System.out.println("IN TELEOP INIT");
+    CommandScheduler.getInstance()
+        .schedule(new HoodCommands.HoodHomingCommand(robotContainer.getHoodSubsystem()));
     // CommandScheduler.getInstance()
     //     .schedule(
     //         robotContainer.HomeMechanisms()); // TODO we don't want to actually do this in comps

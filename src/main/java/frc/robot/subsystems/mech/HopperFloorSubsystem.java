@@ -10,10 +10,14 @@ import frc.robot.Constants.HopperFloorConstants;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.util.logging.TalonFXLogger;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 public class HopperFloorSubsystem extends SubsystemBase {
   private final TalonFX hopperMotor;
   private double desiredHopperSpeed;
+  private LoggedNetworkNumber hopperSpeed =
+      new LoggedNetworkNumber(
+          "Tuning/Hopper Floor/hopperSpeed", HopperFloorConstants.HOPPER_FLOOR_SPEED);
   private final TalonFXConfiguration hopperFloorTalonFXConfigs;
   private final CurrentLimitsConfigs hopperFloorCurrentLimitsConfigs;
 
@@ -36,7 +40,7 @@ public class HopperFloorSubsystem extends SubsystemBase {
   }
 
   public void setDesiredHopperFloorSpeed(double speed) {
-    this.desiredHopperSpeed = speed;
+    this.desiredHopperSpeed = speed != 0 ? hopperSpeed.get() : 0;
   }
 
   public void hopperFloorLogs() {
