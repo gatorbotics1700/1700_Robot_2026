@@ -78,7 +78,7 @@ public class IntakeCommands {
 
     @Override
     public boolean isFinished() {
-      return intakeSubsystem.isRetractedHomingCurrentLimitReached();
+      return intakeSubsystem.isDeployedHallEffectTriggered();
     }
 
     @Override
@@ -140,6 +140,8 @@ public class IntakeCommands {
               IntakeConstants.EXTENDED_ANGLE_DEGREES
                   - intakeSubsystem.getCurrentAngle().getDegrees())
           <= IntakeConstants.POSITION_DEADBAND) {
+        // CommandScheduler.getInstance()
+        // .schedule(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem));
         return true;
       }
       return false;

@@ -28,6 +28,7 @@ public class IntakeSubsystem extends SubsystemBase {
   private final TalonFX deployMotor; // deploys the entire intake
 
   private final DigitalInput hallEffect;
+  private final DigitalInput deployedHallEffect;
 
   private static final double SYSID_LIMIT_MARGIN_DEGREES = 3;
   private boolean sysIdRunning = false;
@@ -97,6 +98,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     desiredIntakeSpeed = 0;
     hallEffect = new DigitalInput(IntakeConstants.INTAKE_HALL_EFFECT_PORT);
+    deployedHallEffect = new DigitalInput(IntakeConstants.DEPLOYED_HALL_EFFECT_PORT);
 
     intakeTalonFXConfigs =
         new TalonFXConfiguration()
@@ -241,10 +243,6 @@ public class IntakeSubsystem extends SubsystemBase {
         * IntakeConstants.DEPLOY_GEARBOX_RATIO;
   }
 
-  public boolean isRetractedHomingCurrentLimitReached() {
-    return deployMotor.getStatorCurrent().getValueAsDouble() > 60;
-  }
-
   public void zeroIntakeDeploy(boolean isRetracted) {
     if (isRetracted) {
       deployMotor.setPosition(IntakeConstants.RETRACTED_POSITION.getDegrees());
@@ -256,6 +254,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public boolean isHallEffectTriggered() {
     return !hallEffect.get();
+  }
+
+  public boolean isDeployedHallEffectTriggered() {
+    return !deployedHallEffect.get();
   }
 
   public void toggleIntake() {
@@ -418,6 +420,7 @@ public class IntakeSubsystem extends SubsystemBase {
         "Mech/Intake/Deploy/Current Limit", deployCurrentLimitConfigs.StatorCurrentLimit);
 
     Logger.recordOutput("Mech/Intake/Intake Hall Effect", isHallEffectTriggered());
+    Logger.recordOutput("Mech/Intake/Deployed Hall Effect", isDeployedHallEffectTriggered());
     Logger.recordOutput("Mech/Intake/IsDeployed", isDeployed.getAsBoolean());
     Logger.recordOutput("Mech/Intake/Intake/Desired Intake Speed", desiredIntakeSpeed);
     Logger.recordOutput(
