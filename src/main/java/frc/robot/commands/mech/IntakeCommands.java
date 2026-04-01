@@ -34,7 +34,35 @@ public class IntakeCommands {
         .withName("Deploy Intake");
   }
 
-  public static class HomeIntakeDeploy extends Command {
+  public static class HomeIntakeRetract extends Command {
+    private final IntakeSubsystem intakeSubsystem;
+
+    public HomeIntakeRetract(IntakeSubsystem intakeSubsystem) {
+      this.intakeSubsystem = intakeSubsystem;
+      addRequirements(intakeSubsystem);
+      setName("Home Intake Retract");
+    }
+
+    @Override
+    public void initialize() {
+      intakeSubsystem.setDeploySpeed(IntakeConstants.HOMING_SPEED);
+    }
+
+    @Override
+    public boolean isFinished() {
+      return intakeSubsystem.isHallEffectTriggered();
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+      intakeSubsystem.zeroIntakeDeploy();
+      intakeSubsystem.setDesiredAngle(
+          IntakeConstants.RETRACTED_POSITION.plus(new Rotation2d(Math.toRadians((2)))));
+      intakeSubsystem.setIsDeployedToFalse();
+    }
+  }
+
+   public static class HomeIntakeDeploy extends Command {
     private final IntakeSubsystem intakeSubsystem;
 
     public HomeIntakeDeploy(IntakeSubsystem intakeSubsystem) {
@@ -45,7 +73,7 @@ public class IntakeCommands {
 
     @Override
     public void initialize() {
-      intakeSubsystem.setDeploySpeed(IntakeConstants.HOMING_SPEED);
+      intakeSubsystem.setDeploySpeed(-IntakeConstants.HOMING_SPEED);
     }
 
     @Override
@@ -140,7 +168,7 @@ public class IntakeCommands {
                       - intakeSubsystem.getCurrentAngle().getDegrees())
               <= IntakeConstants.POSITION_DEADBAND)) {
         CommandScheduler.getInstance()
-            .schedule(new IntakeCommands.HomeIntakeDeploy(intakeSubsystem));
+            .schedule(new IntakeCommands.HomeIntakeRetract(intakeSubsystem));
         return true;
       } else {
         return false;
