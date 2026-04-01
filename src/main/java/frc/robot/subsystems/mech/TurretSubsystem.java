@@ -2,6 +2,8 @@ package frc.robot.subsystems.mech;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -34,6 +36,8 @@ public class TurretSubsystem extends SubsystemBase {
   private boolean sysIdRunning = false;
 
   private final int TURRET_GEARBOX_RATIO = 1;
+
+  private BooleanSupplier useTurretPositionControl = () -> {return true;};
 
   /**
    * Called by SysId commands to indicate test is running; we log voltage/position/velocity in
@@ -112,7 +116,7 @@ public class TurretSubsystem extends SubsystemBase {
     // Update PID gains from NetworkTables if they've changed, and reapply configs
     updateSlot0Configs();
 
-    if (!sysIdRunning) {
+    if (!sysIdRunning && useTurretPositionControl.getAsBoolean()) {
       turretMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
     }
 
@@ -121,6 +125,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   public void setDesiredAngle(
       Rotation2d desiredAngle) { // this is for once we start testing targetting
+    useTurretPositionControl = () -> {return true;};
     double desiredAngleDegrees =
         MathUtil.inputModulus(
             desiredAngle.getDegrees(),
@@ -154,8 +159,13 @@ public class TurretSubsystem extends SubsystemBase {
   //   return !hallEffect.get();
   // }
 
-  public void setMotorVoltage(double voltage) {
-    turretMotor.setVoltage(voltage);
+  public void setMotorSpeed(double speed) {
+    useTurretPositionControl = () -> {return false;};
+    turretMotor.set(speed);
+  }
+
+  public BooleanSupplier getUseTurretPositionControl(){
+    return useTurretPositionControl;
   }
 
   private double getCurrentToOffsetError() {
@@ -163,6 +173,7 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void homeTurret() {
+    useTurretPositionControl = () -> {return true;};
     turretMotor.setPosition(
         getCurrentToOffsetError()
                 / ENCODER_REVS_PER_TURRET_REV
@@ -262,6 +273,7 @@ public class TurretSubsystem extends SubsystemBase {
     Logger.recordOutput("Mech/Turret/boreEncoder isConnected", boreEncoder.isConnected());
     Logger.recordOutput("Mech/Turret/currentAngle", getCurrentAngle().getDegrees());
     Logger.recordOutput("Mech/Turret/desiredAngle", desiredAngle.getDegrees());
+    Logger.recordOutput("Mech/Turret/UsingManualControl", !useTurretPositionControl.getAsBoolean());
 
     // Logger.recordOutput("Mech/Turret/hallEffect", isHallEffectTriggered());
     Logger.recordOutput(

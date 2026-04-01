@@ -639,6 +639,8 @@ public final class Constants {
     public static final double TURRET_HOMING_ANGLE = 0.0;
     public static final double MIN_TURRET_ANGLE = -285;
     public static final double MAX_TURRET_ANGLE = 105;
+
+    public static final double TURRET_MANUAL_SPEED = 0.2;
   }
 
   public static final class FieldCoordinates {

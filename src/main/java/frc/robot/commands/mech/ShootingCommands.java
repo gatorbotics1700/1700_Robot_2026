@@ -1,5 +1,7 @@
 package frc.robot.commands.mech;
 
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -136,7 +138,7 @@ public class ShootingCommands {
       this.turretSubsystem = turretSubsystem;
       this.drivetrainPose = drivetrainPose;
       this.drivetrainVelocity = drivetrainVelocity;
-      addRequirements(shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, turretSubsystem);
+      addRequirements(shooterSubsystem, hoodSubsystem, hopperFloorSubsystem);
       setName("ShootOnTheMoveCommand");
     }
 
@@ -196,7 +198,11 @@ public class ShootingCommands {
         shooterSubsystem.setDesiredTransitionSpeed(0);
         hopperFloorSubsystem.setDesiredHopperFloorSpeed(0);
       } else {
-        turretSubsystem.setDesiredAngle(params.turretAngle);
+        if(turretSubsystem.getUseTurretPositionControl().getAsBoolean()){
+          turretSubsystem.setDesiredAngle(params.turretAngle);
+        } else{
+          System.out.println("USING MANUAL TURRET CONTROL");
+        }
         shooterSubsystem.setDesiredRotorVelocity(
             desiredRotorVelocity); // set velocity to our desired velocity
         hopperFloorSubsystem.setDesiredHopperFloorSpeed(HopperFloorConstants.HOPPER_FLOOR_SPEED);

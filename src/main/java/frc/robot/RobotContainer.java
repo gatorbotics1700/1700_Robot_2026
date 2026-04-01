@@ -38,6 +38,7 @@ import frc.robot.Constants.HopperFloorConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.TunerConstants;
+import frc.robot.Constants.TurretConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.drive.DriveCommands;
 import frc.robot.commands.drive.DriveOverBumpCommand;
@@ -285,15 +286,6 @@ public class RobotContainer {
                   turretSubsystem,
                   robotPose,
                   chassisSpeeds));
-
-      // controller
-      //     .y()
-      //     .onTrue(
-      //         Commands.defer(
-      //             () ->
-      //                 ShootingCommands.StationaryShootingCommand(
-      //                     shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, robotPose),
-      //             Set.of(shooterSubsystem, hoodSubsystem, hopperFloorSubsystem)));
 
       // drive under trench
       // controller
@@ -590,6 +582,7 @@ public class RobotContainer {
         //             robotPose,
         //             chassisSpeeds));
 
+
         controller_two
             .x()
             .onTrue(
@@ -604,13 +597,13 @@ public class RobotContainer {
                                     hoodSubsystem,
                                     intakeSubsystem))));
 
-        controller_two
-            .y()
-            .onTrue(
-                new InstantCommand(
-                    () ->
-                        CommandScheduler.getInstance()
-                            .schedule(new HoodCommands.HoodHomingCommand(hoodSubsystem))));
+        // controller_two
+        //     .y()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () ->
+        //                 CommandScheduler.getInstance()
+        //                     .schedule(new HoodCommands.HoodHomingCommand(hoodSubsystem))));
 
         controller_two
             .a()
@@ -632,7 +625,31 @@ public class RobotContainer {
                             turretSubsystem,
                             robotPose,
                             chassisSpeeds)));
+               
+        Trigger codriverTurretControl =
+          new Trigger(
+              () ->
+                  Math.abs(controller_two.getLeftY()) > 0.1
+                      || Math.abs(controller_two.getLeftX()) > 0.1);      
+        
+        if(controller.getLeftX()>0.1){ //Turret joystick moved towards the right
+          codriverTurretControl
+            .whileTrue(
+                new InstantCommand(
+                     () -> turretSubsystem.setMotorSpeed(TurretConstants.TURRET_MANUAL_SPEED))); //TODO Check signs on these so this turns turret clockwise
+        } else if (controller.getLeftX()<-0.1){ //Turret joystick moved towards the left
+          codriverTurretControl
+            .whileTrue(
+                new InstantCommand(
+                     () -> turretSubsystem.setMotorSpeed(-TurretConstants.TURRET_MANUAL_SPEED)));
+        } else { //Turret joystick not moved
+          codriverTurretControl
+            .whileTrue(
+                new InstantCommand(
+                     () -> turretSubsystem.setMotorSpeed(0)));
+        }
 
+            
         // new InstantCommand(
         //     () ->
         //         hopperFloorSubsystem.setDesiredHopperFloorVoltage(
