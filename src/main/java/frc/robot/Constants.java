@@ -599,7 +599,7 @@ public final class Constants {
 
     public static final double HOMING_SPEED = -0.2; // TODO tune
     public static final double RETRACTING_SPEED = -0.2; // TODO: tune
-    public static final double INTAKING_SPEED = -0.6; // TODO: tune
+    public static final double INTAKING_SPEED = -1; // TODO: tune
 
     public static final double POSITION_DEADBAND = 3;
 

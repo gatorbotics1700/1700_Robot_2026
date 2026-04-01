@@ -3,8 +3,8 @@ package frc.robot.commands.mech;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.mech.IntakeSubsystem;
 
@@ -22,14 +22,20 @@ public class IntakeCommands {
 
   public static Command RetractIntake(IntakeSubsystem intakeSubsystem) {
     return new RetractIntakeCommand(intakeSubsystem)
-        .andThen(new WaitCommand(0.75))
+        .andThen(
+            Commands.waitSeconds(0.75)
+                .alongWith(Commands.run(() -> {}, intakeSubsystem))
+                .withName("Intake Sequence Wait"))
         .andThen(new InstantCommand(() -> intakeSubsystem.setIsDeployedToFalse()))
         .withName("Retract Intake");
   }
 
   public static Command DeployIntake(IntakeSubsystem intakeSubsystem) {
     return new DeployIntakeCommand(intakeSubsystem)
-        .andThen(new WaitCommand(0.75))
+        .andThen(
+            Commands.waitSeconds(0.75)
+                .alongWith(Commands.run(() -> {}, intakeSubsystem))
+                .withName("Intake Sequence Wait"))
         .andThen(new InstantCommand(() -> intakeSubsystem.setIsDeployedToTrue()))
         .withName("Deploy Intake");
   }
@@ -111,7 +117,10 @@ public class IntakeCommands {
             () -> {
               intakeSubsystem.setDesiredAngle(IntakeConstants.EXTENDED_POSITION);
             })
-        .andThen(new WaitCommand(0.5))
+        .andThen(
+            Commands.waitSeconds(0.5)
+                .alongWith(Commands.run(() -> {}, intakeSubsystem))
+                .withName("Intake Agitate Wait"))
         .andThen(
             new InstantCommand(
                 () -> {

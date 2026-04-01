@@ -41,14 +41,6 @@ public class IntakeSubsystem extends SubsystemBase {
   private static CurrentLimitsConfigs deployCurrentLimitConfigs;
   private static CurrentLimitsConfigs intakeCurrentLimitConfigs;
 
-  private LoggedNetworkNumber retractSpeed =
-      new LoggedNetworkNumber("/Tuning/Intake/Deploy Speed", IntakeConstants.RETRACTING_SPEED);
-
-  private LoggedNetworkNumber tunableIntakeSpeed =
-      new LoggedNetworkNumber(
-          "/Tuning/Intake/intake speed",
-          -1); // TODO change this value when the intakes gear box changes
-
   /**
    * Called by SysId commands to indicate test is running; we log voltage/position/velocity in
    * periodic().
@@ -90,6 +82,9 @@ public class IntakeSubsystem extends SubsystemBase {
   private double desiredIntakeSpeed;
   private double desiredDeploySpeed;
   private BooleanSupplier isDeployed;
+
+  /** True while periodic is driving deploy open-loop to find a hall (not a command). */
+  private boolean hallAssistActive = false;
 
   public IntakeSubsystem() {
     intakeMotor = new TalonFX(IntakeConstants.INTAKE_MOTOR_CAN_ID, TunerConstants.mechCANBus);
@@ -161,31 +156,62 @@ public class IntakeSubsystem extends SubsystemBase {
     updateMotionMagicConfigs();
     updateCurrentLimitConfigs();
 
-    if (!sysIdRunning && useDeployPositionControl) {
-      deployMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
-      if (isDeployed.getAsBoolean()
-          && deployCurrentLimitConfigs.StatorCurrentLimit != 25
-          && getCurrentAngle().getDegrees() > 30) {
-        deployCurrentLimitConfigs.StatorCurrentLimit = 25;
-        deployMotor.getConfigurator().apply(deployTalonFXConfigs);
-      }
-      if ((!isDeployed.getAsBoolean() || getCurrentAngle().getDegrees() < 30)
-          && deployCurrentLimitConfigs.StatorCurrentLimit != 60) {
-        deployCurrentLimitConfigs.StatorCurrentLimit = 60;
-        deployMotor.getConfigurator().apply(deployTalonFXConfigs);
-      }
+    hallAssistActive = false;
 
-      // if (!isDeployed.getAsBoolean()) {
-      //   if (!isHallEffectTriggered()) {
-      //     setDeploySpeed(IntakeConstants.HOMING_SPEED);
-      //   } else {
-      //     setDeploySpeed(0.0);
-      //     zeroIntakeDeploy();
-      //   }
-      // }
+    if (!sysIdRunning) {
+      if (isIntakeDeployMotionCommandActive()) {
+        if (useDeployPositionControl) {
+          applyDeployPositionControl();
+        }
+      } else {
+        // No deploy/retract/home sequence running: nudge toward the correct hall if state disagrees.
+        boolean wantDeployed = isDeployed.getAsBoolean();
+        if (wantDeployed && !isDeployedHallEffectTriggered()) {
+          hallAssistActive = true;
+          deployMotor.set(-IntakeConstants.HOMING_SPEED);
+        } else if (!wantDeployed && !isHallEffectTriggered()) {
+          hallAssistActive = true;
+          deployMotor.set(IntakeConstants.HOMING_SPEED);
+        } else if (useDeployPositionControl) {
+          applyDeployPositionControl();
+        }
+      }
     }
 
     intakeLogs();
+  }
+
+  /**
+   * True while a command that owns deploy motion is running (including wait steps that retain the
+   * subsystem).
+   */
+  private boolean isIntakeDeployMotionCommandActive() {
+    Command cmd = getCurrentCommand();
+    if (cmd == null) {
+      return false;
+    }
+    String name = cmd.getName();
+    return name.equals("Deploy Intake")
+        || name.equals("Retract Intake")
+        || name.equals("Home Intake Retract")
+        || name.equals("Home Intake Deploy")
+        || name.equals("Intake Sequence Wait")
+        || name.equals("Intake Agitate Wait");
+  }
+
+  private void applyDeployPositionControl() {
+    deployMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
+    if (isDeployed.getAsBoolean()
+        && deployCurrentLimitConfigs.StatorCurrentLimit != 25
+        && getCurrentAngle().getDegrees() > 30) {
+      deployCurrentLimitConfigs.StatorCurrentLimit = 25;
+      deployMotor.getConfigurator().apply(deployTalonFXConfigs);
+    }
+    if ((!isDeployed.getAsBoolean() || getCurrentAngle().getDegrees() < 30)
+        && deployCurrentLimitConfigs.StatorCurrentLimit != 60) {
+      deployCurrentLimitConfigs.StatorCurrentLimit = 60;
+      deployMotor.getConfigurator().apply(deployTalonFXConfigs);
+    }
   }
 
   public void retractDeployMotor() {
@@ -214,12 +240,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void setDeploySpeed(double speed) {
     useDeployPositionControl = false;
-    desiredDeploySpeed = speed != 0 ? retractSpeed.get() : 0;
-    deployMotor.set(desiredDeploySpeed);
+    desiredDeploySpeed = speed;
+    deployMotor.set(speed);
   }
 
   public void setIntakeSpeed(double speed) {
-    desiredIntakeSpeed = speed == 0 ? 0 : tunableIntakeSpeed.get();
+    desiredIntakeSpeed = speed;
     intakeMotor.set(desiredIntakeSpeed);
   }
 
@@ -421,6 +447,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     Logger.recordOutput("Mech/Intake/Intake Hall Effect", isHallEffectTriggered());
     Logger.recordOutput("Mech/Intake/Deployed Hall Effect", isDeployedHallEffectTriggered());
+    Logger.recordOutput("Mech/Intake/Hall Assist Active", hallAssistActive);
     Logger.recordOutput("Mech/Intake/IsDeployed", isDeployed.getAsBoolean());
     Logger.recordOutput("Mech/Intake/Intake/Desired Intake Speed", desiredIntakeSpeed);
     Logger.recordOutput(
