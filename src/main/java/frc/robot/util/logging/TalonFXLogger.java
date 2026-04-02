@@ -21,6 +21,20 @@ public final class TalonFXLogger {
     log(motor, category, mechanismName, "");
   }
 
+  public static void configureTelemetryUpdateHz(TalonFX motor) {
+    BaseStatusSignal.setUpdateFrequencyForAll(
+        50.0,
+        motor.getVelocity(),
+        motor.getStatorCurrent(),
+        motor.getMotorVoltage(),
+        motor.getPosition(),
+        motor.getSupplyVoltage(),
+        motor.getDeviceTemp(),
+        motor.getClosedLoopReference(),
+        motor.getClosedLoopError(),
+        motor.getClosedLoopFeedForward());
+  }
+
   public static void log(TalonFX motor, String category, String mechanismName, String motorName) {
     String prefix = category + "/" + mechanismName + (motorName.equals("") ? "" : "/" + motorName);
 
