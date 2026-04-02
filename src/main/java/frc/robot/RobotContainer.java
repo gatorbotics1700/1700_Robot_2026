@@ -183,19 +183,10 @@ public class RobotContainer {
     NamedCommands.registerCommand("Intaking Command", IntakeCommands.RunIntake(intakeSubsystem));
     NamedCommands.registerCommand(
         "Stop Shooter Command",
-        new InstantCommand(
-            () -> {
-              shooterSubsystem.setDesiredRotorVelocity(0);
-              shooterSubsystem.setDesiredTransitionSpeed(0);
-              hopperFloorSubsystem.setDesiredHopperFloorSpeed(0);
-            }));
+        new ShootingCommands.StopShooting(shooterSubsystem, hopperFloorSubsystem));
 
     NamedCommands.registerCommand(
-        "Auto Init",
-        HomeMechanisms()
-            .andThen(IntakeCommands.DeployIntake(intakeSubsystem))
-           // .andThen(IntakeCommands.RunIntake(intakeSubsystem))
-           );
+        "Auto Init", HomeMechanisms().andThen(IntakeCommands.DeployIntake(intakeSubsystem)));
 
     // Set up auto routines with PathPlanner's auto chooser (using pre-made .auto files)
     autoChooser =
@@ -366,7 +357,8 @@ public class RobotContainer {
                                           hopperFloorSubsystem,
                                           turretSubsystem,
                                           robotPose,
-                                          chassisSpeeds)))));
+                                          chassisSpeeds)))))
+          .onFalse(new ShootingCommands.StopShooting(shooterSubsystem, hopperFloorSubsystem));
 
       // Right Trigger -- Run Intake
       controller
@@ -652,7 +644,8 @@ public class RobotContainer {
                                   hopperFloorSubsystem,
                                   turretSubsystem,
                                   robotPose,
-                                  chassisSpeeds))));
+                                  chassisSpeeds))))
+          .onFalse(new ShootingCommands.StopShooting(shooterSubsystem, hopperFloorSubsystem));
 
       // Left Bumper -- Point @ Hub & Shoot (without turret) (while true)
       controller
@@ -670,7 +663,8 @@ public class RobotContainer {
                                           hopperFloorSubsystem,
                                           turretSubsystem,
                                           robotPose,
-                                          chassisSpeeds)))));
+                                          chassisSpeeds)))))
+          .onFalse(new ShootingCommands.StopShooting(shooterSubsystem, hopperFloorSubsystem));
 
       // Right Trigger -- Run Intake
       controller

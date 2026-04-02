@@ -623,6 +623,10 @@ public final class Constants {
     public static final double TRANSITION_STATOR_CURRENT_LIMIT_AMPS = 35.0;
 
     public static final double FLYWHEEL_SPEED_DEADBAND = 2;
+
+    /** Rotor speed (rps) below which StopShooting ends after coasting the flywheel. */
+    public static final double FLYWHEEL_COAST_STOPPED_RPS = 4.0;
+
     public static final double FLYWHEEL_GEAR_RATIO = 30.0 / 14.0;
     public static final double FLYWHEEL_SLIP = 0.17; // TODO: tune?
     public static final double FLYWHEEL_RADIUS_METERS = 0.0508;

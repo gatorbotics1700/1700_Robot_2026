@@ -161,6 +161,8 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledInit() {
     CommandScheduler.getInstance().cancelAll();
+    robotContainer.getShooterSubsystem().setDesiredRotorVelocity(0);
+    robotContainer.getShooterSubsystem().setDesiredTransitionSpeed(0);
   }
 
   /** This function is called periodically when disabled. */
