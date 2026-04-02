@@ -38,9 +38,9 @@ public class ShotCalculator {
   private static TricubicInterpolatingFunction turretAngleInterpolator;
 
   public static final LoggedNetworkNumber rangeMult =
-      new LoggedNetworkNumber("/Tuning/Shooter/RangeMultiplier", 1.1);
+      new LoggedNetworkNumber("/Tuning/Shooter/RangeMultiplier", 1);
   public static final LoggedNetworkNumber rangeAdjust =
-      new LoggedNetworkNumber("/Tuning/Shooter/RangeAdjust", 1.8);
+      new LoggedNetworkNumber("/Tuning/Shooter/RangeAdjust", 0);
 
   // public static final LoggedNetworkNumber hoodAdjust =
   //     new LoggedNetworkNumber("/Tuning/Hood/hoodAdjust", 0);
