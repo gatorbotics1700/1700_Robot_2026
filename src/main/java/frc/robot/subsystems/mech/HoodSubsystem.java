@@ -43,9 +43,6 @@ public class HoodSubsystem extends SubsystemBase {
 
   private static final double HOOD_CURRENT_LIMIT = 60; // TODO change
 
-  public static final LoggedNetworkNumber hoodAdjust =
-      new LoggedNetworkNumber("/Tuning/Hood/hoodAdjust", -8);
-
   // Tunable PID gains for hood control
   public static final LoggedNetworkNumber hoodKp = new LoggedNetworkNumber("/Tuning/Hood/kP", 30);
   public static final LoggedNetworkNumber hoodKi = new LoggedNetworkNumber("/Tuning/Hood/kI", 0.0);
@@ -174,7 +171,7 @@ public class HoodSubsystem extends SubsystemBase {
   }
 
   public static Rotation2d launchAngleToHoodAngle(Rotation2d launchAngle) {
-    return launchAngle.plus(new Rotation2d(Math.toRadians(hoodAdjust.get())));
+    return launchAngle;
   }
 
   public double degreesToRevs(double hoodAngleDegrees) {

@@ -183,19 +183,12 @@ public class RobotContainer {
     NamedCommands.registerCommand("Intaking Command", IntakeCommands.RunIntake(intakeSubsystem));
     NamedCommands.registerCommand(
         "Stop Shooter Command",
-        new InstantCommand(
-            () -> {
-              shooterSubsystem.setDesiredRotorVelocity(0);
-              shooterSubsystem.setDesiredTransitionSpeed(0);
-              hopperFloorSubsystem.setDesiredHopperFloorSpeed(0);
-            }));
+        new ShootingCommands.StopShooting(shooterSubsystem, hopperFloorSubsystem));
 
     NamedCommands.registerCommand(
-        "Auto Init",
-        HomeMechanisms()
-            .andThen(IntakeCommands.DeployIntake(intakeSubsystem))
-            .andThen(IntakeCommands.RunIntake(intakeSubsystem)));
-
+        "Auto Init", HomeMechanisms().andThen(IntakeCommands.DeployIntake(intakeSubsystem))
+        //  .andThen(IntakeCommands.RunIntake(intakeSubsystem)));
+        );
     // Set up auto routines with PathPlanner's auto chooser (using pre-made .auto files)
     autoChooser =
         new LoggedDashboardChooser<>("Auto/PathPlanner Auto", AutoBuilder.buildAutoChooser());
@@ -365,7 +358,8 @@ public class RobotContainer {
                                           hopperFloorSubsystem,
                                           turretSubsystem,
                                           robotPose,
-                                          chassisSpeeds)))));
+                                          chassisSpeeds)))))
+          .onFalse(new ShootingCommands.StopShooting(shooterSubsystem, hopperFloorSubsystem));
 
       // Right Trigger -- Run Intake
       controller
@@ -466,14 +460,24 @@ public class RobotContainer {
                                               params.hoodAngle);
                                         })))));
       } else {
-        // B -- Retract Intake
+        // A -- Retract Intake
         controller_two
-            .b()
+            .a()
             .onTrue(
                 new InstantCommand(
                     () ->
                         CommandScheduler.getInstance()
                             .schedule(IntakeCommands.RetractIntake(intakeSubsystem))));
+
+        // B -- Deploy Intake
+        controller_two
+            .b()
+            .onTrue(
+                new InstantCommand(
+                    () ->
+                        // CommandScheduler.getInstance()
+                        //     .schedule(IntakeCommands.RetractIntake(intakeSubsystem))));
+                        turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(-7)))));
 
         // X -- Mech Stop
         controller_two
@@ -500,7 +504,11 @@ public class RobotContainer {
         // Left Trigger -- Home Turret
         controller_two
             .leftTrigger()
-            .onTrue(new InstantCommand(() -> turretSubsystem.homeTurret()).ignoringDisable(true));
+            .onTrue(
+                new InstantCommand(
+                    () ->
+                        // turretSubsystem.homeTurret()).ignoringDisable(true));
+                        turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(70)))));
 
         // Left Bumper -- Home Hood
         controller_two
@@ -508,8 +516,24 @@ public class RobotContainer {
             .onTrue(
                 new InstantCommand(
                     () ->
-                        CommandScheduler.getInstance()
-                            .schedule(new HoodCommands.HoodHomingCommand(hoodSubsystem))));
+                        // CommandScheduler.getInstance()
+                        //     .schedule(new HoodCommands.HoodHomingCommand(hoodSubsystem))));
+                        turretSubsystem.setDesiredAngle(new Rotation2d(Math.toRadians(-70)))));
+
+        controller_two
+            .rightBumper()
+            .onTrue(
+                new InstantCommand(
+                        () ->
+                            // CommandScheduler.getInstance()
+                            //     .schedule(new HoodCommands.HoodHomingCommand(hoodSubsystem))));
+                            hoodSubsystem.setDesiredAngle(HoodConstants.MIN_ANGLE))
+                    .andThen(new InstantCommand(() -> shooterSubsystem.setDesiredRotorVelocity(80)))
+                    .andThen(
+                        new InstantCommand(
+                            () ->
+                                shooterSubsystem.setDesiredTransitionSpeed(
+                                    ShooterConstants.TRANSITION_SPEED))));
 
         // turret testing buttons
         controller_two
@@ -642,7 +666,8 @@ public class RobotContainer {
                                   hopperFloorSubsystem,
                                   turretSubsystem,
                                   robotPose,
-                                  chassisSpeeds))));
+                                  chassisSpeeds))))
+          .onFalse(new ShootingCommands.StopShooting(shooterSubsystem, hopperFloorSubsystem));
 
       // Left Bumper -- Point @ Hub & Shoot (without turret) (while true)
       controller
@@ -660,7 +685,8 @@ public class RobotContainer {
                                           hopperFloorSubsystem,
                                           turretSubsystem,
                                           robotPose,
-                                          chassisSpeeds)))));
+                                          chassisSpeeds)))))
+          .onFalse(new ShootingCommands.StopShooting(shooterSubsystem, hopperFloorSubsystem));
 
       // Right Trigger -- Run Intake
       controller

@@ -7,9 +7,11 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -41,6 +43,7 @@ public class ShooterSubsystem extends SubsystemBase {
   private boolean sysIdRunning = false;
   private SysIdRoutine sysIdRoutine;
   private final VoltageOut sysIdVoltageRequest = new VoltageOut(0);
+  private final NeutralOut flywheelNeutralOut = new NeutralOut();
 
   // private LoggedNetworkNumber desiredRotorVelo =
   //     new LoggedNetworkNumber("Mech/Shooter/Desired Rotor Velo", 53);
@@ -70,7 +73,9 @@ public class ShooterSubsystem extends SubsystemBase {
     flywheelTalonFXConfigs = new TalonFXConfiguration();
 
     flywheelTalonFXConfigs.withMotorOutput(
-        new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive));
+        new MotorOutputConfigs()
+            .withInverted(InvertedValue.CounterClockwise_Positive)
+            .withNeutralMode(NeutralModeValue.Coast));
 
     flywheelSlot0Configs = flywheelTalonFXConfigs.Slot0;
 
@@ -121,8 +126,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Only control motors if SysID is not running
     if (!sysIdRunning) {
-      flywheelMotor.setControl(
-          m_request.withVelocity(desiredRotorVelocity)); // desiredRotorVelo.get()));
+      if (desiredRotorVelocity == 0.0) {
+        flywheelMotor.setControl(flywheelNeutralOut);
+      } else {
+        flywheelMotor.setControl(m_request.withVelocity(desiredRotorVelocity));
+      }
     }
 
     kickerMotor.set(desiredTransitionSpeed * 1.75);

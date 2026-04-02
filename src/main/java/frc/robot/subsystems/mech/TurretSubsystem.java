@@ -106,6 +106,8 @@ public class TurretSubsystem extends SubsystemBase {
 
     m_request = new MotionMagicExpoVoltage(0);
     // homeTurret();
+
+    TalonFXLogger.configureTelemetryUpdateHz(turretMotor);
   }
 
   @Override

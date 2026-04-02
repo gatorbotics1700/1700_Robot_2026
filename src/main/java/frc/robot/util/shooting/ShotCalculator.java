@@ -14,10 +14,9 @@ import frc.robot.Constants.FieldCoordinates;
 import frc.robot.Constants.HoodConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.ShotCalculatorConditions;
-import java.io.IOException;
-import java.nio.file.Path;
 import org.apache.commons.math3.analysis.interpolation.*;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 // @AutoLog
 public class ShotCalculator {
@@ -25,31 +24,39 @@ public class ShotCalculator {
   // hit the target's
   // height ("land" on the target)
   public static Translation3d landingCoords = new Translation3d();
-  public static ShotParameters[][][] hubLookupTable;
-  private static double[] x_values;
-  private static double[] y_values;
-  private static double[] z_values;
-  private static double[][][] turretAngleTable;
-  private static double[][][] hoodAngleTable;
-  private static double[][][] shotSpeedTable;
-  private static TricubicInterpolatingFunction shotSpeedInterpolator;
-  private static TricubicInterpolatingFunction hoodAngleInterpolator;
-  private static TricubicInterpolatingFunction turretAngleInterpolator;
+  // public static ShotParameters[][][] hubLookupTable;
+  // private static double[] x_values;
+  // private static double[] y_values;
+  // private static double[] z_values;
+  // private static double[][][] turretAngleTable;
+  // private static double[][][] hoodAngleTable;
+  // private static double[][][] shotSpeedTable;
+  // private static TricubicInterpolatingFunction shotSpeedInterpolator;
+  // private static TricubicInterpolatingFunction hoodAngleInterpolator;
+  // private static TricubicInterpolatingFunction turretAngleInterpolator;
+
+  public static final LoggedNetworkNumber rangeMult =
+      new LoggedNetworkNumber("/Tuning/Shooter/RangeMultiplier", 1.1);
+  public static final LoggedNetworkNumber rangeAdjust =
+      new LoggedNetworkNumber("/Tuning/Shooter/RangeAdjust", 1.8);
+
+  // public static final LoggedNetworkNumber hoodAdjust =
+  //     new LoggedNetworkNumber("/Tuning/Hood/hoodAdjust", 0);
 
   // to regen the lookup table (should only be necessary if you change constants
   // like hood angles or
   // max speeds), run ./gradlew generateShotTable in terminal!
   public ShotCalculator() {
-    hubLookupTable =
-        loadLookupTableOrGenerate(
-            FieldCoordinates.BLUE_HUB.getZ() - ShooterConstants.BOT_TO_SHOOTER.getZ());
-    createInterpolationHelperArrays();
-    shotSpeedInterpolator =
-        new TricubicInterpolator().interpolate(x_values, y_values, z_values, shotSpeedTable);
-    hoodAngleInterpolator =
-        new TricubicInterpolator().interpolate(x_values, y_values, z_values, hoodAngleTable);
-    turretAngleInterpolator =
-        new TricubicInterpolator().interpolate(x_values, y_values, z_values, turretAngleTable);
+    // hubLookupTable =
+    //     loadLookupTableOrGenerate(
+    //         FieldCoordinates.BLUE_HUB.getZ() - ShooterConstants.BOT_TO_SHOOTER.getZ());
+    // createInterpolationHelperArrays();
+    // shotSpeedInterpolator =
+    //     new TricubicInterpolator().interpolate(x_values, y_values, z_values, shotSpeedTable);
+    // hoodAngleInterpolator =
+    //     new TricubicInterpolator().interpolate(x_values, y_values, z_values, hoodAngleTable);
+    // turretAngleInterpolator =
+    //     new TricubicInterpolator().interpolate(x_values, y_values, z_values, turretAngleTable);
   }
 
   private void createInterpolationHelperArrays() {
@@ -203,7 +210,8 @@ public class ShotCalculator {
     double radialVelo = trajectoryRelativeShooterVelo.getX();
 
     double uncompRange = get2dDistance(fieldToShooter, target);
-    uncompRange += ShotCalculatorConditions.RANGE_FUDGE;
+    uncompRange *= rangeMult.get();
+    uncompRange += rangeAdjust.get();
 
     // double shooterToHubHeight = target.getZ() - fieldToShooter.getZ();
     Translation3d fieldRelativeShooterToTarget = target.minus(fieldToShooter);
@@ -270,7 +278,6 @@ public class ShotCalculator {
       double elevation,
       Rotation2d hoodMinAngle,
       Rotation2d hoodRetractedPosition) {
-
     double speedRange = ShotCalculatorConditions.MAX_SHOT_SPEED - 0;
     int speedIterations = (int) (speedRange / 0.5);
     double speedIncrement = speedRange / (double) speedIterations;

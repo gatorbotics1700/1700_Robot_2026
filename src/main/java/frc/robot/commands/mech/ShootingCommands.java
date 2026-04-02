@@ -92,25 +92,23 @@ public class ShootingCommands {
     }
 
     @Override
-    public void initialize() {}
+    public void initialize() {
+      hopperFloorSubsystem.setDesiredHopperFloorSpeed(0);
+      shooterSubsystem.setDesiredTransitionSpeed(0);
+      shooterSubsystem.setDesiredRotorVelocity(0);
+    }
 
     @Override
     public void execute() {
-      if (shooterSubsystem.getFlywheelRotorVelocity() != 0) {
-        shooterSubsystem.setDesiredRotorVelocity(0);
-        shooterSubsystem.setDesiredTransitionSpeed(0);
-        hopperFloorSubsystem.setDesiredHopperFloorSpeed(0);
-      } else {
-        System.out.println("SHOOTER ALREADY STOPPED");
-      }
+      hopperFloorSubsystem.setDesiredHopperFloorSpeed(0);
+      shooterSubsystem.setDesiredTransitionSpeed(0);
+      shooterSubsystem.setDesiredRotorVelocity(0);
     }
 
     @Override
     public boolean isFinished() {
-      if (shooterSubsystem.getFlywheelRotorVelocity() == 0) {
-        return true;
-      }
-      return false;
+      return Math.abs(shooterSubsystem.getFlywheelRotorVelocity())
+          < ShooterConstants.FLYWHEEL_COAST_STOPPED_RPS;
     }
   }
 
@@ -218,7 +216,6 @@ public class ShootingCommands {
     public void end(boolean interrupted) {
       hopperFloorSubsystem.setDesiredHopperFloorSpeed(0);
       shooterSubsystem.setDesiredTransitionSpeed(0);
-      shooterSubsystem.setDesiredRotorVelocity(0);
     }
   }
 }
