@@ -40,7 +40,7 @@ public class ShotCalculator {
   public static final LoggedNetworkNumber rangeMult =
       new LoggedNetworkNumber("/Tuning/Shooter/RangeMultiplier", 1.25);
   public static final LoggedNetworkNumber rangeAdjust =
-      new LoggedNetworkNumber("/Tuning/Shooter/RangeAdjust", 1.3);
+      new LoggedNetworkNumber("/Tuning/Shooter/RangeAdjust", 1.4);
 
   // public static final LoggedNetworkNumber hoodAdjust =
   //     new LoggedNetworkNumber("/Tuning/Hood/hoodAdjust", 0);

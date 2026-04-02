@@ -296,6 +296,20 @@ public class RobotContainer {
                       drive)
                   .ignoringDisable(true));
 
+      // B -- reverse intake
+      controller
+          .b()
+          .whileTrue(
+              new InstantCommand(
+                  () ->
+                      CommandScheduler.getInstance()
+                          .schedule(IntakeCommands.ReverseIntake(intakeSubsystem))))
+          .onFalse(
+              new InstantCommand(
+                  () ->
+                      CommandScheduler.getInstance()
+                          .schedule(IntakeCommands.StopIntake(intakeSubsystem))));
+
       // Y -- Drive Over Bump
       controller
           .y()
