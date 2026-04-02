@@ -69,18 +69,6 @@ public final class TalonFXLogger {
         closedLoopErr,
         closedLoopFf,
         closedLoopSlope);
-    BaseStatusSignal.waitForAll(
-        0.1,
-        velocity,
-        statorCurrent,
-        motorVoltage,
-        position,
-        supplyVoltage,
-        deviceTemp,
-        closedLoopRef,
-        closedLoopErr,
-        closedLoopFf,
-        closedLoopSlope);
 
     Logger.recordOutput(prefix + "/Motor Output", motor.get());
     // NOTE: For SysID, velocity needs to be in proper units that rely on gear ratios, so will need
