@@ -146,10 +146,11 @@ public class IntakeCommands {
 
     @Override
     public boolean isFinished() {
-      return Math.abs(
-              IntakeConstants.EXTENDED_ANGLE_DEGREES
-                  - intakeSubsystem.getCurrentAngle().getDegrees())
-          <= IntakeConstants.POSITION_DEADBAND;
+      return intakeSubsystem.isDeployedHallEffectTriggered()
+          || Math.abs(
+                  IntakeConstants.EXTENDED_ANGLE_DEGREES
+                      - intakeSubsystem.getCurrentAngle().getDegrees())
+              <= IntakeConstants.POSITION_DEADBAND;
     }
   }
 

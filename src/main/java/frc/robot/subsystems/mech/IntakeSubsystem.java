@@ -174,7 +174,8 @@ public class IntakeSubsystem extends SubsystemBase {
           applyDeployPositionControl();
         }
       } else {
-        // No deploy/retract/home sequence running: nudge toward the correct hall if state disagrees.
+        // No deploy/retract/home sequence running: nudge toward the correct hall if state
+        // disagrees.
         boolean wantDeployed = isDeployed.getAsBoolean();
         if (wantDeployed && !isDeployedHallEffectTriggered()) {
           hallAssistActive = true;
@@ -245,16 +246,16 @@ public class IntakeSubsystem extends SubsystemBase {
    */
   private void rehomeDeployAfterHallSeekRetract() {
     zeroIntakeDeploy(true);
-    setDesiredAngle(
-        IntakeConstants.RETRACTED_POSITION.plus(new Rotation2d(Math.toRadians(2))));
+    setDesiredAngle(IntakeConstants.RETRACTED_POSITION.plus(new Rotation2d(Math.toRadians(2))));
     Logger.recordOutput("Mech/Intake/Deploy/RehomeFromHallAssist", "retract");
   }
 
-  /** After open-loop hall assist finds the deployed hall, zero and apply the -2° deployed offset. */
+  /**
+   * After open-loop hall assist finds the deployed hall, zero and apply the -2° deployed offset.
+   */
   private void rehomeDeployAfterHallSeekDeploy() {
     zeroIntakeDeploy(false);
-    setDesiredAngle(
-        IntakeConstants.EXTENDED_POSITION.minus(new Rotation2d(Math.toRadians(2))));
+    setDesiredAngle(IntakeConstants.EXTENDED_POSITION.minus(new Rotation2d(Math.toRadians(2))));
     Logger.recordOutput("Mech/Intake/Deploy/RehomeFromHallAssist", "deploy");
   }
 
@@ -315,10 +316,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void zeroIntakeDeploy(boolean isRetracted) {
     if (isRetracted) {
-      deployMotor.setPosition(IntakeConstants.RETRACTED_POSITION.getDegrees());
+      deployMotor.setPosition(degreesToRevs(IntakeConstants.RETRACTED_POSITION.getDegrees()));
 
     } else {
-      deployMotor.setPosition(IntakeConstants.EXTENDED_POSITION.getDegrees());
+      deployMotor.setPosition(degreesToRevs(IntakeConstants.EXTENDED_POSITION.getDegrees()));
     }
   }
 
