@@ -294,6 +294,12 @@ public class ShotCalculator {
         new Rotation2d(Math.toRadians(hoodAngleRange / (double) angleIterations));
 
     double highestArc = 0;
+    double maxHeight;
+    if (uncompRange > 4.2) {
+      maxHeight = ShotCalculatorConditions.COMP_MAX_SHOT_HEIGHT;
+    } else {
+      maxHeight = ShotCalculatorConditions.MV_MAX_SHOT_HEIGHT;
+    }
 
     Rotation2d testHoodAngle = hoodMinAngle;
     double testShotSpeed = 0;
@@ -338,7 +344,7 @@ public class ShotCalculator {
         double vertexRange = vertexRange(effectiveRadialVelo, tangentialVelo, apexTime);
 
         if (vertexHeight >= ShotCalculatorConditions.MIN_SHOT_HEIGHT
-            && vertexHeight <= ShotCalculatorConditions.MAX_SHOT_HEIGHT
+            && vertexHeight <= maxHeight
             && vertexRange < compRange
             && testShotSpeed <= ShotCalculatorConditions.MAX_SHOT_SPEED
             && Math.abs(error) <= ShotCalculatorConditions.SHOT_DEADBAND
@@ -595,7 +601,7 @@ public class ShotCalculator {
     double vertexRange = vertexRange(effectiveRadialVelo, tangentialVelo, apexTime);
 
     if (vertexHeight < ShotCalculatorConditions.MIN_SHOT_HEIGHT
-        || vertexHeight > ShotCalculatorConditions.MAX_SHOT_HEIGHT
+        || vertexHeight > ShotCalculatorConditions.MV_MAX_SHOT_HEIGHT
         || vertexRange > compRange
         || shotSpeed > ShotCalculatorConditions.MAX_SHOT_SPEED
         || Math.abs(error) > ShotCalculatorConditions.SHOT_DEADBAND

@@ -52,7 +52,7 @@ public final class ShotTableIO {
             + ShotCalculatorConditions.MIN_SHOT_HEIGHT
             + "\n"
             + "MAX_SHOT_HEIGHT="
-            + ShotCalculatorConditions.MAX_SHOT_HEIGHT
+            + ShotCalculatorConditions.MV_MAX_SHOT_HEIGHT
             + "\n"
             + "MAX_SHOT_SPEED="
             + String.format("%.2f", ShotCalculatorConditions.MAX_SHOT_SPEED)
