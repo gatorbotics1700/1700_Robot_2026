@@ -47,6 +47,7 @@ public final class TalonFXLogger {
     var closedLoopRef = motor.getClosedLoopReference();
     var closedLoopErr = motor.getClosedLoopError();
     var closedLoopFf = motor.getClosedLoopFeedForward();
+    var closedLoopSlope = motor.getClosedLoopReferenceSlope();
 
     BaseStatusSignal.refreshAll(
         velocity,
@@ -57,7 +58,20 @@ public final class TalonFXLogger {
         deviceTemp,
         closedLoopRef,
         closedLoopErr,
-        closedLoopFf);
+        closedLoopFf,
+        closedLoopSlope);
+    BaseStatusSignal.waitForAll(
+        0.1,
+        velocity,
+        statorCurrent,
+        motorVoltage,
+        position,
+        supplyVoltage,
+        deviceTemp,
+        closedLoopRef,
+        closedLoopErr,
+        closedLoopFf,
+        closedLoopSlope);
 
     Logger.recordOutput(prefix + "/Motor Output", motor.get());
     // NOTE: For SysID, velocity needs to be in proper units that rely on gear ratios, so will need
@@ -78,5 +92,6 @@ public final class TalonFXLogger {
     Logger.recordOutput(prefix + "/ClosedLoop/ClosedLoopError", closedLoopErr.getValueAsDouble());
     Logger.recordOutput(
         prefix + "/ClosedLoop/ClosedLoopFeedForward", closedLoopFf.getValueAsDouble());
+    Logger.recordOutput(prefix + "/ClosedLoop/ClosedLoopSlope", closedLoopSlope.getValueAsDouble());
   }
 }
