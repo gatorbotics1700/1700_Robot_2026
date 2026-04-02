@@ -1,12 +1,10 @@
 package frc.robot.util.logging;
 
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.hardware.TalonFX;
-
-import edu.wpi.first.units.measure.Frequency;
-
 import static edu.wpi.first.units.Units.Hertz;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.hardware.TalonFX;
+import edu.wpi.first.units.measure.Frequency;
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -23,12 +21,16 @@ public final class TalonFXLogger {
   private TalonFXLogger() {}
 
   private static Frequency SIGNAL_UPDATE_HZ = Frequency.ofBaseUnits(50, Hertz.getBaseUnit());
+
   public static void log(TalonFX motor, String category, String mechanismName) {
     log(motor, category, mechanismName, "");
   }
 
   public static void configureTelemetryUpdateHz(TalonFX motor) {
-    System.out.println(String.format("Setting update frequency for %s to %.2f Hz", motor.getDeviceID(), SIGNAL_UPDATE_HZ.in(Hertz.getBaseUnit())));
+    System.out.println(
+        String.format(
+            "Setting update frequency for %s to %.2f Hz",
+            motor.getDeviceID(), SIGNAL_UPDATE_HZ.in(Hertz.getBaseUnit())));
     BaseStatusSignal.setUpdateFrequencyForAll(
         SIGNAL_UPDATE_HZ.in(Hertz.getBaseUnit()),
         motor.getVelocity(),
