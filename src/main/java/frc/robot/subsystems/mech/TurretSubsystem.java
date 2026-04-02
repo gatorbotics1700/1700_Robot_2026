@@ -2,8 +2,6 @@ package frc.robot.subsystems.mech;
 
 import static edu.wpi.first.units.Units.*;
 
-import java.util.function.BooleanSupplier;
-
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -20,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.TurretConstants;
+import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
@@ -37,7 +36,10 @@ public class TurretSubsystem extends SubsystemBase {
 
   private final int TURRET_GEARBOX_RATIO = 1;
 
-  private BooleanSupplier useTurretPositionControl = () -> {return true;};
+  private BooleanSupplier useTurretPositionControl =
+      () -> {
+        return true;
+      };
 
   /**
    * Called by SysId commands to indicate test is running; we log voltage/position/velocity in
@@ -125,7 +127,11 @@ public class TurretSubsystem extends SubsystemBase {
 
   public void setDesiredAngle(
       Rotation2d desiredAngle) { // this is for once we start testing targetting
-    useTurretPositionControl = () -> {return true;};
+    System.out.println("CALLING SET DESIRED ANGLE METHOD");
+    useTurretPositionControl =
+        () -> {
+          return true;
+        };
     double desiredAngleDegrees =
         MathUtil.inputModulus(
             desiredAngle.getDegrees(),
@@ -160,11 +166,15 @@ public class TurretSubsystem extends SubsystemBase {
   // }
 
   public void setMotorSpeed(double speed) {
-    useTurretPositionControl = () -> {return false;};
+    useTurretPositionControl =
+        () -> {
+          return false;
+        };
     turretMotor.set(speed);
+    System.out.println("CHANGING TO MANUAL CONTROL");
   }
 
-  public BooleanSupplier getUseTurretPositionControl(){
+  public BooleanSupplier getUseTurretPositionControl() {
     return useTurretPositionControl;
   }
 
@@ -173,7 +183,10 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void homeTurret() {
-    useTurretPositionControl = () -> {return true;};
+    useTurretPositionControl =
+        () -> {
+          return true;
+        };
     turretMotor.setPosition(
         getCurrentToOffsetError()
                 / ENCODER_REVS_PER_TURRET_REV
@@ -287,7 +300,8 @@ public class TurretSubsystem extends SubsystemBase {
     Logger.recordOutput(
         "Mech/Turret/closed loop error", turretMotor.getClosedLoopError().getValueAsDouble());
 
-    Logger.recordOutput("All Stator Currents/Turret",turretMotor.getStatorCurrent().getValueAsDouble());
+    Logger.recordOutput(
+        "All Stator Currents/Turret", turretMotor.getStatorCurrent().getValueAsDouble());
 
     // SysID
     Logger.recordOutput("Mech/Turret/SysID/turretSysIDRunning", sysIdRunning);

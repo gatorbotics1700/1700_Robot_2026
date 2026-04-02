@@ -1,7 +1,5 @@
 package frc.robot.commands.mech;
 
-import java.util.function.BooleanSupplier;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -191,16 +189,17 @@ public class ShootingCommands {
       Logger.recordOutput(
           "Mech/ShootingCommand/Current alliance", DriverStation.getAlliance().get());
 
-      System.out.println("SHOOTING ON THE MOVE TARGET:" + target);
+      System.out.println("SHOOTING ON THE MOVE CALLED");
 
       if (params.shotSpeed == 0) { // if we dont have a valid shot
         shooterSubsystem.setDesiredRotorVelocity(0);
         shooterSubsystem.setDesiredTransitionSpeed(0);
         hopperFloorSubsystem.setDesiredHopperFloorSpeed(0);
       } else {
-        if(turretSubsystem.getUseTurretPositionControl().getAsBoolean()){
+        if (turretSubsystem.getUseTurretPositionControl().getAsBoolean()) {
           turretSubsystem.setDesiredAngle(params.turretAngle);
-        } else{
+          System.out.println("POSITION TURRET CONTROL");
+        } else {
           System.out.println("USING MANUAL TURRET CONTROL");
         }
         shooterSubsystem.setDesiredRotorVelocity(

@@ -15,7 +15,6 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -382,60 +381,98 @@ public class RobotContainer {
       }
 
       if (Constants.currentMode == Constants.Mode.SIM) {
-        controller_two
-            .a()
+        // controller_two
+        //     .a()
+        //     .onTrue(
+        //         new InstantCommand(
+        //             () -> {
+        //               // Use current pose and chassis speeds at this instant so all values match.
+        //               Pose2d pose = drive.getPose();
+
+        //               ChassisSpeeds cs = drive.getChassisSpeeds();
+        //               ShotParameters params =
+        //                   ShotCalculator.calculateShot(pose, cs, FieldCoordinates.BLUE_HUB);
+
+        //               gamePieceSimulation.launchFuelBall(
+        //                   ShotCalculator.getFieldToShooter(pose,
+        // ShooterConstants.BOT_TO_SHOOTER),
+        //                   cs,
+        //                   drive.getRotation(),
+        //                   params.shotSpeed,
+        //                   params.turretAngle,
+        //                   params.hoodAngle);
+        //             }));
+        // controller_two
+        //     .b()
+        //     .onTrue(
+        //         AutoBuilder.pathfindToPose(
+        //                 new Pose2d(1, FieldCoordinates.BLUE_HUB.getY(), new Rotation2d()),
+        //                 new PathConstraints(4, 12, Math.toRadians(700), Math.toRadians(1000)))
+        //             .andThen(
+        //                 Commands.parallel(
+        //                     AutoBuilder.pathfindToPose(
+        //                         new Pose2d(3, FieldCoordinates.BLUE_HUB.getY(), new
+        // Rotation2d()),
+        //                         new PathConstraints(
+        //                             0.75, 12, Math.toRadians(700), Math.toRadians(1000))),
+        //                     Commands.waitSeconds(0.2)
+        //                         .andThen(
+        //                             Commands.runOnce(
+        //                                 () -> {
+        //                                   // Use current pose and chassis speeds at this instant
+        // so
+        //                                   // all values match.
+        //                                   Pose2d pose = drive.getPose();
+
+        //                                   ChassisSpeeds cs = drive.getChassisSpeeds();
+        //                                   ShotParameters params =
+        //                                       ShotCalculator.calculateShot(
+        //                                           pose, cs, FieldCoordinates.BLUE_HUB);
+
+        //                                   gamePieceSimulation.launchFuelBall(
+        //                                       ShotCalculator.getFieldToShooter(
+        //                                           pose, ShooterConstants.BOT_TO_SHOOTER),
+        //                                       cs,
+        //                                       pose.getRotation(),
+        //                                       params.shotSpeed,
+        //                                       params.turretAngle,
+        //                                       params.hoodAngle);
+        //                                 })))));
+
+        controller_two // pinkie
+            .x()
             .onTrue(
-                new InstantCommand(
-                    () -> {
-                      // Use current pose and chassis speeds at this instant so all values match.
-                      Pose2d pose = drive.getPose();
+                new ShootingCommands.ShootOnTheMoveCommand(
+                    shooterSubsystem,
+                    hoodSubsystem,
+                    hopperFloorSubsystem,
+                    turretSubsystem,
+                    robotPose,
+                    chassisSpeeds));
 
-                      ChassisSpeeds cs = drive.getChassisSpeeds();
-                      ShotParameters params =
-                          ShotCalculator.calculateShot(pose, cs, FieldCoordinates.BLUE_HUB);
+        Trigger codriverTurretControl =
+            new Trigger(
+                () ->
+                    Math.abs(controller_two.getLeftY()) > 0.1
+                        || Math.abs(controller_two.getLeftX()) > 0.1);
 
-                      gamePieceSimulation.launchFuelBall(
-                          ShotCalculator.getFieldToShooter(pose, ShooterConstants.BOT_TO_SHOOTER),
-                          cs,
-                          drive.getRotation(),
-                          params.shotSpeed,
-                          params.turretAngle,
-                          params.hoodAngle);
-                    }));
-        controller_two
-            .b()
-            .onTrue(
-                AutoBuilder.pathfindToPose(
-                        new Pose2d(1, FieldCoordinates.BLUE_HUB.getY(), new Rotation2d()),
-                        new PathConstraints(4, 12, Math.toRadians(700), Math.toRadians(1000)))
-                    .andThen(
-                        Commands.parallel(
-                            AutoBuilder.pathfindToPose(
-                                new Pose2d(3, FieldCoordinates.BLUE_HUB.getY(), new Rotation2d()),
-                                new PathConstraints(
-                                    0.75, 12, Math.toRadians(700), Math.toRadians(1000))),
-                            Commands.waitSeconds(0.2)
-                                .andThen(
-                                    Commands.runOnce(
-                                        () -> {
-                                          // Use current pose and chassis speeds at this instant so
-                                          // all values match.
-                                          Pose2d pose = drive.getPose();
+        if (controller.getLeftX() > 0.1) { // Turret joystick moved towards the right
+          codriverTurretControl.whileTrue(
+              new InstantCommand(
+                  () ->
+                      turretSubsystem.setMotorSpeed(
+                          TurretConstants
+                              .TURRET_MANUAL_SPEED))); // TODO Check signs on these so this turns
+          // turret clockwise
+        } else if (controller.getLeftX() < -0.1) { // Turret joystick moved towards the left
+          codriverTurretControl.whileTrue(
+              new InstantCommand(
+                  () -> turretSubsystem.setMotorSpeed(-TurretConstants.TURRET_MANUAL_SPEED)));
+        } else { // Turret joystick not moved
+          codriverTurretControl.whileTrue(
+              new InstantCommand(() -> turretSubsystem.setMotorSpeed(0)));
+        }
 
-                                          ChassisSpeeds cs = drive.getChassisSpeeds();
-                                          ShotParameters params =
-                                              ShotCalculator.calculateShot(
-                                                  pose, cs, FieldCoordinates.BLUE_HUB);
-
-                                          gamePieceSimulation.launchFuelBall(
-                                              ShotCalculator.getFieldToShooter(
-                                                  pose, ShooterConstants.BOT_TO_SHOOTER),
-                                              cs,
-                                              pose.getRotation(),
-                                              params.shotSpeed,
-                                              params.turretAngle,
-                                              params.hoodAngle);
-                                        })))));
       } else {
         // TODO INTAKE TESTING BUTTONS - uncomment for use
 
@@ -582,7 +619,6 @@ public class RobotContainer {
         //             robotPose,
         //             chassisSpeeds));
 
-
         controller_two
             .x()
             .onTrue(
@@ -625,31 +661,30 @@ public class RobotContainer {
                             turretSubsystem,
                             robotPose,
                             chassisSpeeds)));
-               
+
         Trigger codriverTurretControl =
-          new Trigger(
-              () ->
-                  Math.abs(controller_two.getLeftY()) > 0.1
-                      || Math.abs(controller_two.getLeftX()) > 0.1);      
-        
-        if(controller.getLeftX()>0.1){ //Turret joystick moved towards the right
-          codriverTurretControl
-            .whileTrue(
-                new InstantCommand(
-                     () -> turretSubsystem.setMotorSpeed(TurretConstants.TURRET_MANUAL_SPEED))); //TODO Check signs on these so this turns turret clockwise
-        } else if (controller.getLeftX()<-0.1){ //Turret joystick moved towards the left
-          codriverTurretControl
-            .whileTrue(
-                new InstantCommand(
-                     () -> turretSubsystem.setMotorSpeed(-TurretConstants.TURRET_MANUAL_SPEED)));
-        } else { //Turret joystick not moved
-          codriverTurretControl
-            .whileTrue(
-                new InstantCommand(
-                     () -> turretSubsystem.setMotorSpeed(0)));
+            new Trigger(
+                () ->
+                    Math.abs(controller_two.getLeftY()) > 0.1
+                        || Math.abs(controller_two.getLeftX()) > 0.1);
+
+        if (controller.getLeftX() > 0.1) { // Turret joystick moved towards the right
+          codriverTurretControl.whileTrue(
+              new InstantCommand(
+                  () ->
+                      turretSubsystem.setMotorSpeed(
+                          TurretConstants
+                              .TURRET_MANUAL_SPEED))); // TODO Check signs on these so this turns
+          // turret clockwise
+        } else if (controller.getLeftX() < -0.1) { // Turret joystick moved towards the left
+          codriverTurretControl.whileTrue(
+              new InstantCommand(
+                  () -> turretSubsystem.setMotorSpeed(-TurretConstants.TURRET_MANUAL_SPEED)));
+        } else { // Turret joystick not moved
+          codriverTurretControl.whileTrue(
+              new InstantCommand(() -> turretSubsystem.setMotorSpeed(0)));
         }
 
-            
         // new InstantCommand(
         //     () ->
         //         hopperFloorSubsystem.setDesiredHopperFloorVoltage(
