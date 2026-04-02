@@ -627,8 +627,8 @@ public final class Constants {
     /** Rotor speed (rps) below which StopShooting ends after coasting the flywheel. */
     public static final double FLYWHEEL_COAST_STOPPED_RPS = 4.0;
 
-    public static final double FLYWHEEL_GEAR_RATIO = 14.0 / 30.0;
-    public static final double FLYWHEEL_SLIP = 0.779; // TODO: tune?
+    public static final double FLYWHEEL_GEAR_RATIO = 24.0 / 18.0;
+    public static final double FLYWHEEL_SLIP = 0.275; // TODO: tune?
     public static final double FLYWHEEL_RADIUS_METERS = 0.0508;
 
     public static final Translation3d BOT_TO_SHOOTER = new Translation3d(0.127, 0, 0.429);
