@@ -529,14 +529,22 @@ public class ShotCalculator {
       double elevation) {
 
     System.out.println("RANGE: " + range);
-    System.out.println("MAX RANGE: " + Constants.ShotCalculatorConditions.MAX_RANGE);
-    if (range > Constants.ShotCalculatorConditions.MAX_RANGE) {
+    System.out.println(
+        "MAX RANGE: "
+            + (Constants.ShotCalculatorConditions.MAX_RANGE
+                - ShotCalculatorConditions.RANGE_INCREMENT));
+    if (range
+        > Constants.ShotCalculatorConditions.MAX_RANGE - ShotCalculatorConditions.RANGE_INCREMENT) {
       // out of range
       return new ShotParameters(new Rotation2d(), new Rotation2d(), 0);
-    } else if (tangentialVelo > Constants.ShotCalculatorConditions.MAX_COMPONENT_VELO) {
+    } else if (tangentialVelo
+        > Constants.ShotCalculatorConditions.MAX_COMPONENT_VELO
+            - ShotCalculatorConditions.VELO_INCREMENT) {
       // out of range
       return new ShotParameters(new Rotation2d(), new Rotation2d(), 0);
-    } else if (radialVelo > Constants.ShotCalculatorConditions.MAX_COMPONENT_VELO) {
+    } else if (Math.abs(radialVelo)
+        > Constants.ShotCalculatorConditions.MAX_COMPONENT_VELO
+            - ShotCalculatorConditions.VELO_INCREMENT) {
       // out of range
       return new ShotParameters(new Rotation2d(), new Rotation2d(), 0);
     }

@@ -695,12 +695,13 @@ public final class Constants {
 
     public static final double VELO_INCREMENT = 0.25; // mps
     public static final double RANGE_INCREMENT = 0.25; // m
-    public static final double MAX_COMPONENT_VELO = 1.5; // mps
+    public static final double MAX_COMPONENT_VELO = 1.5 + VELO_INCREMENT; // mps
     public static final double RANGE_FUDGE = 0;
     public static final double MAX_RANGE =
-        FieldCoordinates.BLUE_HUB.toTranslation2d().getNorm()
-            + 0.1
-            + RANGE_FUDGE; // m //TODO calculate furthest distance we would ever want to shoot from
+        // FieldCoordinates.BLUE_HUB.toTranslation2d().getNorm()
+        //     + 0.1
+        7 + RANGE_INCREMENT; // m //TODO calculate furthest distance we would ever want to shoot
+    // from
     // kraken x60 max velocity is ~100 rps
 
   }
