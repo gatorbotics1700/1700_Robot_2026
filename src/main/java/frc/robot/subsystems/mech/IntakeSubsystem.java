@@ -159,28 +159,7 @@ public class IntakeSubsystem extends SubsystemBase {
     hallAssistActive = false;
 
     if (!sysIdRunning) {
-      if(isDeployedHallEffectTriggered()){
-        zeroIntakeDeploy(false);
-      }else{
-        zeroIntakeDeploy(true);
-      }
-      if (isIntakeDeployMotionCommandActive()) {
-        if (useDeployPositionControl) {
-          applyDeployPositionControl();
-        }
-      } else {
-        // No deploy/retract/home sequence running: nudge toward the correct hall if state disagrees.
-        boolean wantDeployed = isDeployed.getAsBoolean();
-        if (wantDeployed && !isDeployedHallEffectTriggered()) {
-          hallAssistActive = true;
-          deployMotor.set(-IntakeConstants.HOMING_SPEED);
-        } else if (!wantDeployed && !isHallEffectTriggered()) {
-          hallAssistActive = true;
-          deployMotor.set(IntakeConstants.HOMING_SPEED);
-        } else if (useDeployPositionControl) {
-          applyDeployPositionControl();
-        }
-      }
+      applyDeployPositionControl();
     }
 
     intakeLogs();
