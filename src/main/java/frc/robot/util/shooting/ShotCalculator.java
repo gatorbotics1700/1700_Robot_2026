@@ -231,19 +231,19 @@ public class ShotCalculator {
     Logger.recordOutput("Mech/ShotCalculator/target", target);
     Logger.recordOutput("Mech/ShotCalculator/uncomprange", uncompRange);
 
-    // if (target.equals(FieldCoordinates.BLUE_HUB) || target.equals(FieldCoordinates.RED_HUB)) {
-    //   trajectoryRelativeParams =
-    //       lookupShot(
-    //           hubLookupTable,
-    //           tangentialVelo,
-    //           radialVelo,
-    //           uncompRange,
-    //           fieldRelativeShooterToTarget.getZ());
-    // } else {
+    if (target.equals(FieldCoordinates.BLUE_HUB) || target.equals(FieldCoordinates.RED_HUB)) {
+      trajectoryRelativeParams =
+          lookupShot(
+              hubLookupTable,
+              tangentialVelo,
+              radialVelo,
+              uncompRange,
+              fieldRelativeShooterToTarget.getZ());
+    } else {
     trajectoryRelativeParams =
         sweepTrajectories(
             tangentialVelo, radialVelo, uncompRange, fieldRelativeShooterToTarget.getZ());
-    // }
+    }
 
     ShotParameters botRelativeParams =
         new ShotParameters(
