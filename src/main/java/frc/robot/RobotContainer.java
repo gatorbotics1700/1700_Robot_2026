@@ -960,7 +960,7 @@ public class RobotContainer {
       controller_two
           .y()
           .onTrue(
-              new IntakeCommands.HomeIntakeRetract(intakeSubsystem)
+              IntakeCommands.HomeIntake(intakeSubsystem)
                   .andThen(new WaitCommand(1))
                   .andThen(IntakeCommands.DeployIntake(intakeSubsystem))
                   .andThen(new WaitCommand(1))
@@ -1093,7 +1093,7 @@ public class RobotContainer {
 
   public Command HomeMechanisms() {
     return (new HoodCommands.HoodHomingCommand(hoodSubsystem)
-            .alongWith(new IntakeCommands.HomeIntakeRetract(intakeSubsystem)))
+            .alongWith(IntakeCommands.HomeIntake(intakeSubsystem)))
         .alongWith(new InstantCommand(() -> turretSubsystem.homeTurret(), turretSubsystem))
         .withName("Home Mechansims");
   }

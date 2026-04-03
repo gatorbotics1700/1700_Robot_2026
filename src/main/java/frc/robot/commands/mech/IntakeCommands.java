@@ -1,6 +1,5 @@
 package frc.robot.commands.mech;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -11,6 +10,56 @@ public class IntakeCommands {
 
   public IntakeCommands() {}
 
+  /**
+   * Open-loop deploy duty toward the retract hall until it trips, then sync {@code
+   * deployGoalExtended} so {@link IntakeSubsystem#periodic()} holds motor off at the hall.
+   */
+  private static Command seekUntilRetractHall(IntakeSubsystem intakeSubsystem) {
+    return Commands.sequence(
+        new InstantCommand(
+            () -> {
+              if (intakeSubsystem.isHallEffectTriggered()) {
+                intakeSubsystem.zeroIntakeDeploy(true);
+              } else {
+                intakeSubsystem.setDeploySpeed(IntakeConstants.HOMING_SPEED);
+              }
+            },
+            intakeSubsystem),
+        Commands.deadline(
+                Commands.waitUntil(intakeSubsystem::isHallEffectTriggered).withTimeout(10),
+                Commands.run(() -> intakeSubsystem.setDeploySpeed(IntakeConstants.HOMING_SPEED), intakeSubsystem))
+            .finallyDo(intakeSubsystem::clearDeployManualControl),
+        new InstantCommand(() -> intakeSubsystem.setDeployGoalExtended(false), intakeSubsystem));
+  }
+
+  /**
+   * Open-loop deploy duty toward the deployed hall until it trips, then sync goal so periodic holds
+   * at the hall.
+   */
+  private static Command seekUntilDeployedHall(IntakeSubsystem intakeSubsystem) {
+    double speed = -IntakeConstants.HOMING_SPEED;
+    return Commands.sequence(
+        new InstantCommand(
+            () -> {
+              if (intakeSubsystem.isDeployedHallEffectTriggered()) {
+                intakeSubsystem.zeroIntakeDeploy(false);
+              } else {
+                intakeSubsystem.setDeploySpeed(speed);
+              }
+            },
+            intakeSubsystem),
+        Commands.deadline(
+                Commands.waitUntil(intakeSubsystem::isDeployedHallEffectTriggered).withTimeout(10),
+                Commands.run(() -> intakeSubsystem.setDeploySpeed(speed), intakeSubsystem))
+            .finallyDo(intakeSubsystem::clearDeployManualControl),
+        new InstantCommand(() -> intakeSubsystem.setDeployGoalExtended(true), intakeSubsystem));
+  }
+
+  /** Run open-loop toward the retract hall until it trips (startup / homing). */
+  public static Command HomeIntake(IntakeSubsystem intakeSubsystem) {
+    return seekUntilRetractHall(intakeSubsystem).withName("Home Intake Retract");
+  }
+
   public static Command ToggleIntake(IntakeSubsystem intakeSubsystem) {
     if (intakeSubsystem.getIsDeployed().getAsBoolean()) {
       return RetractIntake(intakeSubsystem);
@@ -20,81 +69,11 @@ public class IntakeCommands {
   }
 
   public static Command RetractIntake(IntakeSubsystem intakeSubsystem) {
-    return new RetractIntakeCommand(intakeSubsystem)
-        .andThen(new HomeIntakeRetract(intakeSubsystem))
-        .andThen(
-            Commands.waitSeconds(0.75)
-                .alongWith(Commands.run(() -> {}, intakeSubsystem))
-                .withName("Intake Sequence Wait"))
-        .andThen(new InstantCommand(() -> intakeSubsystem.setIsDeployedToFalse()))
-        .withName("Retract Intake");
+    return seekUntilRetractHall(intakeSubsystem).withName("Retract Intake");
   }
 
   public static Command DeployIntake(IntakeSubsystem intakeSubsystem) {
-    return new DeployIntakeCommand(intakeSubsystem)
-        .andThen(new HomeIntakeDeploy(intakeSubsystem))
-        .andThen(
-            Commands.waitSeconds(0.75)
-                .alongWith(Commands.run(() -> {}, intakeSubsystem))
-                .withName("Intake Sequence Wait"))
-        .andThen(new InstantCommand(() -> intakeSubsystem.setIsDeployedToTrue()))
-        .withName("Deploy Intake");
-  }
-
-  public static class HomeIntakeRetract extends Command {
-    private final IntakeSubsystem intakeSubsystem;
-
-    public HomeIntakeRetract(IntakeSubsystem intakeSubsystem) {
-      this.intakeSubsystem = intakeSubsystem;
-      addRequirements(intakeSubsystem);
-      setName("Home Intake Retract");
-    }
-
-    @Override
-    public void initialize() {
-      intakeSubsystem.setDeploySpeed(IntakeConstants.HOMING_SPEED);
-    }
-
-    @Override
-    public boolean isFinished() {
-      return intakeSubsystem.isHallEffectTriggered();
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-      intakeSubsystem.zeroIntakeDeploy(true);
-      intakeSubsystem.setDesiredAngle(
-          IntakeConstants.RETRACTED_POSITION.plus(new Rotation2d(Math.toRadians((2)))));
-      intakeSubsystem.setIsDeployedToFalse();
-    }
-  }
-
-  public static class HomeIntakeDeploy extends Command {
-    private final IntakeSubsystem intakeSubsystem;
-
-    public HomeIntakeDeploy(IntakeSubsystem intakeSubsystem) {
-      this.intakeSubsystem = intakeSubsystem;
-      addRequirements(intakeSubsystem);
-      setName("Home Intake Deploy");
-    }
-
-    @Override
-    public void initialize() {
-      intakeSubsystem.setDeploySpeed(-IntakeConstants.HOMING_SPEED);
-    }
-
-    @Override
-    public boolean isFinished() {
-      return intakeSubsystem.isDeployedHallEffectTriggered();
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-      intakeSubsystem.zeroIntakeDeploy(false);
-      intakeSubsystem.setDesiredAngle(
-          IntakeConstants.EXTENDED_POSITION.minus(new Rotation2d(Math.toRadians(2))));
-      intakeSubsystem.setIsDeployedToTrue();
-    }
+    return seekUntilDeployedHall(intakeSubsystem).withName("Deploy Intake");
   }
 
   public static Command RunIntake(IntakeSubsystem intakeSubsystem) {
@@ -111,70 +90,5 @@ public class IntakeCommands {
               intakeSubsystem.setIntakeSpeed(0);
             })
         .withName("Stop Intake");
-  }
-
-  public static Command AgitateIntake(IntakeSubsystem intakeSubsystem) {
-    return new InstantCommand(
-            () -> {
-              intakeSubsystem.setDesiredAngle(IntakeConstants.EXTENDED_POSITION);
-            })
-        .andThen(
-            Commands.waitSeconds(0.5)
-                .alongWith(Commands.run(() -> {}, intakeSubsystem))
-                .withName("Intake Agitate Wait"))
-        .andThen(
-            new InstantCommand(
-                () -> {
-                  intakeSubsystem.setDesiredAngle(IntakeConstants.HALF_EXTENDED_POSITION);
-                }));
-  }
-
-  public static class DeployIntakeCommand extends Command {
-
-    private final IntakeSubsystem intakeSubsystem;
-
-    public DeployIntakeCommand(IntakeSubsystem intakeSubsystem) {
-      this.intakeSubsystem = intakeSubsystem;
-      addRequirements(intakeSubsystem);
-      setName("Deploy Intake");
-    }
-
-    @Override
-    public void initialize() {
-      intakeSubsystem.setDesiredAngle(IntakeConstants.EXTENDED_POSITION);
-    }
-
-    @Override
-    public boolean isFinished() {
-      return intakeSubsystem.isDeployedHallEffectTriggered()
-          || Math.abs(
-                  IntakeConstants.EXTENDED_ANGLE_DEGREES
-                      - intakeSubsystem.getCurrentAngle().getDegrees())
-              <= IntakeConstants.POSITION_DEADBAND;
-    }
-  }
-
-  public static class RetractIntakeCommand extends Command {
-    private final IntakeSubsystem intakeSubsystem;
-
-    public RetractIntakeCommand(IntakeSubsystem intakeSubsystem) {
-      this.intakeSubsystem = intakeSubsystem;
-      addRequirements(intakeSubsystem);
-      setName("Retract Intake");
-    }
-
-    @Override
-    public void initialize() {
-      intakeSubsystem.setDesiredAngle(IntakeConstants.RETRACTED_POSITION);
-    }
-
-    @Override
-    public boolean isFinished() {
-      return intakeSubsystem.isHallEffectTriggered()
-          || (Math.abs(
-                  IntakeConstants.RETRACTED_ANGLE_DEGREES
-                      - intakeSubsystem.getCurrentAngle().getDegrees())
-              <= IntakeConstants.POSITION_DEADBAND);
-    }
   }
 }
