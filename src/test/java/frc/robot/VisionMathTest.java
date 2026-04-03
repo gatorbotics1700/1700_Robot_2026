@@ -190,7 +190,7 @@
 //                   originalCameraRotation.getZ()));
 //     }
 //     try {
-//       Pose2d robotPose =
+//       Pose2d robotPose =gi
 //           new Pose2d(
 //               TEMPLATE_ROBOT_POSE_X_METERS,
 //               TEMPLATE_ROBOT_POSE_Y_METERS,

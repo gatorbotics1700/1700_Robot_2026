@@ -1,6 +1,5 @@
 package frc.robot.util.shooting;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.ShotCalculatorConditions;
 import java.io.BufferedReader;
@@ -123,8 +122,8 @@ public final class ShotTableIO {
       for (int j = 0; j < radialVeloIncrements; j++) {
         for (int k = 0; k < rangeIncrements; k++) {
           ShotParameters p = table[i][j][k];
-          data.turretAdjustRad[idx] = p.turretAngle.getRadians();
-          data.hoodAngleRad[idx] = p.hoodAngle.getRadians();
+          data.turretAdjustRad[idx] = Math.toRadians(p.turretAngle);
+          data.hoodAngleRad[idx] = Math.toRadians(p.hoodAngle);
           data.shotSpeedMps[idx] = p.shotSpeed;
           idx++;
         }
@@ -167,8 +166,8 @@ public final class ShotTableIO {
         for (int k = 0; k < data.rangeIncrements; k++) {
           table[i][j][k] =
               new ShotParameters(
-                  new Rotation2d(data.turretAdjustRad[idx]),
-                  new Rotation2d(data.hoodAngleRad[idx]),
+                  Math.toDegrees(data.turretAdjustRad[idx]),
+                  Math.toDegrees(data.hoodAngleRad[idx]),
                   data.shotSpeedMps[idx]);
           idx++;
         }

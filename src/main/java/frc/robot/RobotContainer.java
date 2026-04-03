@@ -436,8 +436,8 @@ public class RobotContainer {
                           cs,
                           drive.getRotation(),
                           params.shotSpeed,
-                          params.turretAngle,
-                          params.hoodAngle);
+                          new Rotation2d(Math.toDegrees(params.turretAngle)),
+                          new Rotation2d(Math.toDegrees(params.hoodAngle)));
                     }));
         controller_two
             .b()
@@ -470,8 +470,8 @@ public class RobotContainer {
                                               cs,
                                               pose.getRotation(),
                                               params.shotSpeed,
-                                              params.turretAngle,
-                                              params.hoodAngle);
+                                              new Rotation2d(Math.toDegrees(params.turretAngle)),
+                                              new Rotation2d(Math.toDegrees(params.hoodAngle)));
                                         })))));
       } else {
         // A -- Retract Intake

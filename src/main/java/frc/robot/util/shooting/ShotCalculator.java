@@ -93,8 +93,8 @@ public class ShotCalculator {
             z_values[k] = range;
           }
           shotSpeedTable[i][j][k] = hubLookupTable[i][j][k].shotSpeed;
-          hoodAngleTable[i][j][k] = hubLookupTable[i][j][k].hoodAngle.getRadians();
-          turretAngleTable[i][j][k] = hubLookupTable[i][j][k].turretAngle.getRadians();
+          hoodAngleTable[i][j][k] = hubLookupTable[i][j][k].hoodAngle;
+          turretAngleTable[i][j][k] = hubLookupTable[i][j][k].turretAngle;
         }
       }
     }
@@ -247,10 +247,9 @@ public class ShotCalculator {
 
     ShotParameters botRelativeParams =
         new ShotParameters(
-            trajectoryRelativeParams
-                .turretAngle
-                .plus(uncompTurretToTargetAngle)
-                .minus(drivetrainPose.getRotation()),
+            (trajectoryRelativeParams.turretAngle
+                + uncompTurretToTargetAngle.getDegrees()
+                - drivetrainPose.getRotation().getDegrees()),
             trajectoryRelativeParams.hoodAngle, // .minus(new Rotation2d(Math.toRadians(3))),
             trajectoryRelativeParams.shotSpeed);
     Logger.recordOutput("Mech/ShotCalculator/turretAngle", botRelativeParams.turretAngle);
@@ -274,8 +273,8 @@ public class ShotCalculator {
         radialVelo,
         uncompRange,
         elevation,
-        HoodConstants.MIN_ANGLE,
-        HoodConstants.RETRACTED_POSITION);
+        HoodConstants.MIN_ANGLE.getDegrees(),
+        HoodConstants.RETRACTED_POSITION.getDegrees());
   }
 
   public static ShotParameters sweepTrajectories(
@@ -283,15 +282,14 @@ public class ShotCalculator {
       double radialVelo,
       double uncompRange,
       double elevation,
-      Rotation2d hoodMinAngle,
-      Rotation2d hoodRetractedPosition) {
+      double hoodMinAngle,
+      double hoodRetractedPosition) {
     double speedRange = ShotCalculatorConditions.MAX_SHOT_SPEED - 0;
     int speedIterations = (int) (speedRange / 0.5);
     double speedIncrement = speedRange / (double) speedIterations;
-    double hoodAngleRange = hoodRetractedPosition.getDegrees() - hoodMinAngle.getDegrees();
+    double hoodAngleRange = hoodRetractedPosition - hoodMinAngle;
     int angleIterations = (int) (hoodAngleRange / 1);
-    Rotation2d angleIncrement =
-        new Rotation2d(Math.toRadians(hoodAngleRange / (double) angleIterations));
+    double angleIncrement = (hoodAngleRange / (double) angleIterations);
 
     double highestArc = 0;
     double maxHeight;
@@ -303,12 +301,12 @@ public class ShotCalculator {
 
     Logger.recordOutput("Mech/ShotCalculator/maxHeight", maxHeight);
 
-    Rotation2d testHoodAngle = hoodMinAngle;
+    double testHoodAngle = hoodMinAngle;
     double testShotSpeed = 0;
-    Rotation2d testTurretAdjust = new Rotation2d();
+    double testTurretAdjust = 0;
 
-    Rotation2d bestTurretAdjust = new Rotation2d();
-    Rotation2d bestHoodAngle = hoodRetractedPosition;
+    double bestTurretAdjust = 0;
+    double bestHoodAngle = hoodRetractedPosition;
     double bestShotSpeed = 0;
 
     for (int i = 0; i < speedIterations; i++) {
@@ -316,7 +314,8 @@ public class ShotCalculator {
 
       for (int j = 0; j < angleIterations; j++) {
 
-        double effectiveRadialVelo = testShotSpeed * testHoodAngle.getCos() + radialVelo;
+        double effectiveRadialVelo =
+            testShotSpeed * Math.cos(Math.toRadians(testHoodAngle)) + radialVelo;
         double shotTime = uncompRange / (effectiveRadialVelo);
 
         double compRange =
@@ -324,7 +323,7 @@ public class ShotCalculator {
                 * Math.sqrt(
                     tangentialVelo * tangentialVelo + effectiveRadialVelo * effectiveRadialVelo);
 
-        testTurretAdjust = new Rotation2d(Math.atan2(-tangentialVelo, effectiveRadialVelo));
+        testTurretAdjust = Math.toDegrees(Math.atan2(-tangentialVelo, effectiveRadialVelo));
 
         double error =
             getTrajectoryError(
@@ -336,11 +335,11 @@ public class ShotCalculator {
                 elevation,
                 testShotSpeed);
 
-        double apexTime = apexTime(testShotSpeed * Math.sin(testHoodAngle.getRadians()));
+        double apexTime = apexTime(testShotSpeed * Math.sin(Math.toRadians(testHoodAngle)));
         double vertexHeight =
             vertexHeight(
                 ShooterConstants.BOT_TO_SHOOTER.getZ(),
-                testShotSpeed * Math.sin(testHoodAngle.getRadians()),
+                testShotSpeed * Math.sin(Math.toRadians(testHoodAngle)),
                 apexTime);
 
         double vertexRange = vertexRange(effectiveRadialVelo, tangentialVelo, apexTime);
@@ -358,7 +357,7 @@ public class ShotCalculator {
           // System.out.println(bestHoodAngle.getDegrees() + ", " + highestArc);
         }
 
-        testHoodAngle = testHoodAngle.plus(angleIncrement);
+        testHoodAngle += angleIncrement;
       }
       testShotSpeed += speedIncrement;
     }
@@ -394,8 +393,8 @@ public class ShotCalculator {
   }
 
   public static double getTrajectoryError(
-      Rotation2d hoodAngle,
-      Rotation2d turretAdjust,
+      double hoodAngle,
+      double turretAdjust,
       double tangentialVelo,
       double radialVelo,
       double uncompRange,
@@ -405,9 +404,11 @@ public class ShotCalculator {
     // all of this is in the coordinate space with x pointing from shooter to target
     // (trajectory
     // relative)
-    double vx = shotSpeed * Math.cos(hoodAngle.getRadians()) * Math.cos(turretAdjust.getRadians());
-    double vy = shotSpeed * Math.cos(hoodAngle.getRadians()) * Math.sin(turretAdjust.getRadians());
-    double vz = shotSpeed * Math.sin(hoodAngle.getRadians());
+    double vx =
+        shotSpeed * Math.cos(Math.toRadians(hoodAngle)) * Math.cos(Math.toRadians(turretAdjust));
+    double vy =
+        shotSpeed * Math.cos(Math.toRadians(hoodAngle)) * Math.sin(Math.toRadians(turretAdjust));
+    double vz = shotSpeed * Math.sin(Math.toRadians(hoodAngle));
 
     vx += radialVelo;
     vy += tangentialVelo;
@@ -504,7 +505,7 @@ public class ShotCalculator {
 
   /** Variant for desktop/offboard generators that should not depend on {@link HoodConstants}. */
   public static ShotParameters[][][] getShootingLookupTable(
-      double elevation, Rotation2d hoodMinAngle, Rotation2d hoodRetractedPosition) {
+      double elevation, double hoodMinAngle, double hoodRetractedPosition) {
     // System.out.println("GENERATING TABLE");
     double startTime = System.currentTimeMillis();
     int veloIncrements =
@@ -557,29 +558,22 @@ public class ShotCalculator {
     //     "MAX RANGE: "
     //         + (Constants.ShotCalculatorConditions.MAX_RANGE
     //             - ShotCalculatorConditions.RANGE_INCREMENT));
-    if (range
-        > Constants.ShotCalculatorConditions.MAX_RANGE - ShotCalculatorConditions.RANGE_INCREMENT) {
-      // out of range
-      return new ShotParameters(new Rotation2d(), new Rotation2d(), 0);
-    } else if (Math.abs(tangentialVelo)
-        > Constants.ShotCalculatorConditions.MAX_COMPONENT_VELO
-            - ShotCalculatorConditions.VELO_INCREMENT) {
-      // out of range
-      return new ShotParameters(new Rotation2d(), new Rotation2d(), 0);
-    } else if (Math.abs(radialVelo)
-        > Constants.ShotCalculatorConditions.MAX_COMPONENT_VELO
-            - ShotCalculatorConditions.VELO_INCREMENT) {
-      // out of range
-      return new ShotParameters(new Rotation2d(), new Rotation2d(), 0);
+    double maxRange =
+        Constants.ShotCalculatorConditions.MAX_RANGE - ShotCalculatorConditions.RANGE_INCREMENT;
+    double maxVelo =
+        Constants.ShotCalculatorConditions.MAX_COMPONENT_VELO
+            - ShotCalculatorConditions.VELO_INCREMENT;
+    if (range > maxRange || Math.abs(tangentialVelo) > maxVelo || Math.abs(radialVelo) > maxVelo) {
+      return new ShotParameters(0, 0, 0);
     }
 
-    Rotation2d turretAngle =
-        new Rotation2d(turretAngleInterpolator.value(tangentialVelo, radialVelo, range));
-    Rotation2d hoodAngle =
-        new Rotation2d(hoodAngleInterpolator.value(tangentialVelo, radialVelo, range));
+    double turretAngle =
+        Math.toDegrees(turretAngleInterpolator.value(tangentialVelo, radialVelo, range));
+    double hoodAngle =
+        Math.toDegrees(hoodAngleInterpolator.value(tangentialVelo, radialVelo, range));
     double shotSpeed = shotSpeedInterpolator.value(tangentialVelo, radialVelo, range);
 
-    double effectiveRadialVelo = shotSpeed * hoodAngle.getCos() + radialVelo;
+    double effectiveRadialVelo = shotSpeed * Math.cos(Math.toRadians(hoodAngle)) + radialVelo;
     double shotTime = range / (effectiveRadialVelo);
 
     double compRange =
@@ -587,17 +581,17 @@ public class ShotCalculator {
             * Math.sqrt(
                 tangentialVelo * tangentialVelo + effectiveRadialVelo * effectiveRadialVelo);
 
-    Rotation2d testTurretAdjust = new Rotation2d(Math.atan2(-tangentialVelo, effectiveRadialVelo));
+    double testTurretAdjust = Math.toDegrees(Math.atan2(-tangentialVelo, effectiveRadialVelo));
 
     double error =
         getTrajectoryError(
             hoodAngle, testTurretAdjust, tangentialVelo, radialVelo, range, elevation, shotSpeed);
 
-    double apexTime = apexTime(shotSpeed * Math.sin(hoodAngle.getRadians()));
+    double apexTime = apexTime(shotSpeed * Math.sin(Math.toRadians(hoodAngle)));
     double vertexHeight =
         vertexHeight(
             ShooterConstants.BOT_TO_SHOOTER.getZ(),
-            shotSpeed * Math.sin(hoodAngle.getRadians()),
+            shotSpeed * Math.sin(Math.toRadians(hoodAngle)),
             apexTime);
 
     double vertexRange = vertexRange(effectiveRadialVelo, tangentialVelo, apexTime);
@@ -612,7 +606,7 @@ public class ShotCalculator {
         || !turretAngleInterpolator.isValidPoint(tangentialVelo, radialVelo, range)
         || !hoodAngleInterpolator.isValidPoint(tangentialVelo, radialVelo, range)
         || !shotSpeedInterpolator.isValidPoint(tangentialVelo, radialVelo, range)) {
-      return new ShotParameters(new Rotation2d(), new Rotation2d(), 0);
+      return new ShotParameters(0, 0, 0);
     }
 
     int i =
@@ -627,24 +621,15 @@ public class ShotCalculator {
 
     ShotParameters params =
         new ShotParameters(lookupTable[i][j][k].turretAngle, hoodAngle, shotSpeed);
-    Logger.recordOutput("shotCalculator/turretAngleInLookupShot", turretAngle.getDegrees());
-    Logger.recordOutput("shotCalculator/hoodAngleInLookupShot", hoodAngle.getDegrees());
+    Logger.recordOutput("shotCalculator/turretAngleInLookupShot", turretAngle);
+    Logger.recordOutput("shotCalculator/hoodAngleInLookupShot", hoodAngle);
     Logger.recordOutput("shotCalculator/shotSpeedInLookupShot", shotSpeed);
     Logger.recordOutput(
-        "shotCalculator/noninterpolatedturretangle", lookupTable[i][j][k].turretAngle.getDegrees());
-    Logger.recordOutput(
-        "shotCalculator/noninterpolatedhoodangle", lookupTable[i][j][k].hoodAngle.getDegrees());
+        "shotCalculator/noninterpolatedturretangle", lookupTable[i][j][k].turretAngle);
+    Logger.recordOutput("shotCalculator/noninterpolatedhoodangle", lookupTable[i][j][k].hoodAngle);
     Logger.recordOutput("shotCalculator/noninterpolatedspeed", lookupTable[i][j][k].shotSpeed);
     Logger.recordOutput(
         "shotCalculator/turretAngleArrayValue", Math.toDegrees(turretAngleTable[i][j][k]));
-
-    // System.out.println(
-    //     "PARAMS RETURNED FROM TABLE: "
-    //         + params.shotSpeed
-    //         + ", "
-    //         + params.hoodAngle
-    //         + ", "
-    //         + params.turretAngle);
     return params;
   }
 }

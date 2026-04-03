@@ -1,6 +1,5 @@
 package frc.robot.util.shooting;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants.FieldCoordinates;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.ShotCalculatorConditions;
@@ -56,15 +55,12 @@ public final class ShotTableGenerator {
     }
     double hoodRetractedDeg = Double.parseDouble(props.getProperty("mech.hood_retracted_degrees"));
     double hoodMinDeg = Double.parseDouble(props.getProperty("mech.hood_min_angle_degrees"));
-    Rotation2d hoodRetracted = Rotation2d.fromDegrees(hoodRetractedDeg);
-    Rotation2d hoodMin = Rotation2d.fromDegrees(hoodMinDeg);
 
     double elevationMeters =
         FieldCoordinates.BLUE_HUB.getZ() - ShooterConstants.BOT_TO_SHOOTER.getZ();
     Path outPath = ShotTableIO.projectDeployPath(outRel);
 
-    if (ShotTableIO.isUpToDate(
-        outPath, elevationMeters, hoodRetracted.getRadians(), hoodMin.getRadians())) {
+    if (ShotTableIO.isUpToDate(outPath, elevationMeters, hoodRetractedDeg, hoodMinDeg)) {
       System.out.println("Shot table already up-to-date at " + outPath);
       return;
     }
@@ -79,13 +75,13 @@ public final class ShotTableGenerator {
 
     System.out.println("Generating shot table...");
     ShotParameters[][][] table =
-        ShotCalculator.getShootingLookupTable(elevationMeters, hoodMin, hoodRetracted);
+        ShotCalculator.getShootingLookupTable(elevationMeters, hoodMinDeg, hoodRetractedDeg);
     ShotTableData data =
         ShotTableIO.fromLookupTable(
             table,
             elevationMeters,
-            hoodRetracted.getRadians(),
-            hoodMin.getRadians(),
+            Math.toRadians(hoodRetractedDeg),
+            Math.toRadians(hoodMinDeg),
             veloIncrements,
             veloIncrements,
             rangeIncrements);
