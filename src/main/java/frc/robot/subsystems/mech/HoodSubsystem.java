@@ -245,7 +245,7 @@ public class HoodSubsystem extends SubsystemBase {
             null, // Log via AdvantageKit in periodic() so data goes to the same log file
             this,
             "hood");
-    System.out.println("CREATING NEW SYSID ROUTINE");
+    // System.out.println("CREATING NEW SYSID ROUTINE");
     sysIdRoutine = new SysIdRoutine(config, mechanism);
   }
 
@@ -267,7 +267,7 @@ public class HoodSubsystem extends SubsystemBase {
 
   // run under a series of "flat" voltages to measure velocity behavior
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    System.out.println("RUNNING SYSID QUASISTATIC");
+    // System.out.println("RUNNING SYSID QUASISTATIC");
     if (sysIdRoutine == null) {
       initSysIdRoutine();
     }
@@ -284,7 +284,7 @@ public class HoodSubsystem extends SubsystemBase {
 
   // measure acceleration behavior
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    System.out.println("RUNNING SYSID DYNAMIC");
+    // System.out.println("RUNNING SYSID DYNAMIC");
     if (sysIdRoutine == null) {
       initSysIdRoutine();
     }

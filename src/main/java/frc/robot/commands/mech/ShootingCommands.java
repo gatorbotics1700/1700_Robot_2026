@@ -187,7 +187,7 @@ public class ShootingCommands {
       Logger.recordOutput(
           "Mech/ShootingCommand/Current alliance", DriverStation.getAlliance().get());
 
-      System.out.println("SHOOTING ON THE MOVE TARGET:" + target);
+      // System.out.println("SHOOTING ON THE MOVE TARGET:" + target);
 
       if (params.shotSpeed == 0) { // if we dont have a valid shot
         shooterSubsystem.setDesiredRotorVelocity(0);
