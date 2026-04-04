@@ -85,7 +85,7 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeCurrentLimitConfigs.StatorCurrentLimitEnable = true;
 
     deployCurrentLimitConfigs = deployTalonFXConfigs.CurrentLimits;
-    deployCurrentLimitConfigs.StatorCurrentLimit = 25;
+    deployCurrentLimitConfigs.StatorCurrentLimit = 35;
     deployCurrentLimitConfigs.StatorCurrentLimitEnable = true;
 
     deployMotor.getConfigurator().apply(deployTalonFXConfigs);
@@ -97,7 +97,7 @@ public class IntakeSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     updateCurrentLimitConfigs();
-    updateDeployStatorLimitForPosition();
+    // updateDeployStatorLimitForPosition();
 
     if (!sysIdRunning) {
       if (deployManualControl) {
@@ -157,8 +157,8 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   private void updateDeployStatorLimitForPosition() {
-    if (isDeployedHallEffectTriggered() && deployCurrentLimitConfigs.StatorCurrentLimit != 25) {
-      deployCurrentLimitConfigs.StatorCurrentLimit = 25;
+    if (isDeployedHallEffectTriggered() && deployCurrentLimitConfigs.StatorCurrentLimit != 35) {
+      deployCurrentLimitConfigs.StatorCurrentLimit = 35;
       deployMotor.getConfigurator().apply(deployTalonFXConfigs);
     }
     if (!isDeployedHallEffectTriggered() && deployCurrentLimitConfigs.StatorCurrentLimit != 60) {

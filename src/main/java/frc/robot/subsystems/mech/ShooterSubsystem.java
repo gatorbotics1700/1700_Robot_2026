@@ -93,6 +93,8 @@ public class ShooterSubsystem extends SubsystemBase {
         400; // Target acceleration of 400 rps/s (0.25 seconds to max)
     flywheelMotionMagicConfigs.MotionMagicJerk = 4000; // Target jerk of 4000 rps/s/s (0/1 seconds)
 
+    // flywheelTalonFXConfigs.CurrentLimits.StatorCurrentLimit = 80;
+
     transitionMotorConfigs = new TalonFXConfiguration();
 
     transitionMotorConfigs.withMotorOutput(

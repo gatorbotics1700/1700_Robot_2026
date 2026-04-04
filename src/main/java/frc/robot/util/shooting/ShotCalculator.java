@@ -265,6 +265,12 @@ public class ShotCalculator {
     Logger.recordOutput("Mech/ShotCalculator/TurretAdjust", botRelativeParams.turretAngle);
     Logger.recordOutput("Mech/ShotCalculator/ShotSpeed", botRelativeParams.shotSpeed);
     Logger.recordOutput("Mech/ShotCalculator/validShot", botRelativeParams.shotSpeed != 0);
+    if (uncompRange > 3 && botRelativeParams.shotSpeed == 0) {
+      return new ShotParameters(
+          botRelativeParams.turretAngle,
+          HoodConstants.MIN_ANGLE,
+          ShotCalculatorConditions.MAX_SHOT_SPEED);
+    }
     return botRelativeParams;
   }
 
