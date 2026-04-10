@@ -40,9 +40,7 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.drive.DriveCommands;
-import frc.robot.commands.drive.DriveOverBumpCommand;
 import frc.robot.commands.drive.DriveSystemsCheckCommands;
-import frc.robot.commands.drive.DriveUnderTrenchCommand;
 import frc.robot.commands.drive.PointAtTargetCommand;
 import frc.robot.commands.mech.HoodCommands;
 import frc.robot.commands.mech.IntakeCommands;
@@ -264,20 +262,20 @@ public class RobotContainer {
       }
 
       // A -- Drive Under Trench
-      controller
-          .a()
-          .onTrue(
-              new InstantCommand(
-                  () -> {
-                    try {
-                      CommandScheduler.getInstance()
-                          .schedule(
-                              DriveUnderTrenchCommand.driveUnderTrench(drive, shooterSubsystem)
-                                  .withName("DriveUnderTrench"));
-                    } catch (Exception e) {
-                      e.printStackTrace();
-                    }
-                  }));
+      // controller
+      //     .a()
+      //     .onTrue(
+      //         new InstantCommand(
+      //             () -> {
+      //               try {
+      //                 CommandScheduler.getInstance()
+      //                     .schedule(
+      //                         DriveUnderTrenchCommand.driveUnderTrench(drive, shooterSubsystem)
+      //                             .withName("DriveUnderTrench"));
+      //               } catch (Exception e) {
+      //                 e.printStackTrace();
+      //               }
+      //             }));
 
       // Start -- Reset Heading
       controller
@@ -316,20 +314,20 @@ public class RobotContainer {
                           .schedule(IntakeCommands.StopIntake(intakeSubsystem))));
 
       // Y -- Drive Over Bump
-      controller
-          .y()
-          .onTrue(
-              new InstantCommand(
-                  () -> {
-                    try {
-                      CommandScheduler.getInstance()
-                          .schedule(
-                              DriveOverBumpCommand.driveOverBump(drive, shooterSubsystem)
-                                  .withName("DriveOverBump"));
-                    } catch (Exception e) {
-                      e.printStackTrace();
-                    }
-                  }));
+      // controller
+      //     .y()
+      //     .onTrue(
+      //         new InstantCommand(
+      //             () -> {
+      //               try {
+      //                 CommandScheduler.getInstance()
+      //                     .schedule(
+      //                         DriveOverBumpCommand.driveOverBump(drive, shooterSubsystem)
+      //                             .withName("DriveOverBump"));
+      //               } catch (Exception e) {
+      //                 e.printStackTrace();
+      //               }
+      //             }));
 
       // Back -- Slow Drive Toggle
       controller
@@ -597,20 +595,20 @@ public class RobotContainer {
       }
 
       // A -- Drive Under Trench
-      controller
-          .a()
-          .onTrue(
-              new InstantCommand(
-                  () -> {
-                    try {
-                      CommandScheduler.getInstance()
-                          .schedule(
-                              DriveUnderTrenchCommand.driveUnderTrench(drive, shooterSubsystem)
-                                  .withName("DriveUnderTrench"));
-                    } catch (Exception e) {
-                      e.printStackTrace();
-                    }
-                  }));
+      // controller
+      //     .a()
+      //     .onTrue(
+      //         new InstantCommand(
+      //             () -> {
+      //               try {
+      //                 CommandScheduler.getInstance()
+      //                     .schedule(
+      //                         DriveUnderTrenchCommand.driveUnderTrench(drive, shooterSubsystem)
+      //                             .withName("DriveUnderTrench"));
+      //               } catch (Exception e) {
+      //                 e.printStackTrace();
+      //               }
+      //             }));
 
       // B -- Reset Heading
       controller
@@ -635,20 +633,20 @@ public class RobotContainer {
                   .ignoringDisable(true));
 
       // X -- Drive Over Bump
-      controller
-          .x()
-          .onTrue(
-              new InstantCommand(
-                  () -> {
-                    try {
-                      CommandScheduler.getInstance()
-                          .schedule(
-                              DriveOverBumpCommand.driveOverBump(drive, shooterSubsystem)
-                                  .withName("DriveOverBump"));
-                    } catch (Exception e) {
-                      e.printStackTrace();
-                    }
-                  }));
+      // controller
+      //     .x()
+      //     .onTrue(
+      //         new InstantCommand(
+      //             () -> {
+      //               try {
+      //                 CommandScheduler.getInstance()
+      //                     .schedule(
+      //                         DriveOverBumpCommand.driveOverBump(drive, shooterSubsystem)
+      //                             .withName("DriveOverBump"));
+      //               } catch (Exception e) {
+      //                 e.printStackTrace();
+      //               }
+      //             }));
 
       // Y -- Slow Drive Toggle
       controller

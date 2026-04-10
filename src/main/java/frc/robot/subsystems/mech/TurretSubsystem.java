@@ -7,7 +7,7 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -27,7 +27,7 @@ public class TurretSubsystem extends SubsystemBase {
   private final TalonFX turretMotor;
 
   private static TalonFXConfiguration talonFXConfigs;
-  private static MotionMagicExpoVoltage m_request;
+  private static MotionMagicVoltage m_request;
 
   private static Slot0Configs slot0Configs;
   private static MotionMagicConfigs motionMagicConfigs;
@@ -59,14 +59,14 @@ public class TurretSubsystem extends SubsystemBase {
   public static final LoggedNetworkNumber turretKi =
       new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
   public static final LoggedNetworkNumber turretKd =
-      new LoggedNetworkNumber("/Tuning/Turret/kD", 0.1);
+      new LoggedNetworkNumber("/Tuning/Turret/kD", 0.45);
 
   public static final LoggedNetworkNumber turretKs =
-      new LoggedNetworkNumber("/Tuning/Turret/kS", 0.25262);
+      new LoggedNetworkNumber("/Tuning/Turret/kS", 0.1);
   public static final LoggedNetworkNumber turretKv =
-      new LoggedNetworkNumber("/Tuning/Turret/kV", 1.3679);
+      new LoggedNetworkNumber("/Tuning/Turret/kV", 0.17);
   public static final LoggedNetworkNumber turretKa =
-      new LoggedNetworkNumber("/Tuning/Turret/kA", 0.3484);
+      new LoggedNetworkNumber("/Tuning/Turret/kA", 0);
 
   public TurretSubsystem() {
     turretMotor = new TalonFX(TurretConstants.TURRET_MOTOR_CAN_ID, TunerConstants.mechCANBus);
@@ -98,13 +98,14 @@ public class TurretSubsystem extends SubsystemBase {
     // MOTION MAGIC EXPO
     motionMagicConfigs = talonFXConfigs.MotionMagic;
 
-    motionMagicConfigs.MotionMagicCruiseVelocity = 0; // unlimited cruise velocity
-    motionMagicConfigs.MotionMagicExpo_kV = 0.16; // kV is around 0.12 V/rps
-    motionMagicConfigs.MotionMagicExpo_kA = 0.1; // Use a slower kA of 0.1 V/(rps/s)
+    motionMagicConfigs.MotionMagicCruiseVelocity = 25; // unlimited cruise velocity
+    motionMagicConfigs.MotionMagicAcceleration = 70;
+    // motionMagicConfigs.MotionMagicExpo_kV = 0.16; // kV is around 0.12 V/rps
+    // motionMagicConfigs.MotionMagicExpo_kA = 0.1; // Use a slower kA of 0.1 V/(rps/s)
 
     turretMotor.getConfigurator().apply(talonFXConfigs);
 
-    m_request = new MotionMagicExpoVoltage(0);
+    m_request = new MotionMagicVoltage(0);
     // homeTurret();
 
     TalonFXLogger.configureTelemetryUpdateHz(turretMotor);

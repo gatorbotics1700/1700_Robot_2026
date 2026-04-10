@@ -57,8 +57,10 @@ public final class ShotTableGenerator {
     double hoodRetractedDeg = Double.parseDouble(props.getProperty("mech.hood_retracted_degrees"));
     double hoodMinDeg = Double.parseDouble(props.getProperty("mech.hood_min_angle_degrees"));
     Rotation2d hoodRetracted =
-        Rotation2d.fromDegrees(hoodRetractedDeg).minus(ShotCalculator.hoodOffset);
-    Rotation2d hoodMin = Rotation2d.fromDegrees(hoodMinDeg).minus(ShotCalculator.hoodOffset);
+        Rotation2d.fromDegrees(
+            hoodRetractedDeg); // .minus(ShotCalculator.hoodOffset); //TODO add in permanent hood
+    // offset
+    Rotation2d hoodMin = Rotation2d.fromDegrees(hoodMinDeg); // .minus(ShotCalculator.hoodOffset);
 
     double elevationMeters =
         FieldCoordinates.BLUE_HUB.getZ() - ShooterConstants.BOT_TO_SHOOTER.getZ();

@@ -36,15 +36,15 @@ public class ShotCalculator {
   private static TricubicInterpolatingFunction shotSpeedInterpolator;
   private static TricubicInterpolatingFunction hoodAngleInterpolator;
   private static TricubicInterpolatingFunction turretAngleInterpolator;
-  public static Rotation2d hoodOffset = new Rotation2d(Math.toRadians(0));
+  // public static Rotation2d hoodOffset = new Rotation2d(Math.toRadians(0));
 
   public static final LoggedNetworkNumber rangeMult =
       new LoggedNetworkNumber("/Tuning/Shooter/RangeMultiplier", 1);
   public static final LoggedNetworkNumber rangeAdjust =
       new LoggedNetworkNumber("/Tuning/Shooter/RangeAdjust", 0);
 
-  // public static final LoggedNetworkNumber hoodAdjust =
-  //     new LoggedNetworkNumber("/Tuning/Hood/hoodAdjust", 0);
+  public static final LoggedNetworkNumber hoodOffset =
+      new LoggedNetworkNumber("/Tuning/Hood/hoodOffset", -2);
 
   // to regen the lookup table (should only be necessary if you change constants
   // like hood angles or
@@ -253,7 +253,7 @@ public class ShotCalculator {
                 .plus(uncompTurretToTargetAngle)
                 .minus(drivetrainPose.getRotation()),
             trajectoryRelativeParams.hoodAngle.plus(
-                hoodOffset), // .minus(new Rotation2d(Math.toRadians(3))),
+                getHoodOffset()), // .minus(new Rotation2d(Math.toRadians(3))),
             trajectoryRelativeParams.shotSpeed);
     Logger.recordOutput("Mech/ShotCalculator/turretAngle", botRelativeParams.turretAngle);
     Logger.recordOutput("Mech/ShotCalculator/landingCoords", landingCoords);
@@ -274,6 +274,10 @@ public class ShotCalculator {
     return botRelativeParams;
   }
 
+  private static Rotation2d getHoodOffset() {
+    return new Rotation2d(Math.toRadians(hoodOffset.get()));
+  }
+
   public static ShotParameters sweepTrajectories(
       double tangentialVelo, double radialVelo, double uncompRange, double elevation) {
     return sweepTrajectories(
@@ -281,8 +285,8 @@ public class ShotCalculator {
         radialVelo,
         uncompRange,
         elevation,
-        HoodConstants.MIN_ANGLE.minus(hoodOffset),
-        HoodConstants.RETRACTED_POSITION.minus(hoodOffset));
+        HoodConstants.MIN_ANGLE.minus(getHoodOffset()),
+        HoodConstants.RETRACTED_POSITION.minus(getHoodOffset()));
   }
 
   public static ShotParameters sweepTrajectories(
