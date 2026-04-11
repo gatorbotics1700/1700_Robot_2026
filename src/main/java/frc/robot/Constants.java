@@ -615,7 +615,7 @@ public final class Constants {
      * Stator current limit for transition rollers (A). Limits torque when a ball is jammed so the
      * motors do not overheat; tune if normal indexing trips the limit.
      */
-    public static final double TRANSITION_STATOR_CURRENT_LIMIT_AMPS = 35.0;
+    public static final double TRANSITION_STATOR_CURRENT_LIMIT_AMPS = 100.0;
 
     public static final double FLYWHEEL_SPEED_DEADBAND = 2;
 
@@ -639,12 +639,12 @@ public final class Constants {
     public static final int TURRET_MOTOR_CAN_ID = 15;
     public static final int TURRET_BORE_ENCODER_PORT = 1;
 
-    public static final double TURRET_DEADBAND = 0.75;
+    public static final double TURRET_DEADBAND = 2; // degrees, only used in shooting command
 
-    public static final double TURRET_ENCODER_OFFSET = 0.54;
+    public static final double TURRET_ENCODER_OFFSET = 0.916;
     public static final double TURRET_HOMING_ANGLE = 0.0;
-    public static final double MIN_TURRET_ANGLE = -285;
-    public static final double MAX_TURRET_ANGLE = 105;
+    public static final double MIN_TURRET_ANGLE = -295;
+    public static final double MAX_TURRET_ANGLE = 75;
   }
 
   public static final class FieldCoordinates {

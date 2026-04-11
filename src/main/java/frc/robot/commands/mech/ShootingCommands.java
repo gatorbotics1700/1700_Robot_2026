@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.FieldCoordinates;
 import frc.robot.Constants.HopperFloorConstants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.TurretConstants;
 import frc.robot.subsystems.mech.HoodSubsystem;
 import frc.robot.subsystems.mech.HopperFloorSubsystem;
 import frc.robot.subsystems.mech.ShooterSubsystem;
@@ -203,7 +204,17 @@ public class ShootingCommands {
         if (Math.abs(shooterSubsystem.getFlywheelRotorVelocity() - desiredRotorVelocity)
             < ShooterConstants.FLYWHEEL_SPEED_DEADBAND) { // once flywheel is running close to
           // our desired velocity
-          shooterSubsystem.setDesiredTransitionSpeed(ShooterConstants.TRANSITION_SPEED);
+          Logger.recordOutput("Mech/Shooter/Flywheel at speed", true);
+          if (Math.abs(
+                  turretSubsystem.getCurrentAngle().getDegrees() - params.turretAngle.getDegrees())
+              < TurretConstants.TURRET_DEADBAND) {
+            Logger.recordOutput("Mech/Shooter/Flywheel at speed AND turret at setpoint", true);
+            shooterSubsystem.setDesiredTransitionSpeed(ShooterConstants.TRANSITION_SPEED);
+          }
+
+        } else {
+          Logger.recordOutput("Mech/Shooter/Flywheel at speed", false);
+          Logger.recordOutput("Mech/Shooter/Flywheel at speed AND turret at setpoint", false);
         }
       }
     }

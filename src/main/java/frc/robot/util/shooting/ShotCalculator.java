@@ -255,14 +255,17 @@ public class ShotCalculator {
             trajectoryRelativeParams.hoodAngle.plus(
                 getHoodOffset()), // .minus(new Rotation2d(Math.toRadians(3))),
             trajectoryRelativeParams.shotSpeed);
-    Logger.recordOutput("Mech/ShotCalculator/turretAngle", botRelativeParams.turretAngle);
+    Logger.recordOutput("Mech/ShotCalculator/botRelTurret", botRelativeParams.turretAngle);
+    Logger.recordOutput(
+        "Mech/ShotCalculator/fieldRelTurret",
+        trajectoryRelativeParams.turretAngle.plus(uncompTurretToTargetAngle));
     Logger.recordOutput("Mech/ShotCalculator/landingCoords", landingCoords);
     Logger.recordOutput(
         "Mech/ShotCalculator/shooterToTarget + shooter",
         fieldRelativeShooterToTarget.plus(fieldToShooter));
     // System.out.println("SHOT CALCULATOR DONE");
     Logger.recordOutput("Mech/ShotCalculator/HoodAngle", botRelativeParams.hoodAngle);
-    Logger.recordOutput("Mech/ShotCalculator/TurretAdjust", botRelativeParams.turretAngle);
+    Logger.recordOutput("Mech/ShotCalculator/TurretAdjust", trajectoryRelativeParams.turretAngle);
     Logger.recordOutput("Mech/ShotCalculator/ShotSpeed", botRelativeParams.shotSpeed);
     Logger.recordOutput("Mech/ShotCalculator/validShot", botRelativeParams.shotSpeed != 0);
     if (uncompRange > 3 && botRelativeParams.shotSpeed == 0) {
