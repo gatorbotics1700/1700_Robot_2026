@@ -377,7 +377,7 @@ public class ShotCalculator {
       testShotSpeed += speedIncrement;
     }
 
-    return new ShotParameters(bestTurretAdjust, bestHoodAngle, bestShotSpeed);
+    return new ShotParameters(bestTurretAdjust.unaryMinus(), bestHoodAngle, bestShotSpeed);
   }
 
   /** Field-frame 3D position of the shooter exit given the robot pose. */
