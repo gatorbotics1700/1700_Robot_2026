@@ -28,7 +28,7 @@ public class HopperFloorSubsystem extends SubsystemBase {
         new TalonFXConfiguration()
             .withMotorOutput(
                 new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
-    hopperFloorCurrentLimitsConfigs = hopperFloorTalonFXConfigs.CurrentLimits;
+    hopperFloorCurrentLimitsConfigs = hopperFloorTalonFXConfigs.CurrentLimits; 
     hopperFloorCurrentLimitsConfigs.StatorCurrentLimit = 80;
     hopperFloorCurrentLimitsConfigs.StatorCurrentLimitEnable = true;
     desiredHopperSpeed = 0.0;
@@ -39,10 +39,12 @@ public class HopperFloorSubsystem extends SubsystemBase {
     hopperFloorLogs();
   }
 
+  // Sets the desired speed for the hopper floor
   public void setDesiredHopperFloorSpeed(double speed) {
     this.desiredHopperSpeed = speed != 0 ? hopperSpeed.get() : 0;
   }
 
+  // Logging for the hopper floor
   public void hopperFloorLogs() {
     TalonFXLogger.log(hopperMotor, "Mech", "Hopper Floor");
     Logger.recordOutput("Mech/Hopper Floor/Desired Speed", desiredHopperSpeed);

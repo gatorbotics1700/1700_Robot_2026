@@ -79,7 +79,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
     flywheelSlot0Configs = flywheelTalonFXConfigs.Slot0;
 
-    flywheelSlot0Configs.kS = 0.37577; // Add _ V output to overcome static friction
+
+    // look at HoodSubsystem for explanations :)  
+    flywheelSlot0Configs.kS = 0.37577; // Add __ V output to overcome static friction
     flywheelSlot0Configs.kV = 0.12289; // A velocity target of 1 rps results in 0.12-0.2 V output
     flywheelSlot0Configs.kA = 0.023452;
     flywheelSlot0Configs.kP = flywheelKP.get();
@@ -128,9 +130,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Only control motors if SysID is not running
     if (!sysIdRunning) {
-      if (desiredRotorVelocity == 0.0) {
+      if (desiredRotorVelocity == 0.0) { // stops if desired velocity is 0
         flywheelMotor.setControl(flywheelNeutralOut);
-      } else {
+      } else { // sets speed to desired velocity
         flywheelMotor.setControl(m_request.withVelocity(desiredRotorVelocity));
       }
     }
@@ -154,6 +156,7 @@ public class ShooterSubsystem extends SubsystemBase {
     this.desiredTransitionSpeed = desiredTransitionSpeed;
   }
 
+  // how fast the ball is leaving meters/sec
   public double getExitVelocity() {
     return flyWheelSlip.get()
         * getFlywheelRotorVelocity()
@@ -163,7 +166,8 @@ public class ShooterSubsystem extends SubsystemBase {
         * ShooterConstants.FLYWHEEL_GEAR_RATIO;
   }
 
-  public static double launchSpeedToRotorSpeed(double shotSpeed) { // shotSpeed in meters/second
+  // shotSpeed in meters/second
+  public static double launchSpeedToRotorSpeed(double shotSpeed) { 
     return shotSpeed
         / ShooterConstants.FLYWHEEL_GEAR_RATIO
         / 2
@@ -281,6 +285,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
   }
 
+  // Shoot as far as possible
   public void runFarthestShot() {
     setDesiredRotorVelocity(90); // set velocity to our desired velocity
     if (Math.abs(getFlywheelRotorVelocity() - 90)

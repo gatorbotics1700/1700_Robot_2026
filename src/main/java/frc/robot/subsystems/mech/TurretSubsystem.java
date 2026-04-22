@@ -124,6 +124,7 @@ public class TurretSubsystem extends SubsystemBase {
     turretLogs();
   }
 
+  // set the 
   public void setDesiredAngle(
       Rotation2d desiredAngle) { // this is for once we start testing targetting
     double desiredAngleDegrees =
@@ -163,6 +164,7 @@ public class TurretSubsystem extends SubsystemBase {
     return boreEncoder.get() - TurretConstants.TURRET_ENCODER_OFFSET;
   }
 
+  // sets both the current angle and the desired angle to 0
   public void homeTurret() {
     // TODO: try calling the other version of homeTurret in robotInit, my theory is
     // the bore encoder isn't connected by the time we call this
@@ -177,6 +179,7 @@ public class TurretSubsystem extends SubsystemBase {
     setDesiredAngle((new Rotation2d(Math.toRadians(0))));
   }
 
+  // get velocity in radians
   private double getVelocityRadPerSec() {
     double motorRPS = turretMotor.getVelocity().getValueAsDouble();
     return motorRPS / TURRET_GEARBOX_RATIO / GEAR_REVS_PER_TURRET_REV * 2 * Math.PI;

@@ -70,32 +70,31 @@ public class HoodSubsystem extends SubsystemBase {
     Slot0Configs slot0Configs = talonFXConfigs.Slot0;
 
     slot0Configs.kG =
-        hoodKg.get(); // 0.2; // Add 0.2128 V output to overcome gravity (tuned in early feedforward
-    // testing)
+        hoodKg.get(); // Add ____V output to overcome gravity
     slot0Configs.kS =
-        hoodKs.get(); // 0.25; // Add 0.01 V output to overcome static friction (just a guesstimate,
-    // but this might
-    // just be 0
-    slot0Configs.kV = hoodKv.get(); // 0.16; // A velocity target of 1 rps results in 0.12 V output
-    slot0Configs.kA = hoodKa.get(); // 0.01; // An acceleration of 1 rps/s requires 0.01 V output
+        hoodKs.get();  // Add _____ V output to overcome static friction 
+
+    slot0Configs.kV = hoodKv.get(); // Output per unit of target velocity (output/rps)
+    slot0Configs.kA = hoodKa.get();  // Output per unit of target (output/(rps/s))
 
     // Initial PID gains come from tunable LoggedNetworkNumbers
-    slot0Configs.kP = hoodKp.get(); // A position error of 2.5 rotations results in 12V output
-    slot0Configs.kI = hoodKi.get(); // no output for integrated error
-    slot0Configs.kD = hoodKd.get(); // a velocity error of 1 rps results in 0.1 V output
+    slot0Configs.kP = hoodKp.get(); // Output per unit of error in position (output/rotation)
+    slot0Configs.kI = hoodKi.get(); // Output per unit of integrated error in position (output/(rotation*s))
+    slot0Configs.kD = hoodKd.get(); // Output per unit of error in velocity (output/rps)
 
     // MOTION MAGIC EXPO
     MotionMagicConfigs motionMagicConfigs = talonFXConfigs.MotionMagic;
 
-    motionMagicConfigs.MotionMagicCruiseVelocity = 0; // unlimited cruise velocity
-    motionMagicConfigs.MotionMagicExpo_kV = 0.16; // kV is around 0.12 V/rps
-    motionMagicConfigs.MotionMagicExpo_kA = 0.2; // Use a slower kA of 0.1 V/(rps/s)
+    motionMagicConfigs.MotionMagicCruiseVelocity = 0; // when 0, unlimited cruise velocity 
+    motionMagicConfigs.MotionMagicExpo_kV = 0.16; // Voltage required to apply a given acceleration (V/(rps/s))
+    motionMagicConfigs.MotionMagicExpo_kA = 0.2; // Voltage required to maintain a given velocity (V/rps)
 
     hoodMotor.getConfigurator().apply(talonFXConfigs);
 
     m_request = new MotionMagicExpoVoltage(0);
   }
 
+   
   @Override
   public void periodic() {
     // desiredAngle = new Rotation2d(Math.toRadians(tunableHoodAngle.get()));
@@ -130,6 +129,19 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     // Skip current switch safety during SysID - the isSysIdOutOfBounds() handles limits
+
+    /* tells it to stop if using position and at limitswitch
+        if by speed and not position, also tells to stop
+    
+    if the current limit is triggered and sysId is not running
+     *   if the hood is being controlled by position
+     *      if the desired angle is greater than the current angle
+     *         set the desired angle to the current angle
+     *         set the hood speed to 0
+     *   if hood is not being controlled by position
+     *      if hood speed is greater than 0
+     *        set the hood speed to 0 
+     */
     if (isCurrentLimitReached() && !sysIdRunning) {
       if (positionControl) {
         if (desiredAngle.getDegrees() > getCurrentAngle().getDegrees()) {
@@ -151,6 +163,7 @@ public class HoodSubsystem extends SubsystemBase {
     hoodLogs();
   }
 
+  // sets the desired angle for the hood, caps within bounds
   public void setDesiredAngle(Rotation2d desiredAngle) {
     positionControl = true;
     if (desiredAngle.getDegrees() > HoodConstants.RETRACTED_POSITION.getDegrees()) {
@@ -162,19 +175,23 @@ public class HoodSubsystem extends SubsystemBase {
     this.desiredAngle = desiredAngle;
   }
 
+  // gets the desired angle
   public Rotation2d getDesiredAngle() {
     return desiredAngle;
   }
 
+  // sets the current hood position (resets)
   public void setHoodPosition(Rotation2d desiredAngle) {
     positionControl = true;
     hoodMotor.setControl(m_request.withPosition(degreesToRevs(desiredAngle.getDegrees())));
   }
 
+  // angle that the ball is coming out of the hood at (an offset for hood angle)
   public static Rotation2d launchAngleToHoodAngle(Rotation2d launchAngle) {
     return launchAngle;
   }
 
+  // convert from degrees to revolutions for the hood gear
   public double degreesToRevs(double hoodAngleDegrees) {
     return hoodAngleDegrees
         / 360.0
@@ -182,6 +199,7 @@ public class HoodSubsystem extends SubsystemBase {
         * HoodConstants.HOOD_GEAR_RATIO;
   }
 
+  // get the current angle of the hood
   public Rotation2d getCurrentAngle() {
     double motorPositionRevs = hoodMotor.getPosition().getValueAsDouble();
     double hoodAngleDegrees =
@@ -193,11 +211,13 @@ public class HoodSubsystem extends SubsystemBase {
     return new Rotation2d(Math.toRadians(hoodAngleDegrees));
   }
 
+  // set the speed of the hood
   public void setHoodSpeed(double velocity) {
     positionControl = false;
     hoodMotor.set(velocity);
   }
 
+  // returns true if the current limit is reached
   public boolean isCurrentLimitReached() {
     if (hoodMotor.getStatorCurrent().getValueAsDouble() > HOOD_CURRENT_LIMIT) {
       return true;
@@ -205,11 +225,13 @@ public class HoodSubsystem extends SubsystemBase {
     return false;
   }
 
+  // sets the hood position to 0 
   public void zeroHood() {
     hoodMotor.setPosition(degreesToRevs(HoodConstants.RETRACTED_POSITION.getDegrees()));
     setDesiredAngle(HoodConstants.RETRACTED_POSITION);
   }
 
+  // get the current velocity in radians per second
   private double getVelocityRadPerSec() {
     double motorRPS = hoodMotor.getVelocity().getValueAsDouble();
     return motorRPS
@@ -219,6 +241,7 @@ public class HoodSubsystem extends SubsystemBase {
         * Math.PI;
   }
 
+  // set the hood to be controlled by position or not (other option is by velocity)
   public void setPositionControl(boolean positionControl) {
     this.positionControl = positionControl;
   }
@@ -250,6 +273,8 @@ public class HoodSubsystem extends SubsystemBase {
     sysIdRoutine = new SysIdRoutine(config, mechanism);
   }
 
+
+  // tests if outside of the sysId boundaries
   private boolean isSysIdOutOfBounds() {
     double angleDeg = getCurrentAngle().getDegrees();
     Logger.recordOutput("Mech/Hood/SysID/SysID Current Angle", angleDeg);
@@ -300,6 +325,7 @@ public class HoodSubsystem extends SubsystemBase {
         .withName("Hood SysId Dynamic " + direction);
   }
 
+  //logs various things for hood (desired angle, angle, current limit, etc.)
   public void hoodLogs() {
     TalonFXLogger.log(hoodMotor, "Mech", "Hood");
 

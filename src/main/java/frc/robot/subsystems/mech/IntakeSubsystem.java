@@ -52,7 +52,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private double desiredIntakeSpeed;
 
-  private boolean prevRetractHall = false;
+  private boolean prevRetractHall = false; 
   private boolean prevDeployedHall = false;
   private boolean wasSeekingRetractHall = false;
   private boolean wasSeekingDeployHall = false;
@@ -99,18 +99,21 @@ public class IntakeSubsystem extends SubsystemBase {
     updateCurrentLimitConfigs();
     // updateDeployStatorLimitForPosition();
 
-    if (!sysIdRunning) {
-      if (deployManualControl) {
+    if (!sysIdRunning) { //if sysId is running
+      if (deployManualControl) { //if being controlled manually
+        /* set motor speed and update all of the hall effect position states */
         deployMotor.set(deployManualSpeed);
         boolean retractHall = isHallEffectTriggered();
         boolean deployedHall = isDeployedHallEffectTriggered();
         boolean seekingRetract = deployManualSpeed > 0;
         boolean seekingDeploy = deployManualSpeed < 0;
 
+        // if we want to retract, we weren't previously retracted, and we are retracted...
         if (seekingRetract && !prevRetractHall && retractHall) {
           zeroIntakeDeploy(true);
           Logger.recordOutput("Mech/Intake/Deploy/RehomeFromHall", "retract");
         }
+        // if we want to deploy, we weren't previously deployed, and we are fully deployed
         if (seekingDeploy && !prevDeployedHall && deployedHall) {
           zeroIntakeDeploy(false);
           Logger.recordOutput("Mech/Intake/Deploy/RehomeFromHall", "deploy");
@@ -124,6 +127,7 @@ public class IntakeSubsystem extends SubsystemBase {
         boolean retractHall = isHallEffectTriggered();
         boolean deployedHall = isDeployedHallEffectTriggered();
 
+        // 
         if (deployGoalExtended && !deployedHall) {
           deployMotor.set(-IntakeConstants.HOMING_SPEED);
           wasSeekingDeployHall = true;
