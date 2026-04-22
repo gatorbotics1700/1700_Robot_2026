@@ -560,12 +560,14 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
   public void driveToPose(Pose2d desiredPose) {
     Pose2d currentPose = getPose();
+    // calculate distance and rotation errors
     double xError = calculateDistanceError(currentPose.getX(), desiredPose.getX());
     double yError = calculateDistanceError(currentPose.getY(), desiredPose.getY());
     double rotationError =
         calculateRotationError(
             currentPose.getRotation().getDegrees(), desiredPose.getRotation().getDegrees());
 
+    // cap and scale translational and rotational speed based on kps and max speeds
     double xSpeed =
         Math.max(Math.abs(xError * TRANSLATION_kP), TRANSLATION_MIN_SPEED) * Math.signum(xError);
     double ySpeed =
@@ -576,6 +578,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     xSpeed = Math.min(xSpeed, TRANSLATION_MAX_SPEED);
     ySpeed = Math.min(ySpeed, TRANSLATION_MAX_SPEED);
 
+    // drive!
     runVelocity(
         ChassisSpeeds.fromFieldRelativeSpeeds(
             xSpeed, ySpeed, rotationSpeed, currentPose.getRotation()));
