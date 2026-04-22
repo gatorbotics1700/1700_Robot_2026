@@ -71,16 +71,21 @@ public class Vision extends SubsystemBase {
   public Pose2d getFuelPose(Pose2d robotPose) {
     Pose3d robotPose3d = new Pose3d(robotPose);
     Pose2d fuelPose = null;
-    double maxArea = 0;
-    for (int cameraIndex = 0; cameraIndex < 0; cameraIndex++) { // TODO: fix this for loop range
+    double maxArea =
+        0; // keep track of the area because the greater the area that the target takes up, the
+    // better the target
+    for (int cameraIndex = 0; cameraIndex < 0; cameraIndex++) {
       List<PhotonPipelineResult> allResults = io[cameraIndex].getCamera().getAllUnreadResults();
       for (PhotonPipelineResult result : allResults) {
         PhotonTrackedTarget target = result.getBestTarget();
         Transform3d robotToCamera = VisionConstants.ROBOT_TO_CAMERA_TRANSFORMS_ARRAY[cameraIndex];
+        // if the target is fuel
         if (target != null && target.getDetectedObjectClassID() == VisionConstants.FUEL_CLASS_ID) {
-          if (target.getArea() > maxArea) {
-            maxArea = target.getArea();
 
+          if (target.getArea()
+              > maxArea) { // only calculate fuel pose if the new target is better than our current
+            // best target
+            maxArea = target.getArea();
             Pose3d cameraInFieldSpace = robotPose3d.transformBy(robotToCamera);
             double targetPitchDegrees = -target.getPitch() * VisionConstants.TARGET_ANGLE_SCALAR;
             double targetYawDegrees = -target.getYaw() * VisionConstants.TARGET_ANGLE_SCALAR;
@@ -95,6 +100,8 @@ public class Vision extends SubsystemBase {
                             0,
                             Math.toRadians(targetPitchDegrees),
                             Math.toRadians(targetYawDegrees))));
+            // create a 3d point translated an arbitrary distance out from the camera from where the
+            // fuel is
             Translation3d towardFuelInRobotSpace =
                 cameraInFieldSpace
                     .transformBy(
@@ -103,10 +110,13 @@ public class Vision extends SubsystemBase {
                                 Centimeters.of(100), Centimeters.of(0), Centimeters.of(0)),
                             new Rotation3d()))
                     .getTranslation();
+            // use two known points(cameraInFieldSpace,towardFuelInRobotSpace) to create a 3d linear
+            // equation
             double deltaX = towardFuelInRobotSpace.getX() - cameraInFieldSpace.getX();
             double deltaY = towardFuelInRobotSpace.getY() - cameraInFieldSpace.getY();
             double deltaZ = towardFuelInRobotSpace.getZ() - cameraInFieldSpace.getZ();
             final Distance fuelRadius = Centimeters.of(7.5);
+            // we know the fuel is on the ground. use the equation to solve for fuelpose
             Distance fuelPoseX =
                 (fuelRadius.minus(cameraInFieldSpace.getMeasureZ()))
                     .div(deltaZ)
@@ -128,7 +138,7 @@ public class Vision extends SubsystemBase {
     }
     double deltaX = fuelPose.getX() - robotPose3d.getX();
     double deltaY = fuelPose.getY() - robotPose3d.getY();
-
+    // determine desired rotation based on where the intake is
     fuelPose =
         new Pose2d(
             fuelPose.getMeasureX(),
