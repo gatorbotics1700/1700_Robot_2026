@@ -33,6 +33,14 @@ public class MultiStepAutoChooser {
   private final LoggedDashboardChooser<String> thirdDestinationTypeChooser;
   private final LoggedDashboardChooser<String> thirdDestinationSideChooser;
 
+  // fourth destination choosers (location type + side)
+  private final LoggedDashboardChooser<String> fourthDestinationTypeChooser;
+  private final LoggedDashboardChooser<String> fourthDestinationSideChooser;
+
+  // fifth destination choosers (location type + side)
+  private final LoggedDashboardChooser<String> fifthDestinationTypeChooser;
+  private final LoggedDashboardChooser<String> fifthDestinationSideChooser;
+
   public MultiStepAutoChooser(
       IntakeSubsystem intakeSubsystem,
       Drive drive,
@@ -73,6 +81,16 @@ public class MultiStepAutoChooser {
     thirdDestinationTypeChooser =
         new LoggedDashboardChooser<>("Auto/Third Destination/Third Destination Type");
     thirdDestinationSideChooser =
+        new LoggedDashboardChooser<>("Auto/Third Destination/Third Destination Side");
+
+    fourthDestinationTypeChooser =
+        new LoggedDashboardChooser<>("Auto/Third Destination/Third Destination Type");
+    fourthDestinationSideChooser =
+        new LoggedDashboardChooser<>("Auto/Third Destination/Third Destination Side");
+
+    fifthDestinationTypeChooser =
+        new LoggedDashboardChooser<>("Auto/Third Destination/Third Destination Type");
+    fifthDestinationSideChooser =
         new LoggedDashboardChooser<>("Auto/Third Destination/Third Destination Side");
 
     // Populate alliance chooser with hardcoded values
@@ -124,6 +142,30 @@ public class MultiStepAutoChooser {
     thirdDestinationSideChooser.addOption("Right", "Right");
     thirdDestinationSideChooser.addOption("Center", "Center");
 
+    // Populate fourth destination type chooser
+    fourthDestinationTypeChooser.addDefaultOption("None", "None");
+    fourthDestinationTypeChooser.addOption("Depot", "Depot");
+    fourthDestinationTypeChooser.addOption("Outpost", "Outpost");
+    fourthDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
+
+    // Populate third destination side chooser
+    fourthDestinationSideChooser.addDefaultOption("None", "None");
+    fourthDestinationSideChooser.addOption("Left", "Left");
+    fourthDestinationSideChooser.addOption("Right", "Right");
+    fourthDestinationSideChooser.addOption("Center", "Center");
+
+    // Populate third destination type chooser
+    fifthDestinationTypeChooser.addDefaultOption("None", "None");
+    fifthDestinationTypeChooser.addOption("Depot", "Depot");
+    fifthDestinationTypeChooser.addOption("Outpost", "Outpost");
+    fifthDestinationTypeChooser.addOption("Fuel Pile", "Fuel Pile");
+
+    // Populate third destination side chooser
+    fifthDestinationSideChooser.addDefaultOption("None", "None");
+    fifthDestinationSideChooser.addOption("Left", "Left");
+    fifthDestinationSideChooser.addOption("Right", "Right");
+    fifthDestinationSideChooser.addOption("Center", "Center");
+
     // This ensures they publish to NetworkTables
     allianceChooser.get();
     startPosChooser.get();
@@ -133,6 +175,10 @@ public class MultiStepAutoChooser {
     secondDestinationSideChooser.get();
     thirdDestinationTypeChooser.get();
     thirdDestinationSideChooser.get();
+    fourthDestinationTypeChooser.get();
+    fourthDestinationSideChooser.get();
+    fifthDestinationTypeChooser.get();
+    fifthDestinationSideChooser.get();
   }
 
   /**
@@ -201,6 +247,10 @@ public class MultiStepAutoChooser {
     secondDestinationSideChooser.get();
     thirdDestinationTypeChooser.get();
     thirdDestinationSideChooser.get();
+    fourthDestinationTypeChooser.get();
+    fourthDestinationSideChooser.get();
+    fifthDestinationTypeChooser.get();
+    fifthDestinationSideChooser.get();
   }
 
   /**
@@ -220,10 +270,20 @@ public class MultiStepAutoChooser {
         combineDestination(secondDestinationTypeChooser.get(), secondDestinationSideChooser.get());
     String thirdDestination =
         combineDestination(thirdDestinationTypeChooser.get(), thirdDestinationSideChooser.get());
+    String fourthDestination =
+        combineDestination(fourthDestinationTypeChooser.get(), fourthDestinationTypeChooser.get());
+    String fifthDestination =
+        combineDestination(fifthDestinationTypeChooser.get(), fifthDestinationTypeChooser.get());
 
     // Use DynamicAutoBuilder to chain paths together
     return dynamicAutoBuilder.buildAuto(
-        alliance, startPos, firstDestination, secondDestination, thirdDestination);
+        alliance,
+        startPos,
+        firstDestination,
+        secondDestination,
+        thirdDestination,
+        fourthDestination,
+        fifthDestination);
   }
 
   /**
@@ -241,10 +301,20 @@ public class MultiStepAutoChooser {
         combineDestination(secondDestinationTypeChooser.get(), secondDestinationSideChooser.get());
     String thirdDestination =
         combineDestination(thirdDestinationTypeChooser.get(), thirdDestinationSideChooser.get());
+    String fourthDestination =
+        combineDestination(fourthDestinationTypeChooser.get(), fourthDestinationSideChooser.get());
+    String fifthDestination =
+        combineDestination(fifthDestinationTypeChooser.get(), fifthDestinationSideChooser.get());
 
     Optional<String> firstPathName =
         dynamicAutoBuilder.getFirstPathName(
-            alliance, startPose, firstDestination, secondDestination, thirdDestination);
+            alliance,
+            startPose,
+            firstDestination,
+            secondDestination,
+            thirdDestination,
+            fourthDestination,
+            fifthDestination);
     if (firstPathName.isEmpty()) {
       return Optional.empty();
     }
@@ -256,14 +326,16 @@ public class MultiStepAutoChooser {
     }
   }
 
-  /**
-   * Returns the alliance selected in the auto chooser ("B" or "R"). Returns "R" as default if no
-   * selection or instance not initialized.
-   */
+  /*
+  Returns the alliance selected in the auto chooser ("B" or "R")
+  & returns "R" as default if nothing is selected or does not work!
+  */
+
   public static String getAlliance() {
     if (instance == null) {
       return "R";
     }
+
     String alliance = instance.allianceChooser.get();
     if (alliance == null || alliance.equals("None")) {
       return "R";

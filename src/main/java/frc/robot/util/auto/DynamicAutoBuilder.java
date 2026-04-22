@@ -1,14 +1,11 @@
 package frc.robot.util.auto;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.FieldCoordinates;
-import frc.robot.commands.mech.HoodCommands;
 import frc.robot.commands.mech.IntakeCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.mech.HoodSubsystem;
@@ -75,37 +72,18 @@ public class DynamicAutoBuilder {
         || x >= FieldCoordinates.RED_BUMP_AND_TRENCH_X;
   }
 
-  // /** Creates shooting command that shoots only when in alliance zone. */ //TODO: check what we
-  // want to do with this
-  // private Command createShootingWithZoneCheck() {
-  //   return Commands.run(() -> shooterSubsystem.setShouldShoot(isInAllianceZone()))
-  //       .alongWith(
-  //           ShootingCommands.ShootOnTheMoveCommand(
-  //               shooterSubsystem,
-  //               hoodSubsystem,
-  //               hopperFloorSubsystem,
-  //               turretSubsystem,
-  //               robotPose,
-  //               chassisSpeeds));
-  // }
-
   private Command getActionForDestination(String destination) {
     if (destination == null || destination.equals("None")) {
       return Commands.none();
     }
-
-    if (destination.startsWith("Fuel Pile") && RobotBase.isReal()) {
-      return new HoodCommands.HoodRetractCommand(hoodSubsystem)
-          .onlyWhile(() -> !isInAllianceZone());
-    }
-
     return Commands.none();
   }
 
+  /*
   private Command loadPathCommand(String alliance, String from, String to) {
     String pathName = buildPathName(alliance, from, to);
     if (pathName == null) {
-      System.out.println("  Could not build path name for: " + alliance + " " + from + " to " + to);
+      System.out.println("Path could not be built for: " + alliance + " " + from + " to " + to);
       return Commands.none();
     }
 
@@ -132,15 +110,24 @@ public class DynamicAutoBuilder {
       return null;
     }
   }
+    */
 
   public Command buildAuto(
-      String alliance, String startPos, String dest1, String dest2, String dest3) {
+      String alliance,
+      String startPos,
+      String dest1,
+      String dest2,
+      String dest3,
+      String dest4,
+      String dest5) {
 
     System.out.println("============BUILD AUTO============");
     System.out.println("Alliance: " + alliance);
     System.out.println("First Destination: " + dest1);
     System.out.println("Second Destination: " + dest2);
     System.out.println("Third Destination: " + dest3);
+    System.out.println("Third Destination: " + dest4);
+    System.out.println("Third Destination: " + dest5);
 
     if (alliance == null || alliance.equals("None")) {
       System.out.println("DynamicAutoBuilder: Missing alliance");
@@ -167,7 +154,11 @@ public class DynamicAutoBuilder {
             + " -> "
             + dest2
             + " -> "
-            + dest3);
+            + dest3
+            + " -> "
+            + dest4
+            + " -> "
+            + dest5);
 
     List<Command> commandSequence = new ArrayList<>();
     String currentLocation = startPos;
@@ -196,18 +187,17 @@ public class DynamicAutoBuilder {
       }
     }
 
-    // Note: Homing is handled by Robot.java calling HomeMechanisms() before auto starts
-    // Run all paths with intake and shooting running continuously
+    // all paths with intake and shooting running continuously
     if (!pathSequence.isEmpty()) {
       Command allPaths = Commands.sequence(pathSequence.toArray(new Command[0]));
       if (RobotBase.isReal()) {
-        // Deploy intake once at start, then run intake and shooting in parallel with paths
-        // Deploy runs alongside paths (doesn't block), intake/shooting run throughout
+
+        // Deploy runs alongside paths (doesn't stop), intake/shooting run throughout
         Command deployAndIntake =
             IntakeCommands.DeployIntake(intakeSubsystem)
                 .alongWith(IntakeCommands.RunIntake(intakeSubsystem));
-        /*.alongWith(createShootingWithZoneCheck());*/
-        // Paths are the deadline - when paths finish, intake/shooting stop (until climb or end)
+
+        // Paths are the deadline - when paths finish, intake/shooting stop (end)
         commandSequence.add(allPaths.deadlineFor(deployAndIntake));
       } else {
         // In sim, just run the paths without mech
@@ -221,6 +211,11 @@ public class DynamicAutoBuilder {
     }
 
     return Commands.sequence(commandSequence.toArray(new Command[0]));
+  }
+
+  private Command loadPathCommand(String alliance, String currentLocation, String dest2) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'loadPathCommand'");
   }
 
   public Optional<String> getFirstPathName(
