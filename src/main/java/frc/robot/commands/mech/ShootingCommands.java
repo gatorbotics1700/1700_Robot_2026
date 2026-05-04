@@ -1,6 +1,7 @@
 package frc.robot.commands.mech;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -200,6 +201,93 @@ public class ShootingCommands {
             desiredRotorVelocity); // set velocity to our desired velocity
         hopperFloorSubsystem.setDesiredHopperFloorSpeed(HopperFloorConstants.HOPPER_FLOOR_SPEED);
         hoodSubsystem.setDesiredAngle(HoodSubsystem.launchAngleToHoodAngle(params.hoodAngle));
+        if (Math.abs(shooterSubsystem.getFlywheelRotorVelocity() - desiredRotorVelocity)
+            < ShooterConstants.FLYWHEEL_SPEED_DEADBAND) { // once flywheel is running close to
+          // our desired velocity
+          Logger.recordOutput("Mech/Shooter/Flywheel at speed", true);
+          // if (Math.abs(
+          //         turretSubsystem.getCurrentAngle().getDegrees() -
+          // params.turretAngle.getDegrees())
+          //     < TurretConstants.TURRET_DEADBAND) {
+          // Logger.recordOutput("Mech/Shooter/Flywheel at speed AND turret at setpoint", true);
+          shooterSubsystem.setDesiredTransitionSpeed(ShooterConstants.TRANSITION_SPEED);
+          // }
+
+        } else {
+          Logger.recordOutput("Mech/Shooter/Flywheel at speed", false);
+          // Logger.recordOutput("Mech/Shooter/Flywheel at speed AND turret at setpoint", false);
+        }
+      }
+    }
+
+    @Override
+    public boolean isFinished() {
+      return false;
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+      Logger.recordOutput("Mech/ShootingCommand/isRunning", false);
+      hopperFloorSubsystem.setDesiredHopperFloorSpeed(0);
+      shooterSubsystem.setDesiredTransitionSpeed(0);
+    }
+  }
+
+  public static class HardCodedShotCommand extends Command {
+
+    private final ShooterSubsystem shooterSubsystem;
+    private final HoodSubsystem hoodSubsystem;
+    private final HopperFloorSubsystem hopperFloorSubsystem;
+    private final TurretSubsystem turretSubsystem;
+    private double shotSpeed;
+    private Rotation2d hoodAngle;
+    private Rotation2d turretAngle;
+
+    public HardCodedShotCommand(
+        double shotSpeed,
+        Rotation2d hoodAngle,
+        Rotation2d turretAngle,
+        ShooterSubsystem shooterSubsystem,
+        HoodSubsystem hoodSubsystem,
+        HopperFloorSubsystem hopperFloorSubsystem,
+        TurretSubsystem turretSubsystem) {
+      this.shooterSubsystem = shooterSubsystem;
+      this.hoodSubsystem = hoodSubsystem;
+      this.hopperFloorSubsystem = hopperFloorSubsystem;
+      this.turretSubsystem = turretSubsystem;
+      this.shotSpeed = shotSpeed;
+      this.hoodAngle = hoodAngle;
+      this.turretAngle = turretAngle;
+      addRequirements(shooterSubsystem, hoodSubsystem, hopperFloorSubsystem, turretSubsystem);
+      setName("ShootOnTheMoveCommand");
+    }
+
+    @Override
+    public void initialize() {}
+
+    @Override
+    public void execute() {
+
+      double desiredRotorVelocity = ShooterSubsystem.launchSpeedToRotorSpeed(shotSpeed);
+      Logger.recordOutput("Mech/ShootingCommand/isRunning", true);
+      Logger.recordOutput("Mech/ShootingCommand/shotSpeed", shotSpeed);
+      Logger.recordOutput("Mech/ShootingCommand/rotorSpeed", desiredRotorVelocity);
+
+      Logger.recordOutput("Mech/ShootingCommand/hoodAngle", hoodAngle.getDegrees());
+      Logger.recordOutput("Mech/ShootingCommand/turretAngle", turretAngle.getDegrees());
+
+      // System.out.println("SHOOTING ON THE MOVE TARGET:" + target);
+
+      if (shotSpeed == 0) { // if we dont have a valid shot
+        shooterSubsystem.setDesiredRotorVelocity(0);
+        shooterSubsystem.setDesiredTransitionSpeed(0);
+        hopperFloorSubsystem.setDesiredHopperFloorSpeed(0);
+      } else {
+        turretSubsystem.setDesiredAngle(turretAngle);
+        shooterSubsystem.setDesiredRotorVelocity(
+            desiredRotorVelocity); // set velocity to our desired velocity
+        hopperFloorSubsystem.setDesiredHopperFloorSpeed(HopperFloorConstants.HOPPER_FLOOR_SPEED);
+        hoodSubsystem.setDesiredAngle(HoodSubsystem.launchAngleToHoodAngle(hoodAngle));
         if (Math.abs(shooterSubsystem.getFlywheelRotorVelocity() - desiredRotorVelocity)
             < ShooterConstants.FLYWHEEL_SPEED_DEADBAND) { // once flywheel is running close to
           // our desired velocity

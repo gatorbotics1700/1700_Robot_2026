@@ -345,6 +345,28 @@ public class RobotContainer {
                   drive));
 
       // Left Trigger -- Shoot with Turret (while true)
+      //   controller
+      //       .leftTrigger()
+      //       //   .whileTrue(new InstantCommand(() -> shooterSubsystem.runHardCodedShot()))
+      //       //   .onFalse(new InstantCommand(() ->
+      // shooterSubsystem.setDesiredTransitionSpeed(0)));
+      //       .whileTrue(
+      //           Commands.runOnce(
+      //               () ->
+      //                   CommandScheduler.getInstance()
+      //                       .schedule(
+      //                           new ShootingCommands.ShootOnTheMoveCommand(
+      //                                   shooterSubsystem,
+      //                                   hoodSubsystem,
+      //                                   hopperFloorSubsystem,
+      //                                   turretSubsystem,
+      //                                   robotPose,
+      //                                   chassisSpeeds)
+      //                               .alongWith(new InstantCommand(() ->
+      // drive.setSlowDrive(true))))))
+      //       .onFalse(
+      //           new ShootingCommands.StopShooting(shooterSubsystem, hopperFloorSubsystem)
+      //               .alongWith(new InstantCommand(() -> drive.setSlowDrive(false))));
       controller
           .leftTrigger()
           //   .whileTrue(new InstantCommand(() -> shooterSubsystem.runHardCodedShot()))
@@ -354,14 +376,14 @@ public class RobotContainer {
                   () ->
                       CommandScheduler.getInstance()
                           .schedule(
-                              new ShootingCommands.ShootOnTheMoveCommand(
-                                      shooterSubsystem,
-                                      hoodSubsystem,
-                                      hopperFloorSubsystem,
-                                      turretSubsystem,
-                                      robotPose,
-                                      chassisSpeeds)
-                                  .alongWith(new InstantCommand(() -> drive.setSlowDrive(true))))))
+                              new ShootingCommands.HardCodedShotCommand(
+                                  4,
+                                  HoodConstants.MIN_ANGLE,
+                                  new Rotation2d(),
+                                  shooterSubsystem,
+                                  hoodSubsystem,
+                                  hopperFloorSubsystem,
+                                  turretSubsystem))))
           .onFalse(
               new ShootingCommands.StopShooting(shooterSubsystem, hopperFloorSubsystem)
                   .alongWith(new InstantCommand(() -> drive.setSlowDrive(false))));
