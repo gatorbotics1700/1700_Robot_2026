@@ -681,9 +681,9 @@ public final class Constants {
         0.30; // smallest calculated error we are okay shooting with
     // shot height measures the highest point of the arc in meters, max should be ceiling height
     // minus a bit, and min should be just over the target height
-    public static final double MIN_SHOT_HEIGHT = 2; // 1 for MSLL
-    public static final double MV_MAX_SHOT_HEIGHT = 3.35; // 3.35; // 2 meters for MSLL
-    public static final double COMP_MAX_SHOT_HEIGHT = 3.35;
+    public static final double MIN_SHOT_HEIGHT = 1.25; // 2; // 1 for MSLL
+    public static final double MV_MAX_SHOT_HEIGHT = 2.2; // 3.35; // 2 meters for MSLL
+    public static final double COMP_MAX_SHOT_HEIGHT = 2.2;
     public static final double MAX_SHOT_SPEED =
         90
             * ShooterConstants.FLYWHEEL_GEAR_RATIO

@@ -1,13 +1,14 @@
 package frc.robot.commands.mech;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.FieldCoordinates;
 import frc.robot.Constants.HopperFloorConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.mech.HoodSubsystem;
@@ -16,6 +17,7 @@ import frc.robot.subsystems.mech.ShooterSubsystem;
 import frc.robot.subsystems.mech.TurretSubsystem;
 import frc.robot.util.shooting.ShotCalculator;
 import frc.robot.util.shooting.ShotParameters;
+import java.util.Optional;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -146,26 +148,36 @@ public class ShootingCommands {
     public void execute() {
       Translation3d target;
 
-      if (FieldCoordinates.BLUE_BUMP_AND_TRENCH_X <= drivetrainPose.get().getX()
-          && drivetrainPose.get().getX() < FieldCoordinates.RED_BUMP_AND_TRENCH_X) {
-        if (FieldCoordinates.FIELD_CENTER.getY() < drivetrainPose.get().getY()) {
-          target =
-              DriverStation.getAlliance().get() == Alliance.Blue
-                  ? FieldCoordinates.BLUE_RIGHT_FUNNELING
-                  : FieldCoordinates.RED_LEFT_FUNNELING;
+      // if (FieldCoordinates.BLUE_BUMP_AND_TRENCH_X <= drivetrainPose.get().getX()
+      //     && drivetrainPose.get().getX() < FieldCoordinates.RED_BUMP_AND_TRENCH_X) {
+      //   if (FieldCoordinates.FIELD_CENTER.getY() < drivetrainPose.get().getY()) {
+      //     target =
+      //         DriverStation.getAlliance().get() == Alliance.Blue
+      //             ? FieldCoordinates.BLUE_RIGHT_FUNNELING
+      //             : FieldCoordinates.RED_LEFT_FUNNELING;
 
-        } else {
-          target =
-              DriverStation.getAlliance().get() == Alliance.Blue
-                  ? FieldCoordinates.BLUE_LEFT_FUNNELING
-                  : FieldCoordinates.RED_RIGHT_FUNNELING;
-        }
+      //   } else {
+      //     target =
+      //         DriverStation.getAlliance().get() == Alliance.Blue
+      //             ? FieldCoordinates.BLUE_LEFT_FUNNELING
+      //             : FieldCoordinates.RED_RIGHT_FUNNELING;
+      //   }
 
+      // } else {
+      //   target =
+      //       DriverStation.getAlliance().get() == Alliance.Blue
+      //           ? FieldCoordinates.BLUE_HUB
+      //           : FieldCoordinates.RED_HUB;
+      // }
+
+      AprilTagFieldLayout layout = AprilTagFields.k2026RebuiltAndymark.loadAprilTagLayoutField();
+      Optional<Pose3d> tagPose = layout.getTagPose(32);
+      if (tagPose.isPresent()) {
+        target = tagPose.get().getTranslation();
       } else {
-        target =
-            DriverStation.getAlliance().get() == Alliance.Blue
-                ? FieldCoordinates.BLUE_HUB
-                : FieldCoordinates.RED_HUB;
+        System.out.println("COULD NOT GET TAG POSE");
+        return;
+        // target = new Translation3d();
       }
       // target = FieldCoordinates.RED_LEFT_FUNNELING;
 
