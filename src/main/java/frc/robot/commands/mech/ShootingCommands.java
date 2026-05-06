@@ -174,6 +174,7 @@ public class ShootingCommands {
       Optional<Pose3d> tagPose = layout.getTagPose(32);
       if (tagPose.isPresent()) {
         target = tagPose.get().getTranslation();
+        target = new Translation3d(target.getX() - 0.254, target.getY(), target.getZ() + 0.254 * 2);
       } else {
         System.out.println("COULD NOT GET TAG POSE");
         return;

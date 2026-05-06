@@ -193,22 +193,27 @@ public class ShotCalculator {
 
     Rotation2d uncompTurretToTargetAngle = getFieldRelativeYaw(fieldToShooter, target);
 
+    ChassisSpeeds fieldRelativeChassisSpeeds =
+        ChassisSpeeds.fromRobotRelativeSpeeds(chassisSpeeds, drivetrainPose.getRotation());
+
     Translation2d shooterVelo =
         calculateShooterVelo(
-            chassisSpeeds,
+            fieldRelativeChassisSpeeds,
             drivetrainPose
                 .getRotation()); // TODO check math! kind of hard to check in sim because to
     // simulate this I do the exact same math on the simulator so it's
     // self affirming :/
 
-    Translation2d fieldRelativeShooterVelo =
-        rotateFrameOfReference(shooterVelo, drivetrainPose.getRotation().unaryMinus());
+    Translation2d fieldRelativeShooterVelo = shooterVelo;
+    // rotateFrameOfReference(shooterVelo, drivetrainPose.getRotation().unaryMinus());
 
     // if the robot is turning because the turret isn't the center of the
     // rotation
 
     Translation2d trajectoryRelativeShooterVelo =
-        rotateFrameOfReference(fieldRelativeShooterVelo, uncompTurretToTargetAngle.unaryMinus());
+        rotateFrameOfReference(
+            fieldRelativeShooterVelo,
+            uncompTurretToTargetAngle.unaryMinus().plus(new Rotation2d(Math.PI)));
 
     // uncomp yaw is the angle from the robot to the hub so
     // long as
@@ -226,7 +231,12 @@ public class ShotCalculator {
 
     ShotParameters trajectoryRelativeParams;
     Logger.recordOutput("Mech/ShotCalculator/drivetrainPose", drivetrainPose);
-    Logger.recordOutput("Mech/ShotCalculator/chassisSpeeds", chassisSpeeds);
+    Logger.recordOutput("Mech/ShotCalculator/field rel chassisSpeeds", fieldRelativeChassisSpeeds);
+    Logger.recordOutput(
+        "Mech/ShotCalculator/uncompTurretToTargetAngle.unaryMinus()",
+        uncompTurretToTargetAngle.unaryMinus().getDegrees());
+    Logger.recordOutput("Mech/ShotCalculator/shooter velo x", shooterVelo.getX());
+    Logger.recordOutput("Mech/ShotCalculator/shooter velo y", shooterVelo.getY());
     Logger.recordOutput("Mech/ShotCalculator/tan velo", tangentialVelo);
     Logger.recordOutput("Mech/ShotCalculator/rad velo", radialVelo);
     Logger.recordOutput("Mech/ShotCalculator/target", target);
