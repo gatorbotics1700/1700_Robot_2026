@@ -3,12 +3,12 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 16.121888,
+        "x": 15.872,
         "y": 7.403
       },
       "prevControl": null,
       "nextControl": {
-        "x": 9.171882378472672,
+        "x": 8.921994378472673,
         "y": 7.755117187496635
       },
       "isLocked": false,
@@ -45,7 +45,7 @@
     "rotation": 89.78126187294284
   },
   "reversed": false,
-  "folder": "Outpost to Fuel Pile",
+  "folder": "Red Non-starters",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -178.97021570671328

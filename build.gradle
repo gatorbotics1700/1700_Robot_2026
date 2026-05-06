@@ -64,6 +64,19 @@ task(replayWatch, type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+// Generate shot lookup table JSON into src/main/deploy (runs on your computer).
+task(generateShotTable, type: JavaExec) {
+    dependsOn extractReleaseNative
+    mainClass = "frc.robot.util.shooting.ShotTableGenerator"
+    classpath = sourceSets.main.runtimeClasspath
+    workingDir(projectDir)
+    def jniRelease = file("$buildDir/jni/release")
+    systemProperty "java.library.path", jniRelease.absolutePath
+    environment "DYLD_LIBRARY_PATH", jniRelease.absolutePath
+    environment "LD_LIBRARY_PATH", jniRelease.absolutePath
+    args "--name", "AlectoHub"
+}
+
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.
 dependencies {
@@ -84,6 +97,8 @@ dependencies {
     nativeRelease wpi.java.deps.wpilibJniRelease(wpi.platforms.desktop)
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
+
+    implementation 'org.apache.commons:commons-math3:3.6.1'
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
     testImplementation 'org.mockito:mockito-core:5.14.2'

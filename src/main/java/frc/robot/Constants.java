@@ -29,6 +29,7 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -96,7 +97,8 @@ public final class Constants {
             .withKI(RobotConfigLoader.getDouble("tuner.drive_ki"))
             .withKD(RobotConfigLoader.getDouble("tuner.drive_kd"))
             .withKS(RobotConfigLoader.getDouble("tuner.drive_ks"))
-            .withKV(RobotConfigLoader.getDouble("tuner.drive_kv"));
+            .withKV(RobotConfigLoader.getDouble("tuner.drive_kv"))
+            .withKA(RobotConfigLoader.getDouble("tuner.drive_ka"));
 
     // The closed-loop output type to use for the steer motors;
     // This affects the PID/FF gains for the steer motors
@@ -146,7 +148,7 @@ public final class Constants {
             RobotConfigLoader.getString("tuner.drive_canbus_name").equals("null")
                 ? ""
                 : RobotConfigLoader.getString("tuner.drive_canbus_name"),
-            "");
+            "U/logs");
 
     // Mechanism CAN bus - reuses driveCANBus if they're the same physical bus
     public static final CANBus mechCANBus;
@@ -279,7 +281,7 @@ public final class Constants {
         RobotConfigLoader.getBoolean("tuner.back_left_steer_encoder_inverted");
 
     private static final Distance kBackLeftXPos =
-        Inches.of(RobotConfigLoader.getDouble("tuner.back_left_pos.y_inches"));
+        Inches.of(RobotConfigLoader.getDouble("tuner.back_left_pos.x_inches"));
     private static final Distance kBackLeftYPos =
         Inches.of(RobotConfigLoader.getDouble("tuner.back_left_pos.y_inches"));
 
@@ -397,6 +399,39 @@ public final class Constants {
 
     public static Transform3d ROBOT_TO_CAMERA_1 = createRobotToCamera1Transform();
 
+    public static final String CAMERA_2_NAME = RobotConfigLoader.getString("camera.2.name");
+
+    public static final double ROBOT_TO_CAMERA_2_X_METERS =
+        RobotConfigLoader.getDouble("photonvision.robot_to_camera_2.x_meters");
+    public static final double ROBOT_TO_CAMERA_2_Y_METERS =
+        RobotConfigLoader.getDouble("photonvision.robot_to_camera_2.y_meters");
+    public static final double ROBOT_TO_CAMERA_2_Z_METERS =
+        RobotConfigLoader.getDouble("photonvision.robot_to_camera_2.z_meters");
+    public static final double ROBOT_TO_CAMERA_2_ROLL_DEGREES =
+        RobotConfigLoader.getDouble("photonvision.robot_to_camera_2.roll_degrees");
+    public static final double ROBOT_TO_CAMERA_2_PITCH_DEGREES =
+        RobotConfigLoader.getDouble("photonvision.robot_to_camera_2.pitch_degrees");
+    public static final double ROBOT_TO_CAMERA_2_YAW_DEGREES =
+        RobotConfigLoader.getDouble("photonvision.robot_to_camera_2.yaw_degrees");
+
+    public static Transform3d ROBOT_TO_CAMERA_2 = createRobotToCamera2Transform();
+
+    public static final String CAMERA_3_NAME = RobotConfigLoader.getString("camera.3.name");
+    public static final double ROBOT_TO_CAMERA_3_X_METERS =
+        RobotConfigLoader.getDouble("photonvision.robot_to_camera_3.x_meters");
+    public static final double ROBOT_TO_CAMERA_3_Y_METERS =
+        RobotConfigLoader.getDouble("photonvision.robot_to_camera_3.y_meters");
+    public static final double ROBOT_TO_CAMERA_3_Z_METERS =
+        RobotConfigLoader.getDouble("photonvision.robot_to_camera_3.z_meters");
+    public static final double ROBOT_TO_CAMERA_3_ROLL_DEGREES =
+        RobotConfigLoader.getDouble("photonvision.robot_to_camera_3.roll_degrees");
+    public static final double ROBOT_TO_CAMERA_3_PITCH_DEGREES =
+        RobotConfigLoader.getDouble("photonvision.robot_to_camera_3.pitch_degrees");
+    public static final double ROBOT_TO_CAMERA_3_YAW_DEGREES =
+        RobotConfigLoader.getDouble("photonvision.robot_to_camera_3.yaw_degrees");
+
+    public static Transform3d ROBOT_TO_CAMERA_3 = createRobotToCamera3Transform();
+
     public static Transform3d[] ROBOT_TO_CAMERA_TRANSFORMS_ARRAY = createCameraTransformsArray();
 
     // Basic filtering thresholds
@@ -450,6 +485,26 @@ public final class Constants {
           ROBOT_TO_CAMERA_1_YAW_DEGREES);
     }
 
+    public static Transform3d createRobotToCamera2Transform() {
+      return createRobotToCameraTransform(
+          ROBOT_TO_CAMERA_2_X_METERS,
+          ROBOT_TO_CAMERA_2_Y_METERS,
+          ROBOT_TO_CAMERA_2_Z_METERS,
+          ROBOT_TO_CAMERA_2_ROLL_DEGREES,
+          ROBOT_TO_CAMERA_2_PITCH_DEGREES,
+          ROBOT_TO_CAMERA_2_YAW_DEGREES);
+    }
+
+    public static Transform3d createRobotToCamera3Transform() {
+      return createRobotToCameraTransform(
+          ROBOT_TO_CAMERA_3_X_METERS,
+          ROBOT_TO_CAMERA_3_Y_METERS,
+          ROBOT_TO_CAMERA_3_Z_METERS,
+          ROBOT_TO_CAMERA_3_ROLL_DEGREES,
+          ROBOT_TO_CAMERA_3_PITCH_DEGREES,
+          ROBOT_TO_CAMERA_3_YAW_DEGREES);
+    }
+
     public static Transform3d createRobotToCameraTransform(
         double xMeters,
         double yMeters,
@@ -457,18 +512,20 @@ public final class Constants {
         double rollDegrees,
         double pitchDegrees,
         double yawDegrees) {
-      return new Transform3d(
-          xMeters,
-          yMeters,
-          zMeters,
-          new Rotation3d(
-              Math.toRadians(rollDegrees),
-              Math.toRadians(pitchDegrees),
-              Math.toRadians(yawDegrees)));
+      Pose3d rotation =
+          new Pose3d(new Translation3d(), new Rotation3d(0, 0, Math.toRadians(yawDegrees)));
+      rotation =
+          rotation.transformBy(
+              new Transform3d(
+                  new Translation3d(),
+                  new Rotation3d(Math.toRadians(rollDegrees), Math.toRadians(pitchDegrees), 0)));
+      return new Transform3d(xMeters, yMeters, zMeters, rotation.getRotation());
     }
 
     public static Transform3d[] createCameraTransformsArray() {
-      Transform3d[] array = {ROBOT_TO_CAMERA_0, ROBOT_TO_CAMERA_1};
+      Transform3d[] array = {
+        ROBOT_TO_CAMERA_0, ROBOT_TO_CAMERA_1, ROBOT_TO_CAMERA_2, ROBOT_TO_CAMERA_3
+      };
       return array;
     }
 
@@ -488,24 +545,8 @@ public final class Constants {
     public static final double BLIND_SPOT_DEADBAND = 0.5; // TODO change
     public static final double MAX_IDLE_MILLISECONDS =
         2000; // TODO change based off real world maybe?
-
     public static final double ROTATING_SPEED_RADIANS_PER_SECOND =
         2.5; // TODO change based off real life
-  }
-
-  public static final class ClimberConstants {
-    public static final int CLIMBER_MOTOR_CAN_ID = 36;
-    public static final int CLIMBER_LIMIT_SWITCH_PORT =
-        7; // TODO is this a limit switch or hall effect
-    public static final double L1_EXTENSION_INCHES = 20; // TODO get a real number
-
-    public static final int CLIMBER_GEAR_RATIO = 25; // TODO get a real number
-    public static final double WINCH_INCHES_PER_REV = (0.75) * Math.PI; // diameter in inches * pi
-    // TODO decide if we want to measure climber extension from the floor or from stage 0 of the arm
-    public static final double MAX_EXTENSION_INCHES = 30; // TODO get a real number
-    public static final double RETRACTED_HEIGHT_INCHES = 20; // TODO get a real number
-    public static final double HOMING_VOLTAGE = 10; // TODO get a real number
-    public static final double POSITION_DEADBAND = 0.5; // TODO get a real number
   }
 
   public static final class HoodConstants {
@@ -514,20 +555,15 @@ public final class Constants {
 
     // retracted position is the max hood angle, because we measure from vertical
     public static final Rotation2d RETRACTED_POSITION =
-        new Rotation2d(
-            Math.toRadians(
-                RobotConfigLoader.getInt("mech.hood_retracted_degrees"))); // TODO: check number
+        new Rotation2d(Math.toRadians(RobotConfigLoader.getInt("mech.hood_retracted_degrees")));
     public static final Rotation2d MIN_ANGLE =
-        new Rotation2d(
-            Math.toRadians(
-                RobotConfigLoader.getInt("mech.hood_min_angle_degrees"))); // TODO: check number
+        new Rotation2d(Math.toRadians(RobotConfigLoader.getInt("mech.hood_min_angle_degrees")));
 
-    public static final double HOOD_POSITION_DEADBAND_DEGREES = 1; // TODO: tune
+    public static final double HOOD_POSITION_DEADBAND_DEGREES = 1;
 
     /** Voltage applied when running toward retract limit (tune sign for your mechanism). */
-    public static final double FAST_HOMING_VOLTAGE = 1; // TODO tune
+    public static final double HOMING_SPEED = 0.3;
 
-    public static final double SLOW_HOMING_VOLTAGE = 0.5; // TODO tune
     // GEAR RATIOS
     public static final double HOOD_SHAFT_REVS_PER_MECH_REV =
         RobotConfigLoader.getDouble("mech.hood_shaft_revs_per_mech_rev");
@@ -536,66 +572,79 @@ public final class Constants {
   }
 
   public static final class HopperFloorConstants {
-    public static final int HOPPER_MOTOR_CAN_ID = 16;
-
-    public static final double HOPPER_FLOOR_VELOCITY = 0.5; // TODO find a real number
+    public static final int HOPPER_MOTOR_CAN_ID = 35;
+    public static final double HOPPER_FLOOR_SPEED = -0.15; // TODO: tune this value
   }
 
   public static final class IntakeConstants {
     public static final int INTAKE_MOTOR_CAN_ID = 9;
     public static final int INTAKE_DEPLOY_MOTOR_CAN_ID = 10;
     public static final int INTAKE_HALL_EFFECT_PORT = 0;
+    public static final int DEPLOYED_HALL_EFFECT_PORT = 7;
 
-    public static final int DEPLOY_GEARBOX_RATIO = 5; // TODO find the real value
+    public static final int DEPLOY_GEARBOX_RATIO = 5;
     public static final double DEPLOY_PULLEY_ONE_GEAR_RATIO = 42.0 / 18.0;
     public static final double DEPLOY_PULLEY_TWO_GEAR_RATIO = 36.0 / 18.0;
 
-    public static final double EXTENDED_ANGLE_DEGREES =
-        80; // TODO figure out if this is from vertical or from retracted position?
-    public static final double RETRACTED_ANGLE_DEGREES = 0; // TODO measure?
+    public static final double EXTENDED_ANGLE_DEGREES = 95;
+    public static final double RETRACTED_ANGLE_DEGREES = 0;
 
     public static final Rotation2d EXTENDED_POSITION =
-        new Rotation2d(Math.toRadians(EXTENDED_ANGLE_DEGREES)); // TODO: change
+        new Rotation2d(Math.toRadians(EXTENDED_ANGLE_DEGREES));
     public static final Rotation2d RETRACTED_POSITION =
-        new Rotation2d(Math.toRadians(RETRACTED_ANGLE_DEGREES)); // TODO: change
+        new Rotation2d(Math.toRadians(RETRACTED_ANGLE_DEGREES));
 
-    public static final double HOMING_VOLTAGE = -1; // TODO tune
-    public static final double INTAKING_VOLTAGE = 10;
-
-    public static final double POSITION_DEADBAND = 2;
+    public static final double HOMING_SPEED = -0.4; // TODO tune
+    public static final double RETRACTING_SPEED = -0.4; // TODO: tune
+    public static final double INTAKING_SPEED = -1; // TODO: tune
 
     public static final double ROBOT_TO_INTAKE_YAW_DEGREES = 180;
+    public static final double DEPLOYED_CURRENT_LIMIT = 10.0; // amps
   }
 
   public static final class ShooterConstants {
     public static final int LEFT_FLYWHEEL_MOTOR_CAN_ID = 29;
     public static final int RIGHT_FLYWHEEL_MOTOR_CAN_ID = 30;
-    public static final int TRANSITION_MOTOR_CAN_ID = 31;
+    public static final int TRANSITION_MOTOR_CAN_ID = 16;
+    public static final int LEFT_TRANSITION_MOTOR_CAN_ID = 18;
+    public static final int RIGHT_TRANSITION_MOTOR_CAN_ID = 19;
 
-    public static final double TRANSITION_VOLTAGE = 10;
+    public static final double TRANSITION_SPEED = 0.4;
+
+    /**
+     * Stator current limit for transition rollers (A). Limits torque when a ball is jammed so the
+     * motors do not overheat; tune if normal indexing trips the limit.
+     */
+    public static final double TRANSITION_STATOR_CURRENT_LIMIT_AMPS = 35.0;
+
     public static final double FLYWHEEL_SPEED_DEADBAND = 2;
-    public static final double FLYWHEEL_GEAR_RATIO = 30.0 / 14.0;
-    public static final double FLYWHEEL_SLIP = 0.27; // 0.7; // TODO TUNE!!!
+
+    /** Rotor speed (rps) below which StopShooting ends after coasting the flywheel. */
+    public static final double FLYWHEEL_COAST_STOPPED_RPS = 4.0;
+
+    public static final double FLYWHEEL_GEAR_RATIO = 24.0 / 18.0;
+    public static final double FLYWHEEL_SLIP = 0.255; // TODO: tune?
     public static final double FLYWHEEL_RADIUS_METERS = 0.0508;
 
-    public static final Translation3d BOT_TO_SHOOTER =
-        new Translation3d(
-            0.146, 0,
-            0.368); // TODO figure out what part of the shooter to measure from (this is the center
-    // of the turret plate)
+    public static final Translation3d BOT_TO_SHOOTER = new Translation3d(0.127, 0, 0.429);
+  }
+
+  /** REV PDH / CTRE PDP CAN ID and logging. */
+  public static final class PowerConstants {
+    /** CAN ID of the Power Distribution Hub (default REV PDH is 1). */
+    public static final int PDH_CAN_ID = 1;
   }
 
   public static final class TurretConstants {
-    public static final int TURRET_MOTOR_CAN_ID = 14;
-    public static final int TURRET_BORE_ENCODER_PORT = 2;
-    public static final int TURRET_HALL_EFFECT_PORT = 8;
+    public static final int TURRET_MOTOR_CAN_ID = 15;
+    public static final int TURRET_BORE_ENCODER_PORT = 1;
 
     public static final double TURRET_DEADBAND = 0.75;
 
-    public static final double TURRET_ENCODER_OFFSET = 0.690;
+    public static final double TURRET_ENCODER_OFFSET = 0.54;
     public static final double TURRET_HOMING_ANGLE = 0.0;
-    public static final double MIN_TURRET_ANGLE = -250;
-    public static final double MAX_TURRET_ANGLE = 160;
+    public static final double MIN_TURRET_ANGLE = -285;
+    public static final double MAX_TURRET_ANGLE = 105;
   }
 
   public static final class FieldCoordinates {
@@ -605,8 +654,8 @@ public final class Constants {
     // trying to phase through walls)
     // hub
     public static final Translation3d RED_HUB = new Translation3d(11.915394, 4.034663, 1.80);
-    public static final Translation3d BLUE_LEFT_FUNNELING = new Translation3d(2.482, 6.653, 0);
-    public static final Translation3d BLUE_RIGHT_FUNNELING = new Translation3d(2.482, 1.511, 0);
+    public static final Translation3d BLUE_LEFT_FUNNELING = new Translation3d(2.482, 1.511, 0);
+    public static final Translation3d BLUE_RIGHT_FUNNELING = new Translation3d(2.482, 6.653, 0);
     public static final Translation3d RED_LEFT_FUNNELING = new Translation3d(14.858, 6.653, 0);
     public static final Translation3d RED_RIGHT_FUNNELING = new Translation3d(14.858, 1.511, 0);
 
@@ -629,14 +678,28 @@ public final class Constants {
   public static final class ShotCalculatorConditions {
     // VALUES YOU WILL WANT TO CHANGE:
     public static final double SHOT_DEADBAND =
-        0.05; // smallest calculated error we are okay shooting with
+        0.30; // smallest calculated error we are okay shooting with
     // shot height measures the highest point of the arc in meters, max should be ceiling height
     // minus a bit, and min should be just over the target height
     public static final double MIN_SHOT_HEIGHT = 2; // 1 for MSLL
-    public static final double MAX_SHOT_HEIGHT = 5; // 2 meters for MSLL
+    public static final double MV_MAX_SHOT_HEIGHT = 5; // 3.35; // 2 meters for MSLL
+    public static final double COMP_MAX_SHOT_HEIGHT = 5;
     public static final double MAX_SHOT_SPEED =
-        30; // in mps, so calculate using flywheel rps * 2 * Math.PI * flywheel radius * flywheel
-    // slip
+        90
+            * ShooterConstants.FLYWHEEL_GEAR_RATIO
+            * 2
+            * Math.PI
+            * ShooterConstants.FLYWHEEL_RADIUS_METERS
+            * ShooterConstants.FLYWHEEL_SLIP;
+    // in mps, so calculate using flywheel rps * 2 * Math.PI * flywheel radius * flywheel slip
+
+    public static final double VELO_INCREMENT = 0.25; // mps
+    public static final double RANGE_INCREMENT = 0.25; // m
+    public static final double MAX_COMPONENT_VELO = 1.5 + VELO_INCREMENT; // mps
+    public static final double RANGE_FUDGE = 0;
+    public static final double MAX_RANGE =
+        8; // m //TODO calculate furthest distance we would ever want to shoot from
     // kraken x60 max velocity is ~100 rps
+
   }
 }

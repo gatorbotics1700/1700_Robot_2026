@@ -20,7 +20,7 @@
         "y": 4.034
       },
       "prevControl": {
-        "x": 0.873462239583334,
+        "x": 0.8734622395833336,
         "y": 8.997911892361113
       },
       "nextControl": null,
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 5.0,
+    "maxAcceleration": 5.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -45,7 +45,7 @@
     "rotation": 179.716224430162
   },
   "reversed": false,
-  "folder": "Blue Fuel Pile Starts",
+  "folder": "Blue non-starters",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -178.60496319558024
