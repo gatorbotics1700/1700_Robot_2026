@@ -212,7 +212,6 @@ public class TurretSubsystem extends SubsystemBase {
         .until(this::isSysIdOutOfBounds)
         .withName("Turret SysId Quasistatic " + direction);
   }
-
   // measure accelaration behavior
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     return sysIdRoutine()
