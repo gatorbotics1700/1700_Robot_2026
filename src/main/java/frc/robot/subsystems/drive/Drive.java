@@ -34,6 +34,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -58,7 +59,6 @@ import frc.robot.Constants.TunerConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
-import frc.robot.util.RobotConfigLoader;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
@@ -148,7 +148,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
   private boolean slowDrive;
 
   private static final double TRANSLATION_kP = 2.5;
-  private static final double ROTATION_kP = 0.1;
+  private static final double ROTATION_kP = 0.2;
   private final double TRANSLATION_MIN_SPEED = 0.5;
   private final double ROTATION_MIN_SPEED = 0.3;
   private final double TRANSLATION_MAX_SPEED = 1.8;
@@ -179,7 +179,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
         this::setPose,
         this::getChassisSpeeds,
         this::runVelocity,
-        new PPHolonomicDriveController(new PIDConstants(15.0, 0, 0), new PIDConstants(15.0, 0, 0)),
+        new PPHolonomicDriveController(new PIDConstants(9.0, 0, 1), new PIDConstants(15.0, 0, 0)),
         PP_CONFIG,
         () ->
             false, // Disable alliance flipping - tag poses are already in correct coordinate system
@@ -188,11 +188,11 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     PathPlannerLogging.setLogActivePathCallback(
         (activePath) -> {
           Logger.recordOutput(
-              "Odometry/Trajectory", activePath.toArray(new Pose2d[activePath.size()]));
+              "Drive/Odometry/Trajectory", activePath.toArray(new Pose2d[activePath.size()]));
         });
     PathPlannerLogging.setLogTargetPoseCallback(
         (targetPose) -> {
-          Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
+          Logger.recordOutput("Drive/Odometry/TrajectorySetpoint", targetPose);
         });
 
     // Configure SysId
@@ -211,6 +211,9 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
   @Override
   public void periodic() {
+    Logger.recordOutput(
+        "Vision/Robot to Camera 1",
+        new Pose3d(getPose()).transformBy(VisionConstants.ROBOT_TO_CAMERA_1));
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
@@ -264,6 +267,13 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
       poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
     }
 
+    Rotation2d hubAngle = getDesiredHubAngle();
+    Logger.recordOutput(
+        "Drive/Desired Drivetrain Angle to Hub (Degrees)",
+        hubAngle != null ? hubAngle.getDegrees() : Double.NaN);
+
+    // Back-compat key for existing dashboards/logs (this is NOT the hub angle; it's the drive's
+    // active desired angle used by auto-rotation/pathing features).
     Rotation2d currentDesiredAngle = getDesiredAngle();
     Logger.recordOutput(
         "Robot/Desired Angle (Degrees)",
@@ -380,7 +390,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
   }
 
   /** Returns the current odometry pose. */
-  @AutoLogOutput(key = "Odometry/Robot")
+  @AutoLogOutput(key = "Drive/Odometry/Robot")
   public Pose2d getPose() {
     return poseEstimator.getEstimatedPosition();
   }
@@ -426,8 +436,12 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     };
   }
 
-  public void setSlowDrive() {
+  public void toggleSlowDrive() {
     slowDrive = !slowDrive;
+  }
+
+  public void setSlowDrive(boolean slowDrive) {
+    this.slowDrive = slowDrive;
   }
 
   public boolean getSlowDrive() {
@@ -485,6 +499,21 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     }
   }
 
+  /** Returns the drivetrain angle that would point at the alliance hub (for logging/shot math). */
+  public Rotation2d getDesiredHubAngle() {
+    Translation2d hub = getAllianceTargetPoint();
+    if (hub == null) {
+      return null;
+    }
+
+    Pose2d currentPose = getPose();
+    double deltaX = hub.getX() - currentPose.getX();
+    double deltaY = hub.getY() - currentPose.getY();
+    Rotation2d angle = angleToPoint(deltaX, deltaY);
+
+    return angle;
+  }
+
   private Translation2d getAllianceTargetPoint() {
     if (DriverStation.getAlliance().isPresent()) {
       return DriverStation.getAlliance().get() == Alliance.Red
@@ -512,9 +541,9 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
           Pose2d currentPose = getPose();
           double deltaX = targetPoint.getX() - currentPose.getX();
           double deltaY = targetPoint.getY() - currentPose.getY();
-          if (RobotConfigLoader.getSerialNumber().equals(RobotConfigLoader.NILE_SERIAL)) {
-            return angleToPoint(deltaX, deltaY).plus(Rotation2d.fromDegrees(90));
-          }
+          // if (RobotConfigLoader.getSerialNumber().equals(RobotConfigLoader.NILE_SERIAL)) {
+          //   return angleToPoint(deltaX, deltaY).plus(Rotation2d.fromDegrees(90));
+          // }
           return angleToPoint(deltaX, deltaY);
         };
   }
@@ -535,12 +564,14 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
   public void driveToPose(Pose2d desiredPose) {
     Pose2d currentPose = getPose();
+    // calculate distance and rotation errors
     double xError = calculateDistanceError(currentPose.getX(), desiredPose.getX());
     double yError = calculateDistanceError(currentPose.getY(), desiredPose.getY());
     double rotationError =
         calculateRotationError(
             currentPose.getRotation().getDegrees(), desiredPose.getRotation().getDegrees());
 
+    // cap and scale translational and rotational speed based on kps and max speeds
     double xSpeed =
         Math.max(Math.abs(xError * TRANSLATION_kP), TRANSLATION_MIN_SPEED) * Math.signum(xError);
     double ySpeed =
@@ -551,6 +582,7 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     xSpeed = Math.min(xSpeed, TRANSLATION_MAX_SPEED);
     ySpeed = Math.min(ySpeed, TRANSLATION_MAX_SPEED);
 
+    // drive!
     runVelocity(
         ChassisSpeeds.fromFieldRelativeSpeeds(
             xSpeed, ySpeed, rotationSpeed, currentPose.getRotation()));
@@ -560,7 +592,6 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     double error = desiredValue - currentValue;
     if (Math.abs(error) < VisionConstants.DISTANCE_DEADBAND_METERS) { // Stop if within deadband
       error = 0.0;
-      // System.out.println("AT X DEADBAND");
     }
     return error;
   }
@@ -569,9 +600,8 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     double error = desiredRotation - currentRotation;
     error = MathUtil.inputModulus(error, -180, 180); // sets the value between -180 and 180
 
-    if (Math.abs(error) < VisionConstants.ROTATION_DEADBAND_DEGREES) { // Stop if within deadband
+    if (Math.abs(error) < 5) { // Stop if within deadband
       error = 0.0;
-      // System.out.println("AT X DEADBAND");
     }
     return error;
   }

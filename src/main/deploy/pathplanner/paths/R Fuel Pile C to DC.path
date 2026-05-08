@@ -9,7 +9,7 @@
       "prevControl": null,
       "nextControl": {
         "x": 8.500161747685187,
-        "y": 1.327515769675926
+        "y": 1.3275157696759265
       },
       "isLocked": false,
       "linkedName": null
@@ -45,7 +45,7 @@
     "rotation": 179.4049501494327
   },
   "reversed": false,
-  "folder": "R Depot to Fuel Pile",
+  "folder": "Red Non-starters",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 89.51700093609614
