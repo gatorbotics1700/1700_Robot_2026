@@ -26,11 +26,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.PowerConstants;
 import frc.robot.Constants.TunerConstants;
-import frc.robot.commands.mech.HoodCommands;
 import frc.robot.util.Elastic;
 import frc.robot.util.RobotConfigLoader;
 import frc.robot.util.logging.PDHLogger;
-import frc.robot.util.shooting.ShotCalculator;
 import java.util.Optional;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -48,8 +46,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
-  private ShotCalculator
-      shotCalculator; // not actually used anywhere, but we need the constructor to run asap to
+  // private ShotCalculator
+  //     shotCalculator; // not actually used anywhere, but we need the constructor to run asap to
   private final PowerDistribution pdh;
 
   // generate the lookup table
@@ -119,7 +117,7 @@ public class Robot extends LoggedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
-    shotCalculator = new ShotCalculator();
+    // shotCalculator = new ShotCalculator();
 
     if (Constants.currentMode == Constants.Mode.REPLAY) {
       pdh = null;
@@ -134,7 +132,7 @@ public class Robot extends LoggedRobot {
   public void robotInit() {
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
 
-    robotContainer.getTurretSubsystem().homeTurret();
+    // robotContainer.getTurretSubsystem().homeTurret();
   }
 
   /** This function is called periodically during all modes. */
@@ -161,8 +159,8 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledInit() {
     CommandScheduler.getInstance().cancelAll();
-    robotContainer.getShooterSubsystem().setDesiredRotorVelocity(0);
-    robotContainer.getShooterSubsystem().setDesiredTransitionSpeed(0);
+    // robotContainer.getShooterSubsystem().setDesiredRotorVelocity(0);
+    // robotContainer.getShooterSubsystem().setDesiredTransitionSpeed(0);
   }
 
   /** This function is called periodically when disabled. */
@@ -191,7 +189,7 @@ public class Robot extends LoggedRobot {
               robotContainer.getDriveSubsystem().setPose(startPose);
             });
 
-    CommandScheduler.getInstance().schedule(robotContainer.HomeMechanisms());
+    // CommandScheduler.getInstance().schedule(robotContainer.HomeMechanisms());
     // .andThen(IntakeCommands.DeployIntake(robotContainer.getIntakeSubsystem()))
     // .andThen(IntakeCommands.RunIntake(robotContainer.getIntakeSubsystem())));
 
@@ -213,17 +211,17 @@ public class Robot extends LoggedRobot {
 
     CommandScheduler.getInstance().cancelAll();
     robotContainer.teleopInit();
-    CommandScheduler.getInstance()
-        .schedule(
-            robotContainer.MechStop(
-                robotContainer.getTurretSubsystem(),
-                robotContainer.getShooterSubsystem(),
-                robotContainer.getHopperFloorSubsystem(),
-                robotContainer.getHoodSubsystem(),
-                robotContainer.getIntakeSubsystem()));
+    // CommandScheduler.getInstance()
+    //     .schedule(
+    //         robotContainer.MechStop(
+    //             robotContainer.getTurretSubsystem(),
+    //             robotContainer.getShooterSubsystem(),
+    //             robotContainer.getHopperFloorSubsystem(),
+    //             robotContainer.getHoodSubsystem(),
+    //             robotContainer.getIntakeSubsystem()));
     // System.out.println("IN TELEOP INIT");
-    CommandScheduler.getInstance()
-        .schedule(new HoodCommands.HoodHomingCommand(robotContainer.getHoodSubsystem()));
+    // CommandScheduler.getInstance()
+    //     .schedule(new HoodCommands.HoodHomingCommand(robotContainer.getHoodSubsystem()));
     // CommandScheduler.getInstance()
     //     .schedule(
     //         robotContainer.HomeMechanisms()); // TODO we don't want to actually do this in comps
@@ -246,16 +244,16 @@ public class Robot extends LoggedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
-    CommandScheduler.getInstance()
-        .schedule(
-            robotContainer.MechStop(
-                robotContainer.getTurretSubsystem(),
-                robotContainer.getShooterSubsystem(),
-                robotContainer.getHopperFloorSubsystem(),
-                robotContainer.getHoodSubsystem(),
-                robotContainer.getIntakeSubsystem()));
-    // robotContainer.configureSysIdButtons();
-    robotContainer.configureSystemCheckButtons();
+    // CommandScheduler.getInstance()
+    //     .schedule(
+    //         robotContainer.MechStop(
+    //             robotContainer.getTurretSubsystem(),
+    //             robotContainer.getShooterSubsystem(),
+    //             robotContainer.getHopperFloorSubsystem(),
+    //             robotContainer.getHoodSubsystem(),
+    //             robotContainer.getIntakeSubsystem()));
+    // // robotContainer.configureSysIdButtons();
+    // robotContainer.configureSystemCheckButtons();
   }
 
   /** This function is called periodically during test mode. */
