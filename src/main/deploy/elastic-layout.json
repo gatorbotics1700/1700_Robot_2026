@@ -66,70 +66,27 @@
             }
           },
           {
-            "title": "Valid Shot",
-            "x": 384.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Mech/Valid Shot",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "pecan_Port_1181_Input_MJPEG_Server",
+            "title": "keylime_Port_1181_Input_MJPEG_Server",
             "x": 640.0,
             "y": 0.0,
             "width": 256.0,
             "height": 256.0,
             "type": "Camera Stream",
             "properties": {
-              "topic": "/CameraPublisher/pecan_Port_1181_Input_MJPEG_Server",
+              "topic": "/CameraPublisher/keylime_Port_1181_Input_MJPEG_Server",
               "period": 0.06,
               "rotation_turns": 0
             }
           },
           {
-            "title": "pecan_Port_1182_Output_MJPEG_Server",
-            "x": 640.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "Camera Stream",
-            "properties": {
-              "topic": "/CameraPublisher/pecan_Port_1182_Output_MJPEG_Server",
-              "period": 0.06,
-              "rotation_turns": 0
-            }
-          },
-          {
-            "title": "rhubarb_Port_1181_Input_MJPEG_Server",
+            "title": "pecan_Port_1183_Input_MJPEG_Server",
             "x": 896.0,
             "y": 0.0,
             "width": 256.0,
             "height": 256.0,
             "type": "Camera Stream",
             "properties": {
-              "topic": "/CameraPublisher/rhubarb_Port_1181_Input_MJPEG_Server",
-              "period": 0.06,
-              "rotation_turns": 0
-            }
-          },
-          {
-            "title": "rhubarb_Port_1182_Output_MJPEG_Server",
-            "x": 896.0,
-            "y": 256.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "Camera Stream",
-            "properties": {
-              "topic": "/CameraPublisher/rhubarb_Port_1182_Output_MJPEG_Server",
+              "topic": "/CameraPublisher/pecan_Port_1183_Input_MJPEG_Server",
               "period": 0.06,
               "rotation_turns": 0
             }
@@ -189,40 +146,6 @@
             }
           },
           {
-            "title": "Intake Hall Effect",
-            "x": 640.0,
-            "y": 384.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Mech/Intake/Intake Hall Effect",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Hood Limit Switch",
-            "x": 896.0,
-            "y": 384.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Mech/Hood/Limit switch",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
             "title": "PathPlanner Auto",
             "x": 0.0,
             "y": 128.0,
@@ -245,6 +168,23 @@
             "properties": {
               "topic": "/SmartDashboard/Scheduler",
               "period": 0.06
+            }
+          },
+          {
+            "title": "Retracted Limit Switch",
+            "x": 640.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Mech/Intake/Retracted Limit Switch",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
             }
           }
         ]

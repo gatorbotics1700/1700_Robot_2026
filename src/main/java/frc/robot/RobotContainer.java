@@ -599,7 +599,7 @@ public class RobotContainer {
 
       // B -- Reset Heading
       controller
-          .b()
+          .start()
           .onTrue(
               Commands.runOnce(
                       () -> {
